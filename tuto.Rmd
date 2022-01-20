@@ -1,0 +1,174 @@
+---
+title: "Formation analyse urbaine - Séquence 6 - TP - partie 2"
+author: "Kim Antunez et Julien Pramil"
+date: "11 mars 2021"
+output:
+  html_document:
+    number_sections: TRUE
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+
+# path_proj <- "V:/PSAR-AU/Formation Comment utiliser les outils AU/2022/Séquence 6 - Outils [JP et KA]/tplissage_poc"
+# path_lib <- paste0(path_proj,"/packages")
+
+knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir = path_proj)
+
+```
+
+```{css, echo=FALSE}
+.boite {
+  padding: 1em;
+  background: #F0F8FF;
+  color: black;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+```
+
+# Introduction
+
+Le PSAR analyse urbaine a développé un package R, nommé `btb`, dont la principale fonction, `kernelSmoothing`, permet de réaliser très facilement un carroyage et un lissage sur des données géolocalisées. Ce package peut être utilisé de trois façons :
+
+   * avec **R**
+   * avec Python : library BTBpy
+   * avec **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Grand Est)
+   * avec **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine
+
+À partir de données ponctuelles, nous allons apprendre :
+
+ - À carroyer les informations.
+ - À réaliser des lissages de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
+ - À calculer un indicateur sur une zone à façon à partir des données carroyées de l'Insee.
+ 
+Les traitements sont réalisés avec le langage R.
+Le code de cette présentation est disponible ici : (lien vers le gitlab).
+
+
+## Avertissements
+
+### Secret statistique
+
+Avant toute diffusion auprès des partenaires, il faut bien veiller à respecter :
+
+   - le **secret**
+       * **primaire**
+       * **secondaire**
+       * **fiscal**
+   - les **conventions** établies avec les fournisseurs des données
+
+### Qualité des cartes
+
+Pour simplifier les programmes présentés dans ce TP, les représentations graphiques ne respectent pas les règles élémentaires de la **sémiologie cartographique**. Il faudra bien veiller à les appliquer sur les cartes fournies aux partenaires.
+
+# Configurations
+
+## Lancement de l’environnement de développement
+
+
+  *  <span style="background-color: #FFFF00">Se connecter à AUS </span>
+  *  <span style="background-color: #FFFF00">Lancer RStudio en cliquant sur l'icône situé sur le bureau. </span>
+
+## Chargement des bibliothèques
+
+Quatre bibliothèques sont nécessaires pour ce TP.
+
+   * `sf` pour manipuler des fichiers spatiaux (importer des .shp, transformer des projections, et réaliser des géotraitements)
+   * `mapsf` pour réaliser des cartes dans RStudio
+   * `leaflet` pour réaliser des cartes interactives (fond de carte OSM)
+   * `btb` pour le carroyage et lissage
+   * `dplyr` pour regrouper des données
+
+<span style="background-color: #FFFF00">Remarque : pour une raison inconnue, le package `sf` ne se charge pas correctement sans avoir chargé le package `udunits2` au préalable.</span>
+
+**Remarque 2** : Le choix de dplyr plutôt que data.table se justifie ici du fait de sa compatibilité avec les objets vectoriels. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+# Charger les bibliothèques nécessaires
+
+install.packages("dplyr")
+install.packages("sf")
+install.packages("btb")
+install.packages("mapsf")
+install.packages("leaflet")
+
+
+
+library(dplyr)
+# library(udunits2,lib.loc = path_lib)
+library(sf)
+library(btb)
+library(mapsf)
+library(leaflet)
+
+install.packages("aws.s3", repos = "https://cloud.R-project.org")
+library(aws.s3)
+
+```
+
+
+## Chargement de la base
+
+Pour ce TP, nous avons préparé une base de ventes de logements géolocalisés dans le périmètre de la petite couronne parisienne au cour de l'année 2021 (départements 75, 92, 93, 94).
+
+Cette base de donnée est disponible en open data [ici](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/).
+
+La base contient les 8 variables suivantes : 
+
+- id_mutation : identifiant unique de la vente
+- date_mutation : date de la vente
+- type_local : appartement ou maison
+- nombre_pieces_principales : Nombre de pièces dans le logement
+- valeur_fonciere : prix de vente
+- surface_reelle_bati : surface du logement
+- x : longitude (**en projection Lambert 93**)
+- y : latitude (**en projection Lambert 93**)
+
+**Remarque importante** : cette base a été filtrée sans ménagements pour les besoins de cette formation ==> elle n'est ni représentative de la réalité et n'est pas fidèle aux données publiées par le producteur. Mieux vaut de pas appuyer vos investissements immobiliers sur les résultats de ce TP.
+
+Pour information, voici les systèmes de projection que vous pouvez régulièrement rencontrer pour la métropole : 
+
+Nom              Description                                                Code EPSG
+------------     ------------------------------------------------           -----------
+Lambert93        Système de projection officiel pour la métropole           2154
+LAEA             Système de projection européen                             3035
+WGS84            GPS (utile pour utiliser Leaflet)                          4326
+
+
+
+```{r, eval=FALSE}
+#Se positionner sur le répertoire de travail
+setwd("Mon/repertoire/qui/va/bien")
+```
+
+```{r chargeBase}
+# Charger la source de données (variable nommée dfBase)
+# dfBase <- readRDS("data/donnees/ventesImmo_couronneParis.RDS")
+
+# Visualiser les premières lignes de la base
+# head(dfBase)
+# dim(dfBase)
+
+
+
+
+
+
+bucketlist(region="")
+
+sfBordeauxCentre <- 
+  aws.s3::s3read_using(
+    FUN = sf::st_read,
+    object = "bordeaux_centre.gpkg",
+    bucket = "jpramil"
+    ,
+    opts = list("region" = "")
+  )
+
+plot(sfBordeauxCentre)
+
+```

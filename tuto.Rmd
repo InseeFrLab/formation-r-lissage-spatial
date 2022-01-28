@@ -952,14 +952,38 @@ Le principe de la fonction consiste à déterminer, pour une zone donnée, l'ens
 ```{r zoneAFacon}
 # library(stringr, warn.conflicts = FALSE)
 
-# Chargement base carroyée
-cheminFichierGPKG <- "data/donnees/Filosofi2015_carreaux_200m_metropole.gpkg"
 
-requete <- "SELECT IdINSPIRE,Depcom,I_est_cr,Men, Log_soc, geom 
-            FROM Filosofi2015_carreaux_200m_metropole 
+st_read_maison <- function(chemin_tab){
+  requete <- "SELECT IdINSPIRE,Depcom,I_est_cr,Men, Log_soc, geom
+            FROM Filosofi2015_carreaux_200m_metropole
             WHERE SUBSTR(Depcom, 1, 2) IN ('75','92','93','94') "
+  sf::st_read(chemin_tab, query = requete)
+}
 
-carreaux <- st_read(cheminFichierGPKG, query = requete)
+carreaux <- 
+  aws.s3::s3read_using(
+    FUN = st_read_maison,
+    object = "Filosofi2015_carreaux_200m_metropole.gpkg",
+    bucket = "jpramil"
+    ,
+    opts = list("region" = "")
+  )
+
+
+# carreaux <- 
+#   aws.s3::s3read_using(
+#     FUN = sf::st_read,
+#     object = "Filosofi2015_carreaux_200m_metropole.gpkg",
+#     bucket = "jpramil"
+#     ,
+#     opts = list("region" = "")
+#   )
+
+# Chargement base carroyée
+# cheminFichierGPKG <- "data/donnees/Filosofi2015_carreaux_200m_metropole.gpkg"
+# 
+# 
+# carreaux <- st_read(cheminFichierGPKG, query = requete)
 head(carreaux)
 
 # Création du cercle de 1km autour du White

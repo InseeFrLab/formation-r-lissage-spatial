@@ -1,5 +1,5 @@
 ---
-title: "Formation analyse urbaine - Travaux pratiques sur R (carroyage, lissage, zones à façon)"
+title: "Formation analyse urbaine - Travaux pratiques sur R (carroyage, lissage, zones à façon) [TUTORIEL]"
 author: "Kim Antunez et Julien Pramil"
 date: "11 mars 2021"
 output:
@@ -1051,4 +1051,14 @@ cat("On compte ",
 
 
 Vous êtes désormais capables de carroyer et lisser toutes les données que vous aurez à votre disposition ! 
+
+--------------------------------------------
+
+--------------------------------------------
+
+**Reproducibilité**
+
+```{r}
+sessionInfo()
+```
 

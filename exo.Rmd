@@ -198,16 +198,182 @@ leaflet(data=centreBdx_4326) %>% addTiles() %>% addPolygons()
 
 ```
 
+```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
+
+- Transformer la base des parkings en format vectoriel (dans une nouvelle variable `sfparking`) :
+- Créer `sfparking4326` : les points `sfparking` reprojetés en WGS84 (code 4326)
+- Cartographier conjointement le contour de Bordeaux-centre et les parkings de la base :
+```
+
+```{block, opts.label = "clues"}
+- Transformer la base des parkings en format vectoriel (dans une nouvelle variable `sfparking`) :
+  - Utiliser la fonction `sf::st_as_sf`
+  - Attention à bien renseigner le système de projection des coordonnées xy dans le paramètre `crs`.
+- Créer `sfparking4326` : les points `sfparking` reprojetés en WGS84 (code 4326)
+- Cartographier conjointement le contour de Bordeaux-centre et les parkings de la base :
+  - Utiliser Leaflet
+  - Reprendre le code de l'exercice précédent en ajouter la couche de points avec `leaflet::addMarkers`
+```
+
+```{r echo=TRUE, solution=TRUE}
+# Transformation en objet vectoriel (géographique)
+sfparking <- sf::st_as_sf(parkings,coords=c("x","y"),crs=2154)
+
+# Reprojection
+sfparking4326 <- sfparking %>% st_transform(4326)
+
+# Cartographie avec leaflet
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = centreBdx_4326) %>% 
+  addMarkers(data = sfparking4326)
+
+```
+
+
 # Exercice 2 : Carroyer 
 
 
+```{r echo=TRUE, solution=TRUE}
+iCellSize = 500 
+points_carroyage <- parkings
+points_carroyage$x_centroide = as.integer(floor(points_carroyage$x / iCellSize) * iCellSize + (iCellSize / 2))
+points_carroyage$y_centroide = as.integer(floor(points_carroyage$y / iCellSize) * iCellSize + (iCellSize / 2))
+
+# Compter le nombre de parkings par carreau
+points_carroyage <- points_carroyage %>% 
+  group_by(x=x_centroide,y=y_centroide) %>% 
+  count(name = "nbParkings")
+
+# Générer la grille
+points_carroyage <- btb::dfToGrid(df = points_carroyage, sEPSG = "2154", iCellSize = iCellSize)
+
+# Restriction du champ : on ne retient que les carreaux intersectant Bordeaux-centre
+points_carroyage <- points_carroyage[unlist(st_intersects(centreBdx,points_carroyage)),]
+
+
+
+# Cartographie
+
+mf_init(x=points_carroyage,theme = "agolalight")
+mf_map(x = points_carroyage,
+       type = "typo",
+       var="nbParkings",
+       pal = "Greens",
+       # breaks = c(0,1,2,3,4),
+       # nbreaks = 2,
+       lwd=1,
+       # leg_val_rnd = 1,
+       add = TRUE)
+mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"),
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Carroyage du nombre de ventes",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+
+
+```
+
+
+# Excercice 3 : Lissage de la densité de parkings
+
+```{r echo=TRUE, solution=TRUE}
+# Création d'un buffer autour du territoire
+centreBdxBuffer <- st_buffer(centreBdx, dist = 2000)
+
+# Repérer les indices des observations contenues dans notre buffer d'intérêt
+indiceObsContenues <- unlist(sf::st_contains(centreBdxBuffer, sfparking))
+
+# Réduire la base aux seules observations dans le territoire
+parkingBuff <- parkings[indiceObsContenues, ]
+
+parkingBuff$nbObsLisse <- 1L
+
+parkingsLissage <- parkingBuff[,c("nbObsLisse","x","y")]
+sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 1500)
+
+# Filtrage des carreaux lissés dans Paris
+sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+
+# Carte lissée
+mf_init(x=sfcarLisse,theme = "agolalight")
+mf_map(x = sfcarLisse, 
+       type = "choro",
+       var="nbObsLisse",
+       breaks = "quantile",
+       nbreaks = 5,
+       lwd=1,
+       add = TRUE)
+mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"), 
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, XXXX, IGN, mapsf")
+```
 
 
 
 
+# Excercice 4 : Lissage du nombre de places de parkings
+
+```{r echo=TRUE, solution=TRUE}
+parkingsLissage <- parkingBuff[,c("np_global","x","y")]
+
+sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 1500)
 
 
+# Filtrage des carreaux lissés dans Paris
+sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
 
+# Carte lissée
+mf_init(x=sfcarLisse,theme = "agolalight")
+mf_map(x = sfcarLisse, 
+       type = "choro",
+       var="np_global",
+       breaks = "quantile",
+       nbreaks = 5,
+       lwd=1,
+       add = TRUE)
+mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"), 
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, XXXX, IGN, mapsf")
+```
+
+
+# Excercice 5 : Lissage de la part de places PMR
+
+```{r echo=TRUE, solution=TRUE}
+parkingsLissage <- parkingBuff[,c("np_global","np_pmr","x","y")]
+
+sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 1500)
+
+sfcarLisse$part_pmf <- sfcarLisse$np_pmr/sfcarLisse$np_global
+
+# Filtrage des carreaux lissés dans Paris
+sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+
+# Carte lissée
+mf_init(x=sfcarLisse,theme = "agolalight")
+mf_map(x = sfcarLisse, 
+       type = "choro",
+       var="part_pmf",
+       breaks = "quantile",
+       nbreaks = 5,
+       lwd=1,
+       add = TRUE)
+mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"), 
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, XXXX, IGN, mapsf")
+```
 
 
 
@@ -232,14 +398,6 @@ Solution sans code
 
 ```
 
-
-```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
- TODO
-```
-
-```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
- TODO
-```
 
 
 --------------------------------------------

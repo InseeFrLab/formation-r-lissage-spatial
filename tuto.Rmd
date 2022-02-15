@@ -172,7 +172,7 @@ setwd("Mon/repertoire/qui/va/bien")
 dfBase <- 
   aws.s3::s3read_using(
     FUN = base::readRDS,
-    object = "ventesImmo_couronneParis.RDS",
+    object = "diffusion/ventesImmo_couronneParis.RDS",
     bucket = "jpramil"
     ,
     opts = list("region" = "")
@@ -211,7 +211,7 @@ Récupérons le contour du territoire étudié avec la fonction `read_sf` du pac
 depCouronne_sf <- 
   aws.s3::s3read_using(
     FUN = sf::st_read,
-    object = "depCouronne.gpkg",
+    object = "diffusion/depCouronne.gpkg",
     bucket = "jpramil"
     ,
     opts = list("region" = "")
@@ -970,7 +970,7 @@ Dans un premier temps, on importe la zone à façon. Ici, il s'agit du quartier 
 triangleOr <- 
   aws.s3::s3read_using(
     FUN = st_read,
-    object = "triangle_or.kml",
+    object = "diffusion/triangle_or.kml",
     bucket = "jpramil"
     ,
     opts = list("region" = "")
@@ -1056,7 +1056,7 @@ st_read_maison <- function(chemin_tab){
 carreaux <- 
   aws.s3::s3read_using(
     FUN = st_read_maison,
-    object = "Filosofi2015_carreaux_200m_metropole.gpkg",
+    object = "diffusion/Filosofi2015_carreaux_200m_metropole.gpkg",
     bucket = "jpramil"
     ,
     opts = list("region" = "")
@@ -1066,7 +1066,7 @@ carreaux <-
 # carreaux <- 
 #   aws.s3::s3read_using(
 #     FUN = sf::st_read,
-#     object = "Filosofi2015_carreaux_200m_metropole.gpkg",
+#     object = "diffusion/Filosofi2015_carreaux_200m_metropole.gpkg",
 #     bucket = "jpramil"
 #     ,
 #     opts = list("region" = "")

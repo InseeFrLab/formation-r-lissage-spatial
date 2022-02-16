@@ -15,10 +15,7 @@ output:
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
-if (!require("unilur", character.only = TRUE)) {
-      install.packages("unilur", dependencies = TRUE)
-      library("unilur", character.only = TRUE)
-    }
+source("global.R")
 library(knitr)
 
 ## Global options
@@ -86,27 +83,31 @@ Comment travailler ?
 - Ouvrir un service RStudio
 - Nouveau Script
 
-# Exercice 0 : installation de la session et importation des données
+# Partie 0 : installation de la session et importation des données
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 
-Pour cette partie, vous pouvez aller chercher directement la solution ci-dessous (hors programme)
+Pour cette partie, vous pouvez aller chercher directement la solution ci-dessous (hors programme de cette formation).
 
-Installation des packages suivants : 
+Dans un premier temps, on installe tous les packages nécessaires : 
 
-- dplyr
-- sf
-- btb
-- mapsf
-- leaflet
+- `dplyr`
+- `sf`
+- `btb`
+- `mapsf`
+- `mapview`
 
-Par ailleurs, on installe `aws.s3` pour importer les données stockées sous Minio (solution de stockage de données sous SSPCloud)
+Par ailleurs, on installe `aws.s3` pour importer les données stockées sous Minio (solution de stockage de données sous SSPCloud).
+
+Pour information, `mapview` est un package de cartographie produisant des résultats proches de `leaflet`. Il est un peu plus rapide d'utilisation quant il s'agit de produire des résultats simples : notamment, il reprojette automatiquemeent les objets vectoriels que vous souhaitez cartographier. Vous trouverez davantage d'informations à propos [ici](https://r-spatial.github.io/mapview/).
+
+
 ```
 
 
-```{r echo=TRUE, solution=TRUE}
+```{r echo=TRUE}
 ## Liste des librairies utilisées
-packages <-  c("dplyr","sf","btb","mapsf","leaflet","aws.s3")
+packages <-  c("dplyr","sf","btb","mapsf","mapview","aws.s3")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -126,15 +127,27 @@ package.check <- lapply(
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 
-Hors formation : il suffit de recopier la solution.
-Importation des données stockées sous Minio, dans le "bucket public" : s3/jpramil/diffusion.
+Le code ci-dessous permet d'importater les données utilisées dans ce tutoriel. Elles sont stockées sous Minio, dans le "bucket public" : s3/jpramil/diffusion.
 
-- `parkings.RDS` : données sur les parkings publics, avec leurs coordonnées xy
-- `bordeaux_centre.gpkg` : découpage à façon du centre-ville de Bordeaux
+Quelques informations concernant ces jeux de données : 
+
+- `parkings.RDS` : table de données géolocalisées concernant les parkings publics dans l'agglomération bordelaise. Pour chaque parking public, voici les variables renseignées : 
+    - `ident` : identifiant du parking public
+    - `exploit` : exploitant
+    - `np_global` : nombre total de places de stationnement
+    - `np_pmr` : nombre de places de stationnement pour les personnes à mobilité réduite 
+    - `th_heur` : prix horaire
+    - `x` : longitude
+    - `y` : latitude
+    - `epsg` : code EPSE (projection géographique)
+, avec leurs coordonnées xy. Lien vers le téléchargement des [données brutes](https://files.data.gouv.fr/geo-dvf/latest/csv/2021/). Informations complémentaires [ici](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/)
+- `bordeaux_centre.gpkg` : découpage à façon du centre-ville de Bordeaux. Découpages réalisés manuellement par les auteurs de ce tutoriel en utilisant le [Geoportail](https://www.geoportail.gouv.fr/).
+
+Là encore, il suffit de copier-coller et executer le code ci-dessous dans votre session RStudio.
 
 ```
 
-```{r echo=TRUE, solution=TRUE}
+```{r echo=TRUE}
 
 # Charger la source de données (variable nommée dfBase)
 parkings <- 
@@ -154,14 +167,41 @@ centreBdx <-
     ,
     opts = list("region" = "")
   )
-# Visualiser les premières lignes de la base
-head(parkings)
-head(centreBdx)
+
+```
+
+```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
+
+Importer cette fonction dans votre environnement global.
+Pour visualiser les résultats de vos lissages, on crée une fonction générique de cartographie s'appuyant sur le package `mapsf`. On pourra réutiliser cette fonction par la suite, et limiter ainsi le nombre de lignes à recopier dans le code à chaque exercice).
+
+```
+
+
+```{r echo=TRUE}
+
+genercarte <- function(sfcarLisse,nomvar,nbreaks=5,zone,titre){
+  
+  mf_init(x=sfcarLisse,theme = "agolalight")
+  mf_map(x = sfcarLisse, 
+         type = "choro",
+         var=nomvar,
+         breaks = "quantile",
+         nbreaks = nbreaks,
+         lwd=1,
+         add = TRUE)
+  mf_map(x = st_cast(zone[,c("geom")],"MULTILINESTRING"), 
+         lwd=4,
+         col="black",add = TRUE)
+  mf_layout(title = titre,credits = "Insee-DSAU, XXXX, IGN, mapsf")
+}
+
+
 ```
 
 
 
-# Exercice 1 : Prendre connaissance des données
+# Partie 1 : s'approprier les données
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 
@@ -194,8 +234,8 @@ Pour cela :
 centreBdx_4326 <- centreBdx %>% st_transform(4326)
 
 # Cartographie avec leaflet
-leaflet(data=centreBdx_4326) %>% addTiles() %>% addPolygons()
-
+# leaflet(data=centreBdx_4326) %>% addTiles() %>% addPolygons()
+mapview(centreBdx_4326)
 ```
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
@@ -223,19 +263,19 @@ sfparking <- sf::st_as_sf(parkings,coords=c("x","y"),crs=2154)
 sfparking4326 <- sfparking %>% st_transform(4326)
 
 # Cartographie avec leaflet
-leaflet() %>% 
-  addTiles() %>% 
-  addPolygons(data = centreBdx_4326) %>% 
-  addMarkers(data = sfparking4326)
-
+# leaflet() %>% 
+#   addTiles() %>% 
+#   addPolygons(data = centreBdx_4326) %>% 
+#   addMarkers(data = sfparking4326)
+mapview(centreBdx_4326,col.region="yellow")+mapview(sfparking4326)
 ```
 
 
-# Exercice 2 : Carroyer 
+# Exercice 2 : Carroyer les données avant de lisser
 
 
 ```{r echo=TRUE, solution=TRUE}
-iCellSize = 500 
+iCellSize = 1000 
 points_carroyage <- parkings
 points_carroyage$x_centroide = as.integer(floor(points_carroyage$x / iCellSize) * iCellSize + (iCellSize / 2))
 points_carroyage$y_centroide = as.integer(floor(points_carroyage$y / iCellSize) * iCellSize + (iCellSize / 2))
@@ -252,23 +292,9 @@ points_carroyage <- btb::dfToGrid(df = points_carroyage, sEPSG = "2154", iCellSi
 points_carroyage <- points_carroyage[unlist(st_intersects(centreBdx,points_carroyage)),]
 
 
+mapview(centreBdx,alpha.regions=0,lwd=4,legend=F)+mapview(points_carroyage,zcol = "nbParkings",col.regions=list("grey","yellow","red"))
 
-# Cartographie
 
-mf_init(x=points_carroyage,theme = "agolalight")
-mf_map(x = points_carroyage,
-       type = "typo",
-       var="nbParkings",
-       pal = "Greens",
-       # breaks = c(0,1,2,3,4),
-       # nbreaks = 2,
-       lwd=1,
-       # leg_val_rnd = 1,
-       add = TRUE)
-mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"),
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Carroyage du nombre de ventes",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 
 ```
@@ -298,18 +324,15 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
 sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
 
 # Carte lissée
-mf_init(x=sfcarLisse,theme = "agolalight")
-mf_map(x = sfcarLisse, 
-       type = "choro",
-       var="nbObsLisse",
-       breaks = "quantile",
-       nbreaks = 5,
-       lwd=1,
-       add = TRUE)
-mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"), 
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, XXXX, IGN, mapsf")
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="nbObsLisse",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre="Lissage avec rayon de 1000m")
+
+
+
+
 ```
 
 
@@ -330,22 +353,63 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
 sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
 
 # Carte lissée
-mf_init(x=sfcarLisse,theme = "agolalight")
-mf_map(x = sfcarLisse, 
-       type = "choro",
-       var="np_global",
-       breaks = "quantile",
-       nbreaks = 5,
-       lwd=1,
-       add = TRUE)
-mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"), 
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, XXXX, IGN, mapsf")
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="np_global",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre="Lissage avec rayon de 1000m")
+
 ```
 
 
-# Excercice 5 : Lissage de la part de places PMR
+```{r echo=TRUE, solution=TRUE}
+parkingsLissage <- parkingBuff[,c("np_pmr","x","y")]
+
+sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 1500)
+
+
+# Filtrage des carreaux lissés dans Paris
+sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+
+# Carte lissée
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="np_pmr",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre="Lissage avec rayon de 1000m")
+
+```
+
+
+
+# Excercice 6 : Lissage de ratios
+
+```{r echo=TRUE, solution=TRUE}
+
+parkingsLissage <- parkingBuff[,c("nbObsLisse","np_global","x","y")]
+
+sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 1500)
+
+sfcarLisse <- sfcarLisse %>% mutate(place_par_parking=np_global/nbObsLisse)
+
+# Filtrage des carreaux lissés dans Paris
+sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+
+# Carte lissée
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="place_par_parking",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre="Lissage avec rayon de 1000m")
+
+```
+
 
 ```{r echo=TRUE, solution=TRUE}
 parkingsLissage <- parkingBuff[,c("np_global","np_pmr","x","y")]
@@ -361,23 +425,70 @@ sfcarLisse$part_pmf <- sfcarLisse$np_pmr/sfcarLisse$np_global
 sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
 
 # Carte lissée
-mf_init(x=sfcarLisse,theme = "agolalight")
-mf_map(x = sfcarLisse, 
-       type = "choro",
-       var="part_pmf",
-       breaks = "quantile",
-       nbreaks = 5,
-       lwd=1,
-       add = TRUE)
-mf_map(x = st_cast(centreBdx[,c("geom")],"MULTILINESTRING"), 
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, XXXX, IGN, mapsf")
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="part_pmf",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre="Lissage avec rayon de 1000m")
+
 ```
 
 
 
 
+# Excercice 8 (bonus) : où trouver des places de parking pas cher ?
+
+
+
+```{r echo=TRUE, solution=TRUE}
+parkingsLissage <- parkingBuff[,c("nbObsLisse","th_heur","x","y")]
+
+sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 1500)
+
+sfcarLisse$prix_moyen <- sfcarLisse$th_heur/sfcarLisse$nbObsLisse
+
+# Filtrage des carreaux lissés dans Paris
+sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+
+# Carte lissée
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="prix_moyen",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre="Lissage avec rayon de 1000m")
+
+```
+
+
+
+
+```{r echo=TRUE, solution=TRUE}
+
+parkingBuff <- parkingBuff %>% mutate(prix_x_place=np_global*th_heur)
+
+parkingsLissage <- parkingBuff[,c("np_global","prix_x_place","x","y")]
+
+sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 1500)
+
+sfcarLisse <- sfcarLisse %>% mutate(prix_moyen_place=prix_x_place/np_global)
+
+# Filtrage des carreaux lissés dans Paris
+sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+
+# Carte lissée
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="prix_moyen_place",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre="Lissage avec rayon de 1000m")
+
+```
 
 
 # Exercice type 

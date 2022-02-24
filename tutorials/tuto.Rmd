@@ -68,7 +68,7 @@ Avant toute diffusion auprès des partenaires, il faut bien veiller à respecter
 
 Pour simplifier les programmes présentés dans ce TP, les représentations graphiques ne respectent pas les règles élémentaires de la **sémiologie cartographique** très bien résumées par cette infographie :
 
-![](img/lightsemio.png)
+![](../img/lightsemio.png)
 *Auteur : Timothée Giraud, auteur de la librairie `mapsf`*
 
 

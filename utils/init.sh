@@ -8,4 +8,4 @@ cp $CLONE_DIR
 
 # Copy training data
 mkdir data
-mc cp s3/projet-formation/r-lissage-spatial/* data/
+mc cp s3/diffusion/projet_formation/r-lissage-spatial/* data/

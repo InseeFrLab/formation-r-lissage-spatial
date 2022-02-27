@@ -1,5 +1,5 @@
 ---
-title: "Formation au carroyage et lissage spatial sur R"
+title: "Formation au carroyage et lissage spatial sur R "
 author: "Kim Antunez et Julien Pramil"
 date: "11 mars 2022"
 output:

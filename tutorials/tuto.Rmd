@@ -1,7 +1,7 @@
 ---
-title: "Formation analyse urbaine - Travaux pratiques sur R (carroyage, lissage, zones à façon) [TUTORIEL]"
+title: "Formation au carroyage et lissage spatial sur R [TUTORIEL]"
 author: "Kim Antunez et Julien Pramil"
-date: "11 mars 2021"
+date: "11 mars 2022"
 output:
   html_document:
     number_sections: TRUE

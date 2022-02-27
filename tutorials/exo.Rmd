@@ -134,7 +134,7 @@ package.check <- lapply(
 
 ## Chargement des données
 
-Le code ci-dessous permet d'importater les données utilisées dans ce tutoriel. Elles sont stockées sous Minio, dans le "bucket public" : s3/jpramil/diffusion/projet_formation/r_lissage_spatial/.
+Le code ci-dessous permet d'importer les données utilisées dans ce tutoriel. Elles sont stockées sous Minio, dans le "bucket public" : s3/kantunez/diffusion/projet_formation/r_lissage_spatial/.
 
 Quelques informations concernant ces jeux de données : 
 
@@ -153,14 +153,16 @@ Quelques informations concernant ces jeux de données :
 Là encore, il suffit de copier-coller et éxecuter le code ci-dessous dans votre session RStudio.
 
 
+```{r echo=TRUE}
+bucket <- "kantunez"
+```
 
-```{r chargDonnees, echo=TRUE}
-# Charger la source de données (variable nommée dfBase)
+```{r chargDonnees, echo=TRUE, eval = FALSE}
 parkings <- 
   aws.s3::s3read_using(
     FUN = base::readRDS,
     object = "diffusion/projet_formation/r_lissage_spatial/parking.RDS",
-    bucket = "jpramil"
+    bucket = bucket
     ,
     opts = list("region" = "")
   )
@@ -169,11 +171,24 @@ centreBdx <-
   aws.s3::s3read_using(
     FUN = sf::st_read,
     object = "diffusion/projet_formation/r_lissage_spatial/bordeaux_centre.gpkg",
-    bucket = "jpramil"
+    bucket = bucket
     ,
     opts = list("region" = "")
   )
 
+```
+
+L'import en dehors du SSPCloud se fait de cette manière : 
+
+```{r echo=TRUE}
+url_bucket <- "https://minio.lab.sspcloud.fr/"
+
+object <- "diffusion/projet_formation/r_lissage_spatial/parking.RDS"
+download.file(paste0(url_bucket,bucket,"/",object), destfile = "parking.RDS")
+parkings <- readRDS("parking.RDS")
+
+object <- "diffusion/projet_formation/r_lissage_spatial/bordeaux_centre.gpkg"
+centreBdx <- st_read(paste0(url_bucket,bucket,"/",object))
 ```
 
 ## Fonction de cartographie : genercarte
@@ -639,7 +654,13 @@ Pour répondre à cette question :
   - Calculer le nombre d'habitants grâce à la variable `Ind`
 ```
 
-```{r exo15charg,echo=TRUE}
+```{r}
+url_bucket <- "https://minio.lab.sspcloud.fr/"
+bucket <- "kantunez"
+```
+  
+```{r exo15charg,echo=TRUE,eval=FALSE}
+object = "diffusion/projet_formation/r_lissage_spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
 st_read_maison <- function(chemin_tab){
   requete <- "SELECT IdINSPIRE,Depcom,Ind,Men, Log_soc, geom
             FROM Filosofi2015_carreaux_200m_metropole
@@ -647,15 +668,26 @@ st_read_maison <- function(chemin_tab){
   sf::st_read(chemin_tab, query = requete)
 }
 
+car33 <-  st_read_maison(paste0(url_bucket,bucket,"/",object))
+```
+
+Ou avec `aws.s3` :
+```{r,echo=TRUE, eval=FALSE}
 car33 <- 
   aws.s3::s3read_using(
     FUN = st_read_maison,
-    object = "diffusion/projet_formation/r_lissage_spatial/Filosofi2015_carreaux_200m_metropole.gpkg",
-    bucket = "jpramil"
+    object = object,
+    bucket = bucket
     ,
     opts = list("region" = "")
   )
+```
 
+```{r echo=FALSE}
+#saveRDS(car33, "carreaux_33.RDS")
+object = "diffusion/projet_formation/r_lissage_spatial/carreaux_33.RDS"
+download.file(paste0(url_bucket,bucket,"/",object), destfile = "carreaux_33.RDS")
+car33 <- readRDS("carreaux_33.RDS")
 ```
 
 ```{r exo15solu,echo=TRUE, solution=TRUE}

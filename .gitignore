@@ -2,7 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
-tuto.html
-exo.html
+tutorials/index.html
+tutorials/tuto.html
+tutorials/exo.html
+tutorials/carreaux_idf.RDS
+tutorials/carreaux_33.RDS
+tutorials/ventesImmo_couronneParis.RDS
+tutorials/parking.RDS
 
 /tuto_files

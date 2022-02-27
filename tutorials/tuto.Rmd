@@ -16,7 +16,6 @@ output:
 
 knitr::opts_chunk$set(echo = TRUE)
 # knitr::opts_knit$set(root.dir = path_proj)
-
 ```
 
 ```{css, echo=FALSE}
@@ -33,23 +32,21 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Objectifs du TP
 
-En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine (DG/DDAR/DAR/DSAU), a développé un package R, nommé `btb`.
+En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
 
-Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées. Grâce à différentes extensions, ce package peut être utilisé de plusieurs façons :
+Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
 
-   * avec **R**
-   * avec Python : library[ `BTBpy`](https://github.com/InseeFrLab/btbpy)
-   * avec **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Grand Est)
-   * avec **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue)
-
-À partir de données ponctuelles, nous allons apprendre :
+À partir de données ponctuelles, nous allons apprendre en utilisant le langage R :
 
  - À carroyer les informations.
  - À réaliser des lissages de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
  - À calculer un indicateur sur une zone à façon à partir des données carroyées de l'Insee.
- 
-Les traitements sont réalisés avec le langage R.
-Le code de cette présentation est disponible [ici](https://gitlab.com/p3856/formationau22).
+
+**Liens utiles**
+
+- Code de la formation : https://github.com/InseeFrLab/formation-r-lissage-spatial
+- Site web des supports de formation : https://inseefrlab.github.io/formation-r-lissage-spatial
+
 
 
 ## Avertissements
@@ -158,25 +155,43 @@ La base contient les **8 variables** suivantes :
 **Remarque importante** : Cette base a été filtrée de manière à être la plus pédagogique possible pour cette formation. Elle n'est donc ni représentative de la réalité ni fidèle au champ proposé par le producteur. Mieux vaut donc de pas appuyer vos investissements immobiliers sur les résultats de ce TP.
 
 
+Le code ci-dessous permet d'importer la première base de données `ventesImmo_couronneParis.RDS` utilisée dans ce tutoriel. Elle est stockée sous Minio, dans le "bucket public" : s3/kantunez/diffusion/projet_formation/r_lissage_spatial/.
 
-
-```{r, eval=FALSE}
-#Se positionner sur le répertoire de travail. Non nécessaire sur le SSPCloud
-setwd("Mon/repertoire/qui/va/bien")
+```{r}
+# Charger la source de données (variable nommée dfBase) avec S3
+url_bucket <- "https://minio.lab.sspcloud.fr/"
+bucket <- "kantunez"
+object <- "diffusion/projet_formation/r_lissage_spatial/ventesImmo_couronneParis.RDS"
 ```
 
-<span style="background-color: #FFFF00">Hébergement de la base à changer</span>
-
-```{r chargeBase}
-# Charger la source de données (variable nommée dfBase)
-dfBase <- 
+```{r eval = FALSE}
+dfBase <-
   aws.s3::s3read_using(
     FUN = base::readRDS,
-    object = "diffusion/projet_formation/r_lissage_spatial/ventesImmo_couronneParis.RDS",
-    bucket = "jpramil"
+    object = object,
+    bucket = bucket
     ,
     opts = list("region" = "")
   )
+```
+
+Il est aussi possible de charger cette base en dehors du SSPCloud en la téléchargeant grâce à son URL puis en la chargeant dans R.
+
+```{r, eval=FALSE}
+#Se positionner sur le répertoire de travail.
+#Non nécessaire si projet RStudio créé au préalable
+setwd("Mon/repertoire/qui/va/bien")
+```
+
+```{r chargeBase}
+# Charger la source de données (variable nommée dfBase) avec son URL
+download.file(paste0(url_bucket,bucket,"/",object), destfile = "ventesImmo_couronneParis.RDS")
+dfBase <- readRDS("ventesImmo_couronneParis.RDS")
+```
+
+On peut ensuite manipuler notre base de données chargée.
+
+```{r}
 # Visualiser les premières lignes de la base
 head(dfBase)
 dim(dfBase)
@@ -203,20 +218,10 @@ Pour aller plus loin sur la comparaison des formats, voir [ici](https://www.gis-
 
 Récupérons le contour du territoire étudié avec la fonction `read_sf` du package `sf`.
 
-<span style="background-color: #FFFF00">Hébergement de la base à changer pour rendre le code reproductible : un façon simple de procéder est peut-être d'ouvrir en lecture à tous ta bases S3, je pense que c'est possible ?</span>
-
-
 ```{r chargeContour}
 # Charger le fond de carte du territoire étudié
-depCouronne_sf <- 
-  aws.s3::s3read_using(
-    FUN = sf::st_read,
-    object = "diffusion/projet_formation/r_lissage_spatial/depCouronne.gpkg",
-    bucket = "jpramil"
-    ,
-    opts = list("region" = "")
-  )
-
+object <- "diffusion/projet_formation/r_lissage_spatial/depCouronne.gpkg"
+depCouronne_sf <- st_read(paste0(url_bucket,bucket,"/",object))
 
 # Visualisons cette couche vectorielle
 head(depCouronne_sf)
@@ -967,14 +972,10 @@ La zone à façon que nous considérons est le cercle de 1 km de rayon autour du
 Dans un premier temps, on importe la zone à façon. Ici, il s'agit du quartier appelé «\~Triangle d'or\~», situé dans le 8e arrondissement de Paris. Ce quartier se caractérise par ses immeubles cossus, ses hôtels et ses commerces de luxe.
 
 ```{r triangleOr}
-triangleOr <- 
-  aws.s3::s3read_using(
-    FUN = st_read,
-    object = "diffusion/projet_formation/r_lissage_spatial/triangle_or.kml",
-    bucket = "jpramil"
-    ,
-    opts = list("region" = "")
-  )
+object <- "diffusion/projet_formation/r_lissage_spatial/triangle_or.kml"
+triangleOr <- st_read(paste0(url_bucket,bucket,"/",object))
+
+
 leaflet(data=triangleOr) %>% addTiles() %>% addPolygons()
 ```
 
@@ -1040,7 +1041,7 @@ Le principe de la démarche consiste à :
 
 <!-- Définition de la fonction : -->
 
-```{r zoneAFacon}
+```{r eval = FALSE}
 # library(stringr, warn.conflicts = FALSE)
 
 # Charger les données carroyées de Filosofi 2015 à 200m
@@ -1053,30 +1054,18 @@ st_read_maison <- function(chemin_tab){
   sf::st_read(chemin_tab, query = requete)
 }
 
-carreaux <- 
-  aws.s3::s3read_using(
-    FUN = st_read_maison,
-    object = "diffusion/projet_formation/r_lissage_spatial/Filosofi2015_carreaux_200m_metropole.gpkg",
-    bucket = "jpramil"
-    ,
-    opts = list("region" = "")
-  )
+object = "diffusion/projet_formation/r_lissage_spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
+carreaux <-  st_read_maison(paste0(url_bucket,bucket,"/",object))
+```
 
+```{r echo=FALSE}
+#saveRDS(carreaux, "carreaux_idf.RDS")
+object = "diffusion/projet_formation/r_lissage_spatial/carreaux_idf.RDS"
+download.file(paste0(url_bucket,bucket,"/",object), destfile = "carreaux_idf.RDS")
+carreaux <- readRDS("carreaux_idf.RDS")
+```
 
-# carreaux <- 
-#   aws.s3::s3read_using(
-#     FUN = sf::st_read,
-#     object = "diffusion/projet_formation/r_lissage_spatial/Filosofi2015_carreaux_200m_metropole.gpkg",
-#     bucket = "jpramil"
-#     ,
-#     opts = list("region" = "")
-#   )
-
-# Chargement base carroyée
-# cheminFichierGPKG <- "data/donnees/Filosofi2015_carreaux_200m_metropole.gpkg"
-# 
-# 
-# carreaux <- st_read(cheminFichierGPKG, query = requete)
+```{r zoneAFacon}
 head(carreaux)
 
 # Création du cercle de 1km autour du White
@@ -1123,3 +1112,12 @@ Vous êtes désormais capables de carroyer et lisser toutes les données que vou
 sessionInfo()
 ```
 
+# Autre logiciels
+
+Grâce à différentes extensions, ce package peut être utilisé avec d'autres logiciels que **R** :
+
+   * Python : library[ `BTBpy`](https://github.com/InseeFrLab/btbpy)
+   * **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Grand Est)
+   * **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue)
+
+<span style="background-color: #FFFF00">A compléter.</span>

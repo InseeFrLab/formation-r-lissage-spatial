@@ -9,3 +9,8 @@ cp $CLONE_DIR
 # Copy training data
 mkdir data
 mc cp s3/diffusion/projet_formation/r-lissage-spatial/* data/
+
+# Install additional R packages
+R -e "update.packages(ask = 'no')" \
+    && install2.r --error mapsf btb \
+    && installGithub.r koncina/unilur

@@ -6,4 +6,4 @@ RUN Rscript -e 'update.packages(ask = "no")' \
     && installGithub.r koncina/unilur
 
 # Copy project repo
-ADD ./* /home/rstudio/formation
+ADD ./* /home/rstudio/formation/

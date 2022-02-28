@@ -10,3 +10,14 @@ cd $CLONE_DIR
 # Copy training data
 mkdir data
 mc cp --recursive s3/projet-formation/r-lissage-spatial/ data/
+
+# Launch RStudio in the right project
+echo \
+"
+setHook('rstudio.sessionInit', function(newSession) {
+    if (newSession && identical(getwd(), path.expand('~')))
+    {
+        rstudioapi::openProject('$CLONE_DIR')
+        }
+        }, action = 'append')
+        " >> /home/rstudio/.Rprofile

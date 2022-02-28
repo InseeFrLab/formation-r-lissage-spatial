@@ -8,8 +8,8 @@ chown -R rstudio:users $CLONE_DIR
 cd $CLONE_DIR
 
 # Copy training data
-mkdir data
-mc cp --recursive s3/projet-formation/r-lissage-spatial/ data/
+# mkdir data
+# mc cp --recursive s3/projet-formation/r-lissage-spatial/ data/
 
 # Launch RStudio in the right project
 echo \

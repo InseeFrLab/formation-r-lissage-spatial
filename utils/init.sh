@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# Clone training repo
-REPO_URL=https://github.com/InseeFrLab/formation-r-lissage-spatial
-CLONE_DIR=/home/rstudio/formation
-git clone --depth 1 $REPO_URL $CLONE_DIR
-cp $CLONE_DIR
-
 # Copy training data
-mkdir data
-mc cp s3/diffusion/projet_formation/r-lissage-spatial/* data/
+DATA_DIR=/home/rstudio/formation/data
+mkdir $DATA_DIR
+mc cp s3/diffusion/projet_formation/r-lissage-spatial/* $DATA_DIR
 
-# Install additional R packages
-R -e "update.packages(ask = 'no')" \
-    && install2.r --error mapsf btb \
-    && installGithub.r koncina/unilur
+# Launch RStudio in the right project
+echo \
+"
+setHook('rstudio.sessionInit', function(newSession) {
+    if (newSession && identical(getwd(), path.expand('~')))
+    {
+        rstudioapi::openProject('/home/rstudio/formation')
+        }
+        }, action = 'append')
+        " >> /home/rstudio/.Rprofile

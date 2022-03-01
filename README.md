@@ -18,8 +18,4 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
   * [Tutoriel](https://inseefrlab.github.io/formation-r-lissage-spatial/tuto.html)
   * [Exercices](https://inseefrlab.github.io/formation-r-lissage-spatial/exo.html)
 
-- Pour se connecter à la plateforme SSPCloud : https://datalab.sspcloud.fr/  
-  * Se connecter avec son adresse mail insee et son mot de passe.
-  * Cliquer sur **Trainings** en haut à droite de la page d'accueil
 
-![](/img/sspcloud_r.png)

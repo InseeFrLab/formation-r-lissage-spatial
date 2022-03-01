@@ -83,28 +83,6 @@ WGS84            GPS (utile pour utiliser Leaflet)                          4326
 
 # Configurations
 
-## Lancement de l’environnement de développement
-
-Nous allons utiliser le SSPCloud, afin que chacun puisse utiliser le même environnement de développement.
-
-Pour cela, voici les étapes : 
-
-  * Aller sur la plateforme SSPCloud en suivant ce lien.
-  * Se connecter avec son adresse mail insee et son mot de passe.
-  * Cliquer sur **Trainings** en haut à droite de la page d'accueil
-
-![](../img/sspcloud_r.png)
-  * Cliquer sur **Ouvrir** dans la bulle **Carroyage et lissage spatial sur R**
-
-![](../img/sspcloud_lissage.png)
-
-Pour  différentes 
-
-  *  <span style="background-color: #FFFF00">Se connecter au SSP Cloud : trouver une doc toute faite quelque part </span>
-  *  <span style="background-color: #FFFF00">Lancer une session RStudio. </span>
-  *  <span style="background-color: #FFFF00">Faire un clone du projet git </span>
-  
-
 ## Chargement des librairies
 
 Quatre librairies sont nécessaires pour ce TP.
@@ -115,9 +93,7 @@ Quatre librairies sont nécessaires pour ce TP.
    * `btb` pour le carroyage et lissage
    * `dplyr` pour le traitement des données, en particulier l'agrégation géographique.
 
-<!-- <span style="background-color: #FFFF00">Remarque : pour une raison inconnue, le package `sf` ne se charge pas correctement sans avoir chargé le package `udunits2` au préalable.</span> => Plus valable dans le SSPCloud -->
-
-**Remarque 2** : Le choix de `dplyr` plutôt que `data.table` se justifie ici du fait de sa forte compatibilité avec les objets géomatiques. 
+**Remarque** : Le choix de `dplyr` plutôt que `data.table` se justifie ici du fait de sa forte compatibilité avec les objets géomatiques. 
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Charger les librairies nécessaires
@@ -137,6 +113,8 @@ package.check <- lapply(
 )
 ```
 
+Pour les personnes utilisant l'environnement de développement du SSPCloud, il est possible d'utiliser le package `aws.s3` pour charger les données stockées dans le cloud `Minio` de l'Insee. Ce package permet un chargement des données plus rapide qu'un chaargement classique.
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Chunk permettant d'utiliser les données S3. Trouver une autre solution à termes
 
@@ -151,7 +129,7 @@ if (!require("aws.s3", character.only = TRUE)) {
 
 Pour ce TP, nous utilisons la base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) », ou DVF, qui recense l’ensemble des ventes de biens fonciers réalisées au cours des cinq dernières années, en métropole et dans les départements et territoires d’outre-mer — sauf à Mayotte et en Alsace-Moselle. Les biens concernés peuvent être bâtis (appartement et maison) ou non bâtis (parcelles et exploitations). Les données sont produites par la direction générale des finances publiques. Elles proviennent des actes enregistrés chez les notaires et des informations contenues dans le cadastre.
 
-A partir de cette source, nous avons constitué une base de données qui s'intéresse uniquement au périmètre de la **petite couronne parisienne** (départements 75, 92, 93 et 94) et au **millésime 2021**.
+À partir de cette source, nous avons constitué une base de données qui s'intéresse uniquement au périmètre de la **petite couronne parisienne** (départements 75, 92, 93 et 94) et au **millésime 2021**.
 
 La base contient les **8 variables** suivantes : 
 
@@ -164,7 +142,7 @@ La base contient les **8 variables** suivantes :
 - `x` : longitude (**en projection Lambert 93**)
 - `y` : latitude (**en projection Lambert 93**)
 
-<span style="background-color: #FFFF00">Le code ayant permis de constituer la base de données est disponible ici : XXXXXX. TODO. + préciser éventuellement à grands traits les filtres réalisés dans la remarque ci-dessous.</span>
+<!-- <span style="background-color: #FFFF00">Le code ayant permis de constituer la base de données est disponible ici : XXXXXX. TODO. + préciser éventuellement à grands traits les filtres réalisés dans la remarque ci-dessous.</span> -->
 
 **Remarque importante** : Cette base a été filtrée de manière à être la plus pédagogique possible pour cette formation. Elle n'est donc ni représentative de la réalité ni fidèle au champ proposé par le producteur. Mieux vaut donc de pas appuyer vos investissements immobiliers sur les résultats de ce TP.
 
@@ -191,11 +169,11 @@ dfBase <-
 
 Il est aussi possible de charger cette base en dehors du SSPCloud en la téléchargeant grâce à son URL puis en la chargeant dans R.
 
-```{r, eval=FALSE}
-#Se positionner sur le répertoire de travail.
-#Non nécessaire si projet RStudio créé au préalable
-setwd("Mon/repertoire/qui/va/bien")
-```
+<!-- ```{r, eval=FALSE} -->
+<!-- #Se positionner sur le répertoire de travail. -->
+<!-- #Non nécessaire si projet RStudio créé au préalable -->
+<!-- setwd("Mon/repertoire/qui/va/bien") -->
+<!-- ``` -->
 
 ```{r chargeBase}
 # Charger la source de données (variable nommée dfBase) avec son URL
@@ -203,7 +181,7 @@ url_file <- url(paste0(url_bucket,bucket,"/",object))
 dfBase <- readRDS(url_file)
 ```
 
-On peut ensuite manipuler notre base de données chargée.
+On peut ensuite manipuler notre base de données chargée en mémoire.
 
 ```{r}
 # Visualiser les premières lignes de la base

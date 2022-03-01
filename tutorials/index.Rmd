@@ -34,3 +34,16 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
 - Site web des supports de formation : https://inseefrlab.github.io/formation-r-lissage-spatial
   * [Tutoriel](tuto.html)
   * [Exercices](exo.html)
+  
+- Pour réaliser l'exercice depuis la plateforme SSPCloud : 
+  * Aller sur le SSPCloud : https://datalab.sspcloud.fr/  ;
+  * Se connecter avec son adresse mail insee et son mot de passe ;
+  * Cliquer sur **Trainings** en haut à droite de la page d'accueil ;
+  * Dérouler l'ensemble des formations **Statistiques avec R** comme ci-dessous : 
+
+![](../img/sspcloud_r.png)
+ * Cliquer sur **Ouvrir** dans la bulle **Carroyage et lissage spatial sur R**
+
+![](../img/sspcloud_lissage.png)
+Les différentes parties de la présentation sont accessibles via le bouton **Lire**.
+Pour réaliser l'exercice, vous pouvez ouvrir l'environnement RStudio préconfiguré en cliquant sur **Lancer**.

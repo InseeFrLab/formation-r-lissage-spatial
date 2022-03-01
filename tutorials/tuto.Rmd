@@ -219,7 +219,9 @@ depCouronne_sf <- st_read(chemin_file)
 head(depCouronne_sf)
 plot(depCouronne_sf$geom)
 
+# On renome la variable "geom" en "geometry"
 depCouronne_sf <- depCouronne_sf %>% rename(geometry=geom)
+
 # Sélection de Paris
 paris_sf <- depCouronne_sf[depCouronne_sf$code=="75",]
 

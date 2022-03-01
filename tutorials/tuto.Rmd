@@ -40,7 +40,7 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
 
  - À carroyer les informations.
  - À réaliser des lissages de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
- - À calculer un indicateur sur une zone à façon à partir des données carroyées de l'Insee.
+ - À calculer un indicateur sur une zone à façon à partir des données ponctuelles et de données carroyées de l'Insee.
 
 **Liens utiles**
 
@@ -85,6 +85,20 @@ WGS84            GPS (utile pour utiliser Leaflet)                          4326
 
 ## Lancement de l’environnement de développement
 
+Nous allons utiliser le SSPCloud, afin que chacun puisse utiliser le même environnement de développement.
+
+Pour cela, voici les étapes : 
+
+  * Aller sur la plateforme SSPCloud en suivant ce lien.
+  * Se connecter avec son adresse mail insee et son mot de passe.
+  * Cliquer sur **Trainings** en haut à droite de la page d'accueil
+
+![](../img/sspcloud_r.png)
+  * Cliquer sur **Ouvrir** dans la bulle **Carroyage et lissage spatial sur R**
+
+![](../img/sspcloud_lissage.png)
+
+Pour  différentes 
 
   *  <span style="background-color: #FFFF00">Se connecter au SSP Cloud : trouver une doc toute faite quelque part </span>
   *  <span style="background-color: #FFFF00">Lancer une session RStudio. </span>

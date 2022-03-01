@@ -185,8 +185,8 @@ setwd("Mon/repertoire/qui/va/bien")
 
 ```{r chargeBase}
 # Charger la source de données (variable nommée dfBase) avec son URL
-download.file(paste0(url_bucket,bucket,"/",object), destfile = "ventesImmo_couronneParis.RDS")
-dfBase <- readRDS("ventesImmo_couronneParis.RDS")
+url_file <- url(paste0(url_bucket,bucket,"/",object))
+dfBase <- readRDS(url_file)
 ```
 
 On peut ensuite manipuler notre base de données chargée.
@@ -220,8 +220,8 @@ Récupérons le contour du territoire étudié avec la fonction `read_sf` du pac
 
 ```{r chargeContour}
 # Charger le fond de carte du territoire étudié
-object <- "r-lissage-spatial/depCouronne.gpkg"
-depCouronne_sf <- st_read(paste0(url_bucket,bucket,"/",object))
+chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/depCouronne.gpkg")
+depCouronne_sf <- st_read(chemin_file)
 
 # Visualisons cette couche vectorielle
 head(depCouronne_sf)
@@ -972,14 +972,15 @@ La zone à façon que nous considérons est le cercle de 1 km de rayon autour du
 Dans un premier temps, on importe la zone à façon. Ici, il s'agit du quartier appelé «\~Triangle d'or\~», situé dans le 8e arrondissement de Paris. Ce quartier se caractérise par ses immeubles cossus, ses hôtels et ses commerces de luxe.
 
 ```{r triangleOr}
-object <- "r-lissage-spatial/triangle_or.kml"
-triangleOr <- st_read(paste0(url_bucket,bucket,"/",object))
+
+chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/triangle_or.kml")
+triangleOr <- st_read(chemin_file)
 
 
 leaflet(data=triangleOr) %>% addTiles() %>% addPolygons()
 ```
 
-**Remarque** : ce fichier géogrpahique a pour extension .kml. Ce format se lit sans problème avec la fonction `sf::st_read`. Pour information, ce triangle a été crée manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/).
+**Remarque** : ce fichier géographique a pour extension .kml. Ce format se lit sans problème avec la fonction `sf::st_read`. Pour information, ce triangle a été crée manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/).
 
 Pour connaître le nombre et le prix moyen des transactions immobilières réalisées en2021 dans ce quartier, nous procédons par intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention à bien s'assurer que les deux couches géographiques soient bien projetées dans le même système de projection.
 
@@ -1028,7 +1029,6 @@ Le principe de la démarche consiste à :
 
 **Remarque :** L'ensemble de carreaux étant en général plus large que la zone, les agrégats obtenus seront des estimations qui tendent à surestimer les valeurs réelles. Le problème ne se pose pas si vous travaillez directement sur des données disponibles au niveau "individu statistique" ("avec des x,y").
 
-<span style="background-color: #FFFF00">@Julien : on peut aussi donner un exemple d'agrégation aux x,y avec les données de DVF juste avant l'exemple au carreau. Ca me paraitrait intéressant.</span>
 
 <!-- 4 paramètres sont à renseigner en entrée de la fonction :  -->
 
@@ -1059,10 +1059,8 @@ carreaux <-  st_read_maison(paste0(url_bucket,bucket,"/",object))
 ```
 
 ```{r echo=FALSE}
-#saveRDS(carreaux, "carreaux_idf.RDS")
-object = "r-lissage-spatial/carreaux_idf.RDS"
-download.file(paste0(url_bucket,bucket,"/",object), destfile = "carreaux_idf.RDS")
-carreaux <- readRDS("carreaux_idf.RDS")
+url_file <- url(paste0(url_bucket,bucket,"/r-lissage-spatial/carreaux_idf.RDS"))
+carreaux <- readRDS(url_file)
 ```
 
 ```{r zoneAFacon}
@@ -1106,7 +1104,7 @@ Vous êtes désormais capables de carroyer et lisser toutes les données que vou
 
 --------------------------------------------
 
-**Reproducibilité**
+**Reproductibilité**
 
 ```{r}
 sessionInfo()

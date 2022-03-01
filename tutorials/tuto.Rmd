@@ -155,13 +155,13 @@ La base contient les **8 variables** suivantes :
 **Remarque importante** : Cette base a été filtrée de manière à être la plus pédagogique possible pour cette formation. Elle n'est donc ni représentative de la réalité ni fidèle au champ proposé par le producteur. Mieux vaut donc de pas appuyer vos investissements immobiliers sur les résultats de ce TP.
 
 
-Le code ci-dessous permet d'importer la première base de données `ventesImmo_couronneParis.RDS` utilisée dans ce tutoriel. Elle est stockée sous Minio, dans le "bucket public" : s3/kantunez/diffusion/projet_formation/r_lissage_spatial/.
+Le code ci-dessous permet d'importer la première base de données `ventesImmo_couronneParis.RDS` utilisée dans ce tutoriel. Elle est stockée sous Minio, dans le "bucket public" : s3/projet-formation/r-lissage-spatial/.
 
 ```{r}
 # Charger la source de données (variable nommée dfBase) avec S3
 url_bucket <- "https://minio.lab.sspcloud.fr/"
-bucket <- "kantunez"
-object <- "diffusion/projet_formation/r_lissage_spatial/ventesImmo_couronneParis.RDS"
+bucket <- "projet-formation"
+object <- "r-lissage-spatial/ventesImmo_couronneParis.RDS"
 ```
 
 ```{r eval = FALSE}
@@ -220,7 +220,7 @@ Récupérons le contour du territoire étudié avec la fonction `read_sf` du pac
 
 ```{r chargeContour}
 # Charger le fond de carte du territoire étudié
-object <- "diffusion/projet_formation/r_lissage_spatial/depCouronne.gpkg"
+object <- "r-lissage-spatial/depCouronne.gpkg"
 depCouronne_sf <- st_read(paste0(url_bucket,bucket,"/",object))
 
 # Visualisons cette couche vectorielle
@@ -972,7 +972,7 @@ La zone à façon que nous considérons est le cercle de 1 km de rayon autour du
 Dans un premier temps, on importe la zone à façon. Ici, il s'agit du quartier appelé «\~Triangle d'or\~», situé dans le 8e arrondissement de Paris. Ce quartier se caractérise par ses immeubles cossus, ses hôtels et ses commerces de luxe.
 
 ```{r triangleOr}
-object <- "diffusion/projet_formation/r_lissage_spatial/triangle_or.kml"
+object <- "r-lissage-spatial/triangle_or.kml"
 triangleOr <- st_read(paste0(url_bucket,bucket,"/",object))
 
 
@@ -1054,13 +1054,13 @@ st_read_maison <- function(chemin_tab){
   sf::st_read(chemin_tab, query = requete)
 }
 
-object = "diffusion/projet_formation/r_lissage_spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
+object = "r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
 carreaux <-  st_read_maison(paste0(url_bucket,bucket,"/",object))
 ```
 
 ```{r echo=FALSE}
 #saveRDS(carreaux, "carreaux_idf.RDS")
-object = "diffusion/projet_formation/r_lissage_spatial/carreaux_idf.RDS"
+object = "r-lissage-spatial/carreaux_idf.RDS"
 download.file(paste0(url_bucket,bucket,"/",object), destfile = "carreaux_idf.RDS")
 carreaux <- readRDS("carreaux_idf.RDS")
 ```

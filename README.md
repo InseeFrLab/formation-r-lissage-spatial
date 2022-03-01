@@ -22,4 +22,4 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
   * Se connecter avec son adresse mail insee et son mot de passe.
   * Cliquer sur **Trainings** en haut à droite de la page d'accueil
 
-![](../img/sspcloud_r.png)
+![](/img/sspcloud_r.png)

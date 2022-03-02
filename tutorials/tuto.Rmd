@@ -249,7 +249,9 @@ paris_sf <- sf::st_transform(paris_sf, crs = 2154)
 
 #### Première méthode (sélection non-géographique des ventes)
 
-Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros. L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans le rectangle. Il s'agit ici d'un simple filtre numérique, et non d'une opération géométrique (voir *infra*). Ainsi, cette méthode est très efficace en termes computationnels, même s'ils faut construire un rectangle adapté au préalable.
+Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros. 
+
+L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans le rectangle..Cette méthode est très efficace en termes computationnels, même s'ils faut construire un rectangle adapté au préalable.
 
 
 ```{r creaBbox}
@@ -302,11 +304,11 @@ mapview(paris_sf ,col.regions= "#26cce7")+
 
 Ce schéma présente : 
 
-- en beige, le territoire d'intérêt (Paris)
+- en bleu, le territoire d'intérêt (Paris)
 - en vert, la bbox du territoire d'intérêt (à savoir le plus petit rectangle englobant cette zone)
 - en jaune, la bbox élargie avec une marge de  2km. Autrement dit la zone tampon  autour de la bbox permettant de prendre en compte des observations au-delà de la seule zone d'intérêt, et ainsi éviter les effets de bord au moment du lissage.
 
-Pour sélectionner les données individuelles d'intérêt pour le lissage, on peut tout d'abord filtrer les observations dont les coordonnées sont comprises à l'intérieur du rectangle jaune. Ce filtre est très efficace computationnellement car il ne dépend que des valeurs numériques prises par les variables de longitude et de latitude et n'utilise pas les propriétés vectorielles des données qui sont des attributs plus chronophages à utiliser.
+Pour sélectionner les données individuelles d'intérêt pour le lissage, on peut tout d'abord filtrer les observations dont les coordonnées sont comprises à l'intérieur du rectangle jaune. Ce filtre est très efficace computationnellement car il ne dépend que des valeurs numériques prises par les variables de longitude et de latitude et n'utilise pas les propriétés vectorielles des données qui sont des attributs plus chronophages à utiliser (cf. *infra*).
 
 
 ```{r selectDonnee}
@@ -321,14 +323,18 @@ yMax <- bufferBbox["ymax"]
 # Ne garder que les données dans le rectangle englobant le territoire étudié, sans traitement vectoriel !
 dfBase_filtre <- dfBase[dfBase$x >= xMin & dfBase$x <= xMax & dfBase$y >= yMin & dfBase$y <= yMax, ]
 dim(dfBase_filtre)
+dim(dfBase)
 
 ```
 
+#### Seconde méthode : la sélection géométrique des ventes
+
 Il est possible de procéder autrement. 
-On peut utiliser nos données individuelles comme un ensemble de points (approche vectorielle) et procéder à des intersections géographiques.
+On peut utiliser nos données individuelles comme un ensemble de points (approche géométrique ou vectorielle) et procéder à des intersections géographiques.
+
 Pour cela : 
 
-- on créer une zone tampon (buffer) autour du territoire d'intérêt, avec une marge (ici 2\ 000m), sous la forme d'un objet `sf` vectoriel
+- on crée une zone tampon (buffer) autour du territoire d'intérêt, avec une marge (ici 2\ 000m), sous la forme d'un objet `sf` vectoriel
 - On repère les observations comprises dans cette zone tampon par intersection géographique, après avoir transformé nos observation en points vectoriels.
 
 Cette méthode, bien qu'élégante, peut-être lourdre d'un point de vu computationnel. Avec des données volumineuses, il convient au minimum de faire un premier filtrage avec la précédente méthode.
@@ -340,11 +346,18 @@ sfBase <- sf::st_as_sf(dfBase, coords = c("x", "y"), crs = 2154)
 # Création d'un buffer autour du territoire
 buffer_sf <- st_buffer(paris_sf, dist = 2000)
 
-# Repérer les indices des observations contenues dans notre buffer d'intérêt
-indiceObsContenues <- unlist(sf::st_contains(buffer_sf, sfBase))
+# # Repérer les indices des observations contenues dans notre buffer d'intérêt
+# indiceObsContenues <- unlist(sf::st_contains(buffer_sf, sfBase))
+# 
+# # Réduire la base aux seules observations dans le territoire
+# dfBase_filtre <- dfBase[indiceObsContenues, ]
 
-# Réduire la base aux seules observations dans le territoire
-dfBase_filtre <- dfBase[indiceObsContenues, ]
+sfBase_filtre <- st_join(sfBase,buffer_sf,left=F)
+sfBase_filtre
+
+# Pour rappel  : le nombre de vente dans la base initiale
+nrow(dfBase)
+
 ```
 
 
@@ -353,35 +366,15 @@ dfBase_filtre <- dfBase[indiceObsContenues, ]
 # Mise en forme de la couche buffer
 buffer_sf$nom <- "buffer"
 
-# Assemblage des 2 couches dans une même table sf pour la cartographie
-couches_plot <- rbind(buffer_sf,paris_sf)
+# Échantillon de 2000 observations dans le buffer
+sfBase_sample <- sfBase_filtre[sample(1:nrow(sfBase_filtre),2000) ,]
 
-# Passage d'une couche de polygones à une couche de lignes (pour la cartographie)
-couches_plot <- st_cast(couches_plot, "MULTILINESTRING")
+# Cartographie pédagogique avec mapview
+m <- mapview(paris_sf ,col.regions= "#26cce7")+
+  mapview(buffer_sf %>% st_cast("MULTILINESTRING"),color="#FFC300",lwd=6)+
+  mapview(sfBase_sample,#col.regions = "black",alpha.regions=0.5,
+          alpha=0,cex=2)
 
-# Cartographie pédagogique avec le package mapsf
-mf_init(x = couches_plot, theme = "agolalight")
-mf_map(x = couches_plot,
-       type = "typo", 
-       var = "nom",
-       pal=c("yellow3","wheat"),
-       lwd=8,
-       leg_title = "Zones d'analyse",
-       add = TRUE) 
-mf_map(x = st_cast(couches_plot[couches_plot$nom=="territoire",],"POLYGON"),
-       type = "base", 
-       col="wheat",
-       border=FALSE,
-       add = TRUE) 
-
-# Échantillon de 500 observations dans le buffer
-sfBase_sample <- sfBase[indiceObsContenues, ]
-sfBase_sample <- sfBase_sample[sample(1:nrow(sfBase_sample),2000) ,]
-mf_map(sfBase_sample,
-       add = TRUE,
-       leg_title = "observations")
-
-mf_layout(title = "Gestion du territoire d'analyse",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 
@@ -405,17 +398,18 @@ Le code ci-dessous procède de la sorte :
 
 La fonction `dfToGrid` attend comme paramètres obligatoires :
 
-  - `df` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille. (Remarque : la grille n'est pas nécessairement régulière.)
+  - `df` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille.
   - `sEPSG` : chaine de caractères indiquant le code epsg du système de projection utilisé.
+  - `iCellSize` : la taille des carreau (côté), en mètres.
 
 
 ```{r carroyage}
 
 # Arrondir les coordonnées des observations aux centroides les plus proches
 iCellSize = 200 # Carreaux de 200m
-points_carroyage <- dfBase_filtre
-points_carroyage$x_centroide = as.integer(floor(points_carroyage$x / iCellSize) * iCellSize + (iCellSize / 2))
-points_carroyage$y_centroide = as.integer(floor(points_carroyage$y / iCellSize) * iCellSize + (iCellSize / 2))
+points_carroyage <- dfBase_filtre # On repart de la base filtrée selon la première méthode
+points_carroyage$x_centroide = points_carroyage$x - (points_carroyage$x %% iCellSize) + (iCellSize / 2)
+points_carroyage$y_centroide = points_carroyage$y - (points_carroyage$y %% iCellSize) + (iCellSize / 2)
 
 head(points_carroyage)
 
@@ -424,17 +418,18 @@ points_carroyage <- points_carroyage %>%
   group_by(x=x_centroide,y=y_centroide) %>% 
   count(name = "nbVentes")
   
-
 # Générer la grille
-points_carroyage <- btb::dfToGrid(df = points_carroyage, sEPSG = "2154", iCellSize = iCellSize)
+carreaux <- btb::dfToGrid(df = points_carroyage, sEPSG = "2154", iCellSize = iCellSize)
 
 # Restriction du champ : on ne retient que les carreaux intersectant Paris
-points_carroyage <- points_carroyage[unlist(st_intersects(paris_sf,points_carroyage)),]
+carreaux <- carreaux %>% st_join(paris_sf,left=F)
+
 
 # Cartographie
+contourParis <- st_cast(paris_sf[,c("geometry")],"MULTILINESTRING")
 
-mf_init(x=points_carroyage,theme = "agolalight")
-mf_map(x = points_carroyage,
+mf_init(x=carreaux,theme = "agolalight")
+mf_map(x = carreaux,
        type = "choro",
        var="nbVentes",
        breaks = "quantile",
@@ -442,7 +437,7 @@ mf_map(x = points_carroyage,
        lwd=1,
        leg_val_rnd = 1,
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"),
+mf_map(x = contourParis,
        lwd=4,
        col="black",add = TRUE)
 mf_layout(title = "Carroyage du nombre de ventes",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
@@ -450,21 +445,16 @@ mf_layout(title = "Carroyage du nombre de ventes",credits = "Insee-DSAU, DGFiP, 
 
 **Remarque 1 :** Le carroyage peut aussi être utilisé pour simplifier les données avant lissage si le calcul de lissage est trop long en raison d'un très grand nombre d'observations.
 
-
 **Remarque 2 :** Les étapes avant la génération de la grille ne sont pas intégrées dans des fonctions du package `btb`, il faut donc s'inspirer du code ci-dessus pour reproduire le même type de carroyage. Il est envisagé qu'une future version du package `btb` simplifie le code permettant de réaliser un carroyage. 
-
-
-
-
 
 
 # Lissage
 
 ## Calcul de densité
 
-Un lissage simple à réaliser correspond au calcul d'une **densité**, à savoir une quantité par unité de surface (un carreau). Dans cette section nous allons calculer la densité ventes de logements sur la ville de Paris au cours de l'année 2021.
+Un lissage simple à réaliser correspond au calcul d'une **densité**, à savoir une quantité par unité de surface (un carreau). Dans cette section, nous allons calculer la densité de ventes de logements sur la ville de Paris au cours de l'année 2021.
 
-Pour ce faire, nous allons au préalable créer une variable `nbObsLisse` qui vaudra `1` pour chaque observation (donc logement vendu en 2021) et qui sera lissée avec la fonction `kernelSmoothing` du package `btb`.
+Pour ce faire, nous allons préalablement créer une variable `nbObsLisse` qui vaudra `1` pour chaque observation (donc logement vendu en 2021) et qui sera lissée avec la fonction `kernelSmoothing` du package `btb`.
 
 Toujours pour éviter les effets de bord, le lissage sera effectué sur une zone plus large que la zone d'intérêt (utilisation d'un buffer).
 
@@ -497,7 +487,7 @@ Attention, la fonction retourne une erreur en cas de :
 ```{r lissAuto400,  results='hide'}
 # Lisser
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage, 
+sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
                                     iCellSize = 200, 
                                     iBandwidth = 400)
@@ -505,21 +495,21 @@ dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage,
 
 ```{r visLissAuto400}
 # Visualiser les premières lignes des données lissées
-head(dfBaseLisse)
+head(sfCarrLiss)
 # Nombre de lignes lissées
-nrow(dfBaseLisse)
+nrow(sfCarrLiss)
 ```
 
-La fonction `kernelSmoothing` génère une grille de carreaux, et chaque carreau est affecté de la densité lissée en son centroïde. À noter que la grille carroyée épouse globalement le périmètre des points en entrée de la fonction (elle va même un peu au-delà par défaut, cf. séquence théorique sur le lissage de la formation "Comment utiliser les outils de l'analyse urbaine ?").
+La fonction `kernelSmoothing` génère une grille de carreaux, et chaque carreau est affecté de la densité lissée en son centroïde. À noter que la grille carroyée épouse globalement le périmètre des points en entrée de la fonction (elle va même un peu au-delà par défaut, cf. séquence théorique sur le lissage de la formation «\ Comment utiliser les outils de l'analyse urbaine ?\ »).
 
 ```{r grilleCarrDefaut}
 mf_init(x=paris_sf,theme = "agolalight")
-mf_map(x = st_cast(dfBaseLisse[,c("geometry")],"LINESTRING"), 
+mf_map(x = st_cast(sfCarrLiss[,c("geometry")],"LINESTRING"), 
        lwd=1,add=T)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=8,
        col="wheat",add = TRUE)
-mf_layout(title = "Gestion du territoire d'analyse",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "KernelSmoothing génère une grille carroyée",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 
@@ -528,14 +518,14 @@ Une propriété particulièrement importante de la fonction de **lissage** class
 
 ```{r}
 sum(dfBase_filtre$nbObsLisse) # Nombre de ventes dans la petite couronne
-sum(dfBaseLisse$nbObsLisse) # Après lissage, nombre lissé de ventes dans les carreaux
+sum(sfCarrLiss$nbObsLisse) # Après lissage, nombre lissé de ventes dans les carreaux
 ```
 
 **Remarque** : **Veillez toujours à respecter le secret statistique au moment de la publication de vos cartes !** Par exemple, si vous utilisez des données issues des bases fiscales, vous ne pouvez représenter des informations sur des carreaux comportant moins de 11 observations, même si ce nombre est lissé... Pour ce faire, vous pouvez réaliser le filtre ci-dessous :
 
 ```{r filtreSecret, eval=FALSE}
 # Exclure les carreaux ne respectant pas le secret statistique
-dfBaseLisse <- dfBaseLisse[dfBaseLisse$nbObsLisse >= 11, ]
+sfCarrLiss <- sfCarrLiss[sfCarrLiss$nbObsLisse >= 11, ]
 ```
 
 Voyons maintenant le nombre lissé de ventes de logements à Paris en 2021 suite à ce premier lissage.
@@ -544,7 +534,7 @@ Quelques informations préalables :
 
 - On cherche à analyser le phénomène sur le périmètre de la ville de Paris ;
 - Ainsi, on lisse les données de ventes sur un périmètre plus large que la ville de Paris afin d'éviter les effets de bord aux frontière de la commune. En effet, la base `dfBase_filtre` contient toutes les ventes comprises dans un buffer de 2 km autour de Paris.
-- Suite au lissage, une grille carroyée est produite comportant les données lissées. Les carreaux vont bien au-delà de la commune de Paris. Néanmoins, pour la représentation, on ne sélectionne que les carreaux intersectant Paris (grâce à la fonction `sf::st_intersects`).
+- Suite au lissage, une grille carroyée est produite comportant les données lissées. Les carreaux vont bien au-delà de la commune de Paris. Néanmoins, pour la représentation, on ne sélectionne que les carreaux intersectant Paris (grâce à la fonction `sf::st_join`).
 - Pour cartographier les carreaux :
   - On réalise une carte de type `choroplèthe` ;
   - Avec une méthode de discrétisation de la densité lissée : ici, par quantiles par exemple ;
@@ -553,18 +543,18 @@ Quelques informations préalables :
 ```{r resLissAuto400}
 
 # Filtrage des carreaux lissés intersectant la ville de Paris
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
 
 # Carte lissée
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris, 
+mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_map(x = sfCarrLiss_paris, 
        type = "choro",
        var="nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
        lwd=1,
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
 mf_layout(title = "Lissage avec rayon de 400m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
@@ -574,11 +564,11 @@ mf_layout(title = "Lissage avec rayon de 400m",credits = "Insee-DSAU, DGFiP, Eta
 
 ### Grille automatique; carreaux 200; rayon de lissage 600m
 
-Il n'est pas possible de connaitre *a priori* la taille optimale du rayon de lissage. Il faut donc en essayer plusieurs pour trouver le meilleur compromis entre précision et généralisation. Nous allons donc faire le même lissage que précédemment avec un rayon de 600 m au lieu de 400 m.
+Il n'est pas possible de connaitre *a priori* la taille optimale du rayon de lissage. Il faut donc en essayer plusieurs pour trouver le meilleur compromis entre précision et généralisation. Nous allons donc faire le même lissage que précédemment avec un rayon de 600m au lieu de 400m.
 
 ```{r lissage600, results='hide'}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage, 
+sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
                                     iCellSize = 200, 
                                     iBandwidth = 600)
@@ -586,21 +576,21 @@ dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage,
 
 ```{r resLissage600}
 # Visualiser les premières lignes des données lissées
-head(dfBaseLisse)
+head(sfCarrLiss)
 
 # Filtrage des carreaux lissés dans Paris
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
 
 # Carte lissée
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris, 
+mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_map(x = sfCarrLiss_paris, 
        type = "choro",
        var="nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
        lwd=1,
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
 mf_layout(title = "Lissage avec rayon de 600m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
@@ -610,7 +600,7 @@ mf_layout(title = "Lissage avec rayon de 600m",credits = "Insee-DSAU, DGFiP, Eta
 
 ```{r lissage1000, include=FALSE}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage, 
+sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
                                     iCellSize = 200, 
                                     iBandwidth = 1000)
@@ -618,21 +608,21 @@ dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage,
 
 ```{r resLissage1000, echo=FALSE}
 # Visualiser les premières lignes des données lissées
-head(dfBaseLisse)
+head(sfCarrLiss)
 
 # Filtrage des carreaux lissés dans Paris
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
 
 # Carte lissée
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris, 
+mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_map(x = sfCarrLiss_paris, 
        type = "choro",
        var="nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
        lwd=1,
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
 mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
@@ -644,8 +634,8 @@ Enfin, la grille carroyée est ici visible à des fins pédagogiques, il est bie
 
 ```{r resLissage1000ssGrille}
 
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris, 
+mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_map(x = sfCarrLiss_paris, 
        type = "choro",
        var="nbObsLisse",
        breaks = "quantile",
@@ -653,20 +643,53 @@ mf_map(x = dfBaseLisse_paris,
        border = NA, # C'est ici que ça se passe
        # lwd=1,
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
 mf_layout(title = "Lissage avec rayon de 1000m, sans grille",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
+Pour éviter l'aspect «\ granuleux\ », on pourrait aussi réduire la taille des carreaux. Attention toutefois aux temps de calcul. 
+
+```{r lissPetitscarr, results='hide'}
+dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
+sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
+                                    sEPSG = "2154",
+                                    iCellSize = 50, 
+                                    iBandwidth = 1000)
+```
+
+```{r reslissPetitscarr}
+# Filtrage des carreaux lissés dans Paris
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
+
+# Carte lissée
+mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_map(x = sfCarrLiss_paris, 
+       type = "choro",
+       var="nbObsLisse",
+       breaks = "quantile",
+       nbreaks = 5,
+       border = NA,
+       add = TRUE)
+mf_map(x = contourParis, 
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Lissage avec pas de 50m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+
+```
+
+
 
 ### Exemple d'effet de bord à éviter
 
 
-Ci-dessous, nous illustrons les effets de bord produits si on lisse uniquement les ventes réalisées dans Paris intramuros.
-Dans les deux cartes ci-dessous, le rayon de lissage (2\ 000 mètres) et les bornes de discrétisation sont communs pour assurer la comparabilité des deux cartes.
+Dans cette section, nous illustrons les effets de bord produits en lissant uniquement les ventes réalisées dans Paris intramuros.
 
-- Dans le premier cas, on lisse les ventes situées dans Paris et ses alentours. - Dans le second cas, on ne lisse que les ventes réalisées dans intramuros. 
+Dans les deux cartes ci-dessous, le rayon de lissage (2\ 000 mètres) et les bornes de discrétisation sont communes pour assurer la comparabilité des deux cartes.
+
+- Dans le premier cas, on lisse les ventes situées dans Paris et ses alentours. 
+- Dans le second cas, on ne lisse que les ventes réalisées dans intramuros. 
 
 Ainsi, on peut remarquer que les effets de bord se matérialisent à la périphérie de Paris, où les densités lissées sont artificiellement plus faibles que quand on lisse en prenant une marge. 
 
@@ -675,14 +698,14 @@ Ainsi, on peut remarquer que les effets de bord se matérialisent à la périph�
 
 # Lissage avec gestion des effets de bord
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage, 
+sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
                                     iCellSize = 200, 
                                     iBandwidth = 2000)
 
 
 # Lissage sans gestion des effets de bord (Base des ventes uniquement dans intramuros)
-sfBase_intramuros <- sfBase[unlist(st_contains(paris_sf,sfBase)),]
+sfBase_intramuros <- sfBase %>% st_join(paris_sf,left=F)
 dfBase_intramuros <- sfBase_intramuros %>% 
   mutate(x=st_coordinates(geometry)[,1],
          y=st_coordinates(geometry)[,2],
@@ -690,7 +713,7 @@ dfBase_intramuros <- sfBase_intramuros %>%
   st_drop_geometry() %>% 
   select(nbObsLisse,x,y)
 
-dfBaseLisse_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuros, 
+sfCarLiss_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuros, 
                                     sEPSG = "2154",
                                     iCellSize = 200, 
                                     iBandwidth = 2000)
@@ -700,43 +723,61 @@ dfBaseLisse_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuro
 ```{r resEffetBord, echo=FALSE}
 
 # Avec gestion des effets de bord
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
+sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F)
 
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris, 
+mf_init(x=sfCarLiss_paris,theme = "agolalight")
+mf_map(x = sfCarLiss_paris, 
        type = "choro",
        var="nbObsLisse",
        breaks = c(0,3,5,7,9,17),
        # nbreaks = 5,
-       lwd=1,
-       leg_val_rnd = 0,
+       border = NA,
+       leg_val_rnd = 1,
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
-       lwd=4,
+mf_map(x = contourParis, 
+       border = NA,
        col="black",add = TRUE)
 mf_layout(title = "Sans effets de bord, avec R=2000m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 
 # Sans gestion des effets de bord
-dfBaseLisse_intramuros_paris <- dfBaseLisse_intramuros[unlist(st_intersects(paris_sf,dfBaseLisse_intramuros)),]
+sfCarLiss_intramuros_paris <- sfCarLiss_intramuros %>% st_join(paris_sf,left = F)
 
-mf_init(x=dfBaseLisse_intramuros_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_intramuros_paris, 
+mf_init(x=sfCarLiss_intramuros_paris,theme = "agolalight")
+mf_map(x = sfCarLiss_intramuros_paris, 
        type = "choro",
        var="nbObsLisse",
        breaks = c(0,3,5,7,9,17),
        # nbreaks = 5,
-       lwd=1,
-       leg_val_rnd = 0, 
+       border = NA,
+       leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
 mf_layout(title = "Avec effets de bord, avec R=2000m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
+### Petit point sur les grilles automatiques
 
-<span style="background-color: #FFFF00"> Évoquer le paramétrage de la grille carroyée afin de prendre en compte les limites artificielles (limites administratives) et les limites physiques (mer, montagne, etc.)</span>
+Prenons l'exemple du lissage réalisé uniquement sur les ventes à l'intérieur de Paris intramuros.
+Avec un rayon de lissage de 2000m et un pas de 200m, le lissage est effectué sur une grille carroyée générée automatiquement. Cette grille correspond :
+
+- à l'ensemble des carreaux contenant au moins une vente
+- et dans les 4 carreaux limitrophes de ces dernier (règle automatique, cf. séquence 5 de la formation «\ Comment utiliser les outils de l’analyse urbaine\ »)
+
+Regardons de plus près : 
+
+```{r grilleAuto}
+mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),lwd=2,layer.name="Grille automatique") +
+  mapview(contourParis,color="red",lwd=10) 
+```
+
+On voit que la grille produite par `kernelSmoothing` dépasse les limites de Paris intramuros alors même que nous n'avons ici lissé que les ventes réalisées à l'intérieur de Paris intramuros.
+
+Il est possible de modifier la règle de création de cette grille automatique en rensignant le paramètre `iNeighbor`. Par exemple, si `iNeighbor=2`, la grille du lissage contient 2 carreaux limitrophes aux carreaux contenant au moins une vente.
+
+De même, on peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné. Dans ce cas, il convient de la confectionner soi-même et de la renseigner dans le paramètre `dfCentroids`de la fonction `kernelSmoothing`.
 
 
 

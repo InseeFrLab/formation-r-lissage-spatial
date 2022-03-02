@@ -775,15 +775,28 @@ mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),lwd=2,layer.name="Gr
 
 On voit que la grille produite par `kernelSmoothing` dépasse les limites de Paris intramuros alors même que nous n'avons ici lissé que les ventes réalisées à l'intérieur de Paris intramuros.
 
-Il est possible de modifier la règle de création de cette grille automatique en rensignant le paramètre `iNeighbor`. Par exemple, si `iNeighbor=2`, la grille du lissage contient 2 carreaux limitrophes aux carreaux contenant au moins une vente.
+Il est possible de modifier la règle de création de cette grille automatique en rensignant le paramètre `iNeighbor`. Par exemple, si `iNeighbor=2`, la grille du lissage contient 2 carreaux limitrophes aux carreaux contenant au moins une vente. On peut aussi vouloir une grille uniquement constituée des carreaux contenant au moins une vente (`iNeighbor=2`), mais attention à l'effet «\ gruillère\ ».
 
-De même, on peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné. Dans ce cas, il convient de la confectionner soi-même et de la renseigner dans le paramètre `dfCentroids`de la fonction `kernelSmoothing`.
+
+```{r echo=FALSE}
+sfCarLiss_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuros, 
+                                    sEPSG = "2154",
+                                    iCellSize = 200, 
+                                    iBandwidth = 2000,
+                                    iNeighbor = 0)
+
+mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),lwd=2,layer.name="Grille automatique") +
+  mapview(contourParis,color="red",lwd=10) 
+
+```
+
+De même, on peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné. Dans ce cas, il convient de la confectionner soi-même et de la renseigner dans le paramètre `dfCentroids`de la fonction `kernelSmoothing`. Par exemple, en faisant un lissage sur une ville cotière, on peut vouloir une grille qui ne déborde pas sur la mer tout en ne souhaitant pas de l'effet «\ gruillère\ » du paramétrage `iNeighbor=0`.
 
 
 
 ## Calcul de moyenne
 
-Dans cette section nous allons nous intéresser au prix moyen des logements vendus à Paris en 2021. 
+Dans cette section, nous allons nous intéresser au prix moyen des logements vendus à Paris en 2021. 
 
 :::: {.boite data-latex=""}
 **Remarque** : 
@@ -797,37 +810,38 @@ Ainsi, il convient de :
 - Lisser le nombre de biens vendus (exactement comme précédemment)
 - Faire le ratio des deux précédents lissages pour chaque carreau de la grille produite.
 
-Dans l'exemple ci-dessous, on prend un rayon de lissage de 600 m :
+Dans l'exemple ci-dessous, on prend un rayon de lissage de 800m et un pas de 100m :
 
 ```{r lissageMoyenne,  results='hide'}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","valeur_fonciere","x","y")] # Ajout de la variable "valeur_fonciere"
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage, 
+sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
-                                    iCellSize = 200, 
-                                    iBandwidth = 600)
+                                    iCellSize = 100, 
+                                    iBandwidth = 800)
 ```
 
 ```{r reslissageMoyenne}
 # Visualiser les premières lignes des données lissées
-head(dfBaseLisse)
+head(sfCarLiss)
 
 # Calculer le taux
-dfBaseLisse$prixMoyen <- dfBaseLisse$valeur_fonciere / dfBaseLisse$nbObsLisse
+sfCarLiss$prixMoyen <- sfCarLiss$valeur_fonciere / sfCarLiss$nbObsLisse
 
 # Cartographie
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris, 
+sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
+mf_init(x=sfCarLiss_paris,theme = "agolalight")
+mf_map(x = sfCarLiss_paris, 
        type = "choro",
        var="prixMoyen",
        breaks = "quantile",
        nbreaks = 5,
-       lwd=1,
+       border=NA,
+       leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Lissage des prix de vente avec un rayon de 600m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
 
@@ -845,42 +859,41 @@ Dans cette section, nous allons nous intéresser à la proportion de ventes port
 dfBase_filtre$quatrePieces <- ifelse(dfBase_filtre$nombre_pieces_principales >= 4, 1, 0)
 ```
 
-
-
 ```{r lissageTaux,  results='hide'}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","quatrePieces","x","y")]
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage, 
+sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
-                                    iCellSize = 200, 
-                                    iBandwidth = 600)
+                                    iCellSize = 100, 
+                                    iBandwidth = 800)
 ```
 
 ```{r reslissageTaux}
 # Visualiser les premières lignes des données lissées
-head(dfBaseLisse)
+head(sfCarLiss)
 
 # Calculer le taux
-dfBaseLisse$txQuatrePieces <- dfBaseLisse$quatrePieces / dfBaseLisse$nbObsLisse
+sfCarLiss$txQuatrePieces <- sfCarLiss$quatrePieces / sfCarLiss$nbObsLisse
 
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
+sfCarLiss_paris <- sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
 
 # Cartographie
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris, 
+mf_init(x=sfCarLiss_paris,theme = "agolalight")
+mf_map(x = sfCarLiss_paris, 
        type = "choro",
        var="txQuatrePieces",
        breaks = "quantile",
        nbreaks = 5,
-       lwd=1,
+       border=NA,
+       leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"), 
+mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 600m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
 
-La carte des prix moyens et la carte des grands logements se ressemblent, fort logiquement. On peut alors avoir envie de lisser le prix au mètre-carré. 
+La carte des prix moyens et la carte des grands logements ont des similitudes importantes, fort logiquement. On peut alors avoir envie de lisser le prix au mètre-carré.
 
 :::: {.boite data-latex=""}
 Pour ce faire, n'oubliez pas qu'il convient de lisser séparément les prix de vente (numérateur) et le nombre de mètres-carrés (dénominateur) des logements vendus. Autrement, si on lisse le prix au m² de chaque logement vendu, on sur-pondère artificiellement les prix au m² des petits logements (car l'unité statistique devient alors le logement, et non le m² vendu).
@@ -889,33 +902,34 @@ Pour ce faire, n'oubliez pas qu'il convient de lisser séparément les prix de v
 ```{r lissageMoyenneM2,  results='hide'}
 dataLissage <- dfBase_filtre[,c("surface_reelle_bati","valeur_fonciere","x","y")]
 
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage,
+sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
-                                    iCellSize = 200,
-                                    iBandwidth = 600)
+                                    iCellSize = 100, 
+                                    iBandwidth = 800)
 ```
 
 ```{r reslissageMoyenneM2}
 # Visualiser les premières lignes des données lissées
-head(dfBaseLisse)
+head(sfCarLiss)
 
 # Calculer le prix au m²
-dfBaseLisse$prixM2 <- dfBaseLisse$valeur_fonciere / dfBaseLisse$surface_reelle_bati
+sfCarLiss$prixM2 <- sfCarLiss$valeur_fonciere / sfCarLiss$surface_reelle_bati
 
 # Cartographie
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris,
+sfCarLiss_paris <- sfCarLiss[unlist(st_intersects(paris_sf,sfCarLiss)),]
+mf_init(x = sfCarLiss_paris,theme = "agolalight")
+mf_map(x = sfCarLiss_paris,
        type = "choro",
        var="prixM2",
        breaks = "quantile",
        nbreaks = 5,
-       lwd=1,
+       border=NA,
+       leg_val_rnd = 1, 
        add = TRUE)
 mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"),
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Prix au m² (rayon de 600m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Prix au m² (rayon de 800m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
 
@@ -930,7 +944,7 @@ Dans cette section, nous allons calculer le 1er décile, la médiane et le 9ème
    - la fonction crée
        * une colonne `nbObs` indiquant le nombre d'observations **réel** (non lissé) ayant contribué au calcul du carreau.
        * pour chaque variable, autant de colonnes qu'il y a de quantiles souhaités
-       
+
 On représente ici le lissage du premier décile et de la médiane.
 
 Pour rappel, le lissage quantile (médiane, déciles . . . ) permet d’avoir des indicateurs moins sensibles aux valeurs extrêmes et d’enrichir l'analyse avec des indicateurs de dispersion (comme par exemple l’écart interquantile).
@@ -939,63 +953,64 @@ Pour rappel, le lissage quantile (médiane, déciles . . . ) permet d’avoir de
 ```{r lissQuantile, include=FALSE, results='hide'}
 
 dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")]
-dfBaseLisse <- btb::kernelSmoothing(dfObservations = dataLissage,
+
+sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
                                     sEPSG = "2154",
                                     iCellSize = 200,
-                                    iBandwidth = 1500, 
+                                    iBandwidth = 1500,
                                     vQuantiles = c(0.1, 0.5, 0.9))
 
 ```
 
-```{r resLissQuantile10}
+<!-- ```{r resLissQuantile10} -->
 
-# Visualiser les premières lignes des données lissées
-head(dfBaseLisse)
+<!-- # Visualiser les premières lignes des données lissées -->
+<!-- head(sfCarLiss) -->
 
-# Cartographie
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris,
-       type = "choro",
-       var="valeur_fonciere_01",
-       breaks = "quantile",
-       nbreaks = 5,
-       lwd=1,
-       leg_val_rnd = 0,
-       add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"),
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
-```
+<!-- # Cartographie -->
+<!-- sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F) -->
 
-```{r resLissQuantile50}
+<!-- mf_init(x=sfCarLiss_paris,theme = "agolalight") -->
+<!-- mf_map(x = sfCarLiss_paris, -->
+<!--        type = "choro", -->
+<!--        var="valeur_fonciere_01", -->
+<!--        breaks = "quantile", -->
+<!--        nbreaks = 5, -->
+<!--        border=NA, -->
+<!--        leg_val_rnd = 0, -->
+<!--        add = TRUE) -->
+<!-- mf_map(x = contourParis, -->
+<!--        lwd=4, -->
+<!--        col="black",add = TRUE) -->
+<!-- mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf") -->
+<!-- ``` -->
 
-# Cartographie
-dfBaseLisse_paris <- dfBaseLisse[unlist(st_intersects(paris_sf,dfBaseLisse)),]
-mf_init(x=dfBaseLisse_paris,theme = "agolalight")
-mf_map(x = dfBaseLisse_paris,
-       type = "choro",
-       var="valeur_fonciere_05",
-       breaks = "quantile",
-       nbreaks = 5,
-       lwd=1,
-       leg_val_rnd = 0,
-       add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"),
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
-```
+<!-- ```{r resLissQuantile50} -->
 
-Pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'observations ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé.
+<!-- # Cartographie -->
+<!-- mf_init(x=sfCarLiss_paris,theme = "agolalight") -->
+<!-- mf_map(x = sfCarLiss_paris, -->
+<!--        type = "choro", -->
+<!--        var="valeur_fonciere_05", -->
+<!--        breaks = "quantile", -->
+<!--        nbreaks = 5, -->
+<!--        border=NA, -->
+<!--        leg_val_rnd = 0, -->
+<!--        add = TRUE) -->
+<!-- mf_map(x = contourParis, -->
+<!--        lwd=4, -->
+<!--        col="black",add = TRUE) -->
+<!-- mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf") -->
+<!-- ``` -->
 
-```{r verifObsQuantiles}
-summary(dfBaseLisse_paris$nbObs)
+<!-- Pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'observations ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé. -->
 
-# Part de centroïdes dans le quantile lissé a été calculé avec moins de 10 observations
-dfBaseLisse_paris %>% st_drop_geometry() %>% group_by(nbObs<10) %>% count()
-```
+<!-- ```{r verifObsQuantiles} -->
+<!-- summary(sfCarLiss_paris$nbObs) -->
+
+<!-- # Part de centroïdes dans le quantile lissé a été calculé avec moins de 100 observations -->
+<!-- sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count() -->
+<!-- ``` -->
 
 
 

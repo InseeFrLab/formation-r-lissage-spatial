@@ -99,7 +99,7 @@ Quatre librairies sont nécessaires pour ce TP.
 # Charger les librairies nécessaires
 
 ## Liste des librairies utilisées
-packages <-  c("dplyr","sf","btb","mapsf","leaflet")
+packages <-  c("dplyr","sf","btb","mapsf","leaflet","mapview")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -244,21 +244,24 @@ paris_sf <- sf::st_transform(paris_sf, crs = 2154)
 
 ### Territoires englobants, sélection des données à lisser
 
-À partir de ces territoires, nous pouvons déterminer le rectangle englobant pour réduire la quantité de données manipulées.
 
 **Pour éviter les effets de bord**, il faut également sélectionner des données au-delà de notre zone d'intérêt (ici Paris intramuros). Autrement dit, si on ne sélectionne que les ventes immobilières situées dans Paris intramuros, et qu'on lisse ce nuage de points, les zones situées à proximité du périphérique seront artificiellement peu denses en ventes immobilières. En effet, elles sont situées à proximité de zones artificiellement vides en ventes immobilières dans notre nuage de points, à savoir dans les communes limitrophes. Pourtant, dans la réalité, il y a bien des ventes réalisées à Malakoff, Vanves, Montrouge, etc. Et ces ventes influencent la densité lissée aux niveau de la Porte de Vanves. 
 
-```{r schemaBbox}
+#### Première méthode (sélection non-géographique des ventes)
+
+Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros. L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans le rectangle. Il s'agit ici d'un simple filtre numérique, et non d'une opération géométrique (voir *infra*). Ainsi, cette méthode est très efficace en termes computationnels, même s'ils faut construire un rectangle adapté au préalable.
+
+
+```{r creaBbox}
 
 # Mise en forme de la couche "territoire" : sélection des variables et renommage
 paris_sf$nom <- "territoire"
 paris_sf <- paris_sf[,c("nom","geometry")]
 
-# Création d'une bbox vectorielle autour du territoire
+# Création d'une bbox autour du territoire
 bbox <- sf::st_bbox(paris_sf)
 bbox
-bbox_sf = st_sf(nom="bbox", geometry = st_as_sfc(bbox), crs = 2154)
-bbox_sf 
+
 # Création d'un buffer de la bbox, avec une marge de 2000 mètres
 
 marge <- 2000
@@ -267,32 +270,35 @@ bufferBbox[["xmin"]] <- bufferBbox[["xmin"]]-marge
 bufferBbox[["xmax"]] <- bufferBbox[["xmax"]]+marge
 bufferBbox[["ymin"]] <- bufferBbox[["ymin"]]-marge
 bufferBbox[["ymax"]] <- bufferBbox[["ymax"]]+marge
+
+```
+
+Ci-dessous le code pour réaliser un petit schéma explicatif. 
+```{r schemaBbox}
+# Petit rectangle vectoriel
+bbox_sf = st_sf(nom="bbox", geometry = st_as_sfc(bbox), crs = 2154)
+
+# Grand rectangle vectoriel
 bufferBbox_sf = st_sf(nom="buffer_bbox", geometry = st_as_sfc(bufferBbox), crs = 2154)
 
-# Assemblage des 3 couches dans une même table sf pour la cartographie
-couches_plot <- rbind(bbox_sf,
-      bufferBbox_sf,
-      paris_sf)
+# Options globales pour les cartes Mapviews     
+mapviewOptions(
+  basemaps = c(
+    "OpenStreetMap",
+    "CartoDB.Positron",
+    "CartoDB.DarkMatter",
+    "Esri.WorldImagery"
+  )
+)
+# Cartographie pédagogique avec mapview
+mapview(paris_sf ,col.regions= "#26cce7")+
+  mapview(bufferBbox_sf %>% st_cast("MULTILINESTRING"),color="#FFC300",lwd=6)+
+  mapview(bbox_sf %>% st_cast("MULTILINESTRING"),color="#229954",lwd=6)
 
-# Passage d'une couche de polygones à une couche de lignes (pour la cartograhie)
-couches_plot <- st_cast(couches_plot,"MULTILINESTRING")
 
-# Cartographie pédagogique avec le package mapsf
-mf_init(x = couches_plot, theme = "agolalight")
-mf_map(x = st_cast(couches_plot[couches_plot$nom=="territoire",],"POLYGON"),
-       type = "base", 
-       col="wheat",
-       border=FALSE,
-       add = TRUE) 
-mf_map(x = couches_plot,
-       type = "typo", 
-       var = "nom",
-       pal = c("aquamarine4", "yellow3","wheat"),
-       lwd=8,
-       leg_title = "Zones d'analyse",
-       add = TRUE) 
-mf_layout(title = "Gestion du territoire d'analyse",credits = "Insee-DSAU, IGN, mapsf")
 ```
+
+
 
 Ce schéma présente : 
 

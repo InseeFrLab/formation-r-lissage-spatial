@@ -9,6 +9,9 @@ output:
     toc_float: true
 ---
 
+
+
+
 ```{r setup, include=FALSE}
 
 # path_proj <- "V:/PSAR-AU/Formation Comment utiliser les outils AU/2022/Séquence 6 - Outils [JP et KA]/tplissage_poc"
@@ -26,6 +29,7 @@ knitr::opts_chunk$set(echo = TRUE)
   border: 1px solid black;
   border-radius: 10px;
 }
+
 ```
 
 # Introduction
@@ -1163,10 +1167,12 @@ sessionInfo()
 
 # Autre logiciels
 
-Grâce à différentes extensions, ce package peut être utilisé avec d'autres logiciels que **R** :
+Grâce à différentes extensions, le package `btb` peut être utilisé avec d'autres logiciels que **R** :
 
    * Python : library[ `BTBpy`](https://github.com/InseeFrLab/btbpy)
-   * **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Grand Est)
+   * **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Grand Est).
    * **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue)
 
-<span style="background-color: #FFFF00">A compléter.</span>
+Pour utiliser `btb`avec **Qgis**, un tutoriel est disponible sous AUS à l'adresse suivante : "V:/PSAR-AU/Formation Comment utiliser les outils AU/2019/Séquence 6 - Outils/Formation_AU_Sequence_6_TP_partie_1.odt". Ce tutoriel n'a pas été intégré au programme de cette formation afin de privilégier la mise en applcition sous R.
+
+

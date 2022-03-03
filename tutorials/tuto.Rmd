@@ -950,7 +950,7 @@ On représente ici le lissage du premier décile et de la médiane.
 Pour rappel, le lissage quantile (médiane, déciles . . . ) permet d’avoir des indicateurs moins sensibles aux valeurs extrêmes et d’enrichir l'analyse avec des indicateurs de dispersion (comme par exemple l’écart interquantile).
 
 
-```{r lissQuantile1, eval=F}
+```{r lissQuantile1}
 
 dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")]
 
@@ -962,17 +962,17 @@ sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
 
 ```
 
-```{r lissQuantile2, include=F}
+<!-- ```{r lissQuantile2, include=F} -->
 
-dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")]
+<!-- dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")] -->
 
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
-                                    sEPSG = "2154",
-                                    iCellSize = 100,
-                                    iBandwidth = 1500,
-                                    vQuantiles = c(0.1, 0.5, 0.9))
+<!-- sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, -->
+<!--                                     sEPSG = "2154", -->
+<!--                                     iCellSize = 100, -->
+<!--                                     iBandwidth = 1500, -->
+<!--                                     vQuantiles = c(0.1, 0.5, 0.9)) -->
 
-```
+<!-- ``` -->
 
 ```{r resLissQuantile10}
 

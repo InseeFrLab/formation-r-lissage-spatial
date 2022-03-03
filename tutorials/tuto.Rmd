@@ -962,55 +962,55 @@ sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
 
 ```
 
-<!-- ```{r resLissQuantile10} -->
+```{r resLissQuantile10}
 
-<!-- # Visualiser les premières lignes des données lissées -->
-<!-- head(sfCarLiss) -->
+# Visualiser les premières lignes des données lissées
+head(sfCarLiss)
 
-<!-- # Cartographie -->
-<!-- sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F) -->
+# Cartographie
+sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F)
 
-<!-- mf_init(x=sfCarLiss_paris,theme = "agolalight") -->
-<!-- mf_map(x = sfCarLiss_paris, -->
-<!--        type = "choro", -->
-<!--        var="valeur_fonciere_01", -->
-<!--        breaks = "quantile", -->
-<!--        nbreaks = 5, -->
-<!--        border=NA, -->
-<!--        leg_val_rnd = 0, -->
-<!--        add = TRUE) -->
-<!-- mf_map(x = contourParis, -->
-<!--        lwd=4, -->
-<!--        col="black",add = TRUE) -->
-<!-- mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf") -->
-<!-- ``` -->
+mf_init(x=sfCarLiss_paris,theme = "agolalight")
+mf_map(x = sfCarLiss_paris,
+       type = "choro",
+       var="valeur_fonciere_01",
+       breaks = "quantile",
+       nbreaks = 5,
+       border=NA,
+       leg_val_rnd = 0,
+       add = TRUE)
+mf_map(x = contourParis,
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+```
 
-<!-- ```{r resLissQuantile50} -->
+```{r resLissQuantile50}
 
-<!-- # Cartographie -->
-<!-- mf_init(x=sfCarLiss_paris,theme = "agolalight") -->
-<!-- mf_map(x = sfCarLiss_paris, -->
-<!--        type = "choro", -->
-<!--        var="valeur_fonciere_05", -->
-<!--        breaks = "quantile", -->
-<!--        nbreaks = 5, -->
-<!--        border=NA, -->
-<!--        leg_val_rnd = 0, -->
-<!--        add = TRUE) -->
-<!-- mf_map(x = contourParis, -->
-<!--        lwd=4, -->
-<!--        col="black",add = TRUE) -->
-<!-- mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf") -->
-<!-- ``` -->
+# Cartographie
+mf_init(x=sfCarLiss_paris,theme = "agolalight")
+mf_map(x = sfCarLiss_paris,
+       type = "choro",
+       var="valeur_fonciere_05",
+       breaks = "quantile",
+       nbreaks = 5,
+       border=NA,
+       leg_val_rnd = 0,
+       add = TRUE)
+mf_map(x = contourParis,
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+```
 
-<!-- Pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'observations ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé. -->
+Pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'observations ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé.
 
-<!-- ```{r verifObsQuantiles} -->
-<!-- summary(sfCarLiss_paris$nbObs) -->
+```{r verifObsQuantiles}
+summary(sfCarLiss_paris$nbObs)
 
-<!-- # Part de centroïdes dans le quantile lissé a été calculé avec moins de 100 observations -->
-<!-- sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count() -->
-<!-- ``` -->
+# Part de centroïdes dans le quantile lissé a été calculé avec moins de 100 observations
+sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count()
+```
 
 
 

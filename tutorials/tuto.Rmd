@@ -902,9 +902,9 @@ Pour ce faire, n'oubliez pas qu'il convient de lisser séparément les prix de v
 ```{r lissageMoyenneM2,  results='hide'}
 dataLissage <- dfBase_filtre[,c("surface_reelle_bati","valeur_fonciere","x","y")]
 
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
+sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
                                     sEPSG = "2154",
-                                    iCellSize = 100, 
+                                    iCellSize = 100,
                                     iBandwidth = 800)
 ```
 
@@ -950,13 +950,25 @@ On représente ici le lissage du premier décile et de la médiane.
 Pour rappel, le lissage quantile (médiane, déciles . . . ) permet d’avoir des indicateurs moins sensibles aux valeurs extrêmes et d’enrichir l'analyse avec des indicateurs de dispersion (comme par exemple l’écart interquantile).
 
 
-```{r lissQuantile, include=FALSE, results='hide'}
+```{r lissQuantile1, eval=F}
 
 dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")]
 
 sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
                                     sEPSG = "2154",
-                                    iCellSize = 200,
+                                    iCellSize = 100,
+                                    iBandwidth = 1500,
+                                    vQuantiles = c(0.1, 0.5, 0.9))
+
+```
+
+```{r lissQuantile2, include=F}
+
+dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")]
+
+sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
+                                    sEPSG = "2154",
+                                    iCellSize = 100,
                                     iBandwidth = 1500,
                                     vQuantiles = c(0.1, 0.5, 0.9))
 
@@ -1018,14 +1030,13 @@ sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count()
 
 Dans cette section nous allons produire des indicateurs sur des zones à façon.
 
-Pour commencer, nous calculerons le nombre et le prix moyen des transactions immobilières en 2021 dans le "triangle d'or" de la capitale. Ensuite, nous mobiliserons les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire=4176305)) pour calculer la proportion de logements sociaux autour du White.
+Pour commencer, nous calculerons le nombre et le prix moyen des transactions immobilières en 2021 dans le «\ triangle d'or\ » de la capitale. Ensuite, nous mobiliserons les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire=4176305) pour calculer la proportion de logements sociaux autour du White (Direction générale de l'Insee).
 
 Remarque : une fonction généralisant ce second exercice est disponible en ligne, sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire=4176305#titre-bloc-17), en accompagnement des données carroyées. 
 
-La zone à façon que nous considérons est le cercle de 1 km de rayon autour du White, à Montrouge. L'objectif est de déterminer la part de logements sociaux dans cette zone, à partir des données carroyées (carreaux de 200 mètres).
 
 ## Indicateurs sur zones à façon à partir de données ponctuelles
-Dans un premier temps, on importe la zone à façon. Ici, il s'agit du quartier appelé «\~Triangle d'or\~», situé dans le 8e arrondissement de Paris. Ce quartier se caractérise par ses immeubles cossus, ses hôtels et ses commerces de luxe.
+Dans un premier temps, on importe la zone à façon : il s'agit du quartier appelé surnommé «\ Triangle d'or\ », situé dans le 8e arrondissement de Paris. Ce quartier est connu pour ses immeubles cossus, ses hôtels et ses commerces de luxe.
 
 ```{r triangleOr}
 
@@ -1033,12 +1044,12 @@ chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/triangle_or.kml")
 triangleOr <- st_read(chemin_file)
 
 
-leaflet(data=triangleOr) %>% addTiles() %>% addPolygons()
+mapview(triangleOr,col.regions="#ffff00")
 ```
 
 **Remarque** : ce fichier géographique a pour extension .kml. Ce format se lit sans problème avec la fonction `sf::st_read`. Pour information, ce triangle a été crée manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/).
 
-Pour connaître le nombre et le prix moyen des transactions immobilières réalisées en2021 dans ce quartier, nous procédons par intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention à bien s'assurer que les deux couches géographiques soient bien projetées dans le même système de projection.
+Pour connaître le nombre et le prix moyen des transactions immobilières réalisées en 2021 dans ce quartier, nous procédons par intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention à bien s'assurer que les deux couches géographiques soient bien projetées dans le même système de projection.
 
 ```{r dviTriangle}
 # Système de projection de triangleOr
@@ -1048,25 +1059,21 @@ st_crs(triangleOr)[["input"]]
 triangleOr <- st_transform(triangleOr,crs = 2154)
 
 # Intersection géographique avec les transactions
-pos_intersec <- st_intersects(triangleOr,sfBase) %>% unlist()
-transac_triangle <- sfBase[pos_intersec,]
+transac_triangle <- sfBase %>% st_join(triangleOr[,"geometry"],left=F)
 
 # Visualisation de points retenus
 transac_triangle
 
 # Cartographie des points dans le triangle
-leaflet() %>% 
-  addTiles() %>% 
-  addPolygons(data = triangleOr %>% st_transform(4326)) %>% 
-  addMarkers(data = transac_triangle %>% st_transform(4326))
+mapview(transac_triangle)+mapview(triangleOr,col.regions="#ffff00")
 
 ```
 
-**Remarque 1** : pour tracer cette dernière carte, nous devons re-projeter le triangle et les points en WGS84 (4326), car la fonction `Leaflet` ne le fait pas automatiquement (contrairement à `mapview`).
+<!-- **Remarque 1** : pour tracer cette dernière carte, nous devons re-projeter le triangle et les points en WGS84 (4326), car la fonction `Leaflet` ne le fait pas automatiquement (contrairement à `mapview`). -->
 
-**Remarque 2** : on ne voit que 12 points sur la cartes, alors qu'on a trouvé 20 transactions dans le triangle : ceci s'explique car certaines transactions sont géolocalisées au même endroit (appartements situés dans un même immeuble par exemple). 
+**Remarque 1** : on ne voit que 12 points sur la cartes, alors qu'on a trouvé 20 transactions dans le triangle : ceci s'explique car certaines transactions sont géolocalisées au même endroit (appartements situés dans un même immeuble par exemple). 
 
-L'ensemble des transactions ayant été récupérées par intersections géographiques, nous pouvons enfin calculer les indicateurs souhaités.
+L'ensemble des transactions ayant été récupéré par intersections géographiques, nous pouvons enfin calculer les indicateurs souhaités.
 
 ```{r resTriangle}
 # Nombre de transactions en 2021 : 
@@ -1080,22 +1087,15 @@ mean(transac_triangle$valeur_fonciere)
 
 
 ## Indicateurs sur zones à façon à partir de données carroyées
+
+On cherge ici à connaître la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee.
+
 Le principe de la démarche consiste à : 
-1. Déterminer, pour une zone donnée, l'ensemble des carreaux qui la recouvrent 2. Calculer les agrégats sur cet ensemble de carreaux.
 
-**Remarque :** L'ensemble de carreaux étant en général plus large que la zone, les agrégats obtenus seront des estimations qui tendent à surestimer les valeurs réelles. Le problème ne se pose pas si vous travaillez directement sur des données disponibles au niveau "individu statistique" ("avec des x,y").
+1. Déterminer, pour une zone donnée, l'ensemble des carreaux qui la recouvrent 
+2. Calculer les agrégats sur cet ensemble de carreaux.
 
-
-<!-- 4 paramètres sont à renseigner en entrée de la fonction :  -->
-
-<!-- - l'emplacement du fichier de contours de la/les zone(s) d'intérêt (au format Shapefiles)  -->
-<!-- - l'emplacement du fichier .csv contenant les données carroyées  -->
-<!-- - la liste des codes Insee des communes sur lesquelles sont situées la/les zone(s) en géographie 2019 (voir https://www.insee.fr/fr/information/3720946#titre-bloc-4)  -->
-<!-- - la liste des indicateurs pour lesquels des agrégats sont souhaités : par défaut, la fonction calcule les agrégats de tous les indicateurs possibles -->
-
-<!-- Le fichier de résultats contient une ligne par zonage avec tous les agrégats souhaités ainsi qu’une variable (txPopImp) donnant le pourcentage de population vivant dans des carreaux imputés (voir documentation). Cette variable permet d’avoir une idée de la précision des agrégats calculés. Plus le taux est élevé et moins les indicateurs seront fiables (en général). -->
-
-<!-- Définition de la fonction : -->
+**Remarque :** L'ensemble de carreaux étant en général plus large que la zone, les agrégats obtenus seront des estimations des valeurs réelles, plus ou moins précises. Le problème ne se pose pas si vous travaillez directement sur des données disponibles au niveau «\ individu statistique\ » (avec des coordonnées xy).
 
 ```{r eval = FALSE}
 # library(stringr, warn.conflicts = FALSE)
@@ -1110,8 +1110,8 @@ st_read_maison <- function(chemin_tab){
   sf::st_read(chemin_tab, query = requete)
 }
 
-object = "r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
-carreaux <-  st_read_maison(paste0(url_bucket,bucket,"/",object))
+chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg")
+carreaux <-  st_read_maison(chemin_file)
 ```
 
 ```{r echo=FALSE}
@@ -1124,25 +1124,20 @@ head(carreaux)
 
 # Création du cercle de 1km autour du White
 white <- st_sfc(st_point(c(649218.36,6857569.14)),crs=2154)
-buffer_white <- st_buffer(white,1000)
+buffer_white <- st_buffer(white,1000) %>% st_as_sf()
 
 # Sélection des carreaux intersectant notre zone d'intérêt
-carreaux_select <- carreaux[unlist(st_intersects(buffer_white,carreaux)),]
+carreaux_select <- carreaux %>% st_join(buffer_white,left=F)
 
 # Cartographie
 
-leaflet() %>% 
-  addTiles() %>% 
-  addPolygons(data=carreaux_select %>% st_transform(4326),
-              label = "Carreaux sélectionnés") %>% 
-  addPolygons(data=buffer_white %>% st_transform(4326) ,
-              color="red",
-              fill=F,
-              label = "Zone à façon")
+mapview(carreaux_select)+
+  mapview(buffer_white,color="#ffff00",lwd=10,alpha.regions=0,legend=F)
+
 ```
 
 
-Cette carte représente les carreaux issus de Filosofi carroyé en 2015 qui intersectent notre zone d'intérêt. À noter que ces carreaux sont «\ penchés\ » : ceci est la résultant de leur reprojection en Lambert 93. En effet, ces carreaux ont été produits en projection LAEA (standard européen), ce qui leur donne cet aspect une fois reprojetés dans le standard français.
+Cette carte représente les carreaux issus de Filosofi carroyé en 2015 qui intersectent notre zone d'intérêt. À noter que ces carreaux sont «\ penchés\ » : ceci est la résultante de leur reprojection en Lambert 93. En effet, ces carreaux ont été produits en projection LAEA (standard européen), ce qui leur donne cet aspect une fois reprojetés dans le standard français.
 
 Maintenant que nous avons sélectionné ces carreaux, il suffit de calculer l'indicateur souhaité.
 

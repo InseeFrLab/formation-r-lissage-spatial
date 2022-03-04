@@ -25,7 +25,7 @@ jobs:
       
       - name: Install rmarkdown
         run: |
-          Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc"))'
+          Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc","rmdformats"))'
           Rscript -e "remotes::install_github('koncina/unilur')"
           Rscript -e "download.file('https://github.com/inseefrlab/formation-r-lissage-spatial/archive/refs/heads/gh-pages.zip',
               destfile = 'gh-pages.zip')"

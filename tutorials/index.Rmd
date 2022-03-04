@@ -7,6 +7,7 @@ output:
     theme: architect
 ---
 
+
 ```{r setup, include=FALSE}
 
 # path_proj <- "V:/PSAR-AU/Formation Comment utiliser les outils AU/2022/Séquence 6 - Outils [JP et KA]/tplissage_poc"
@@ -16,6 +17,42 @@ knitr::opts_chunk$set(echo = TRUE)
 # knitr::opts_knit$set(root.dir = path_proj)
 
 ```
+
+```{css, echo=FALSE}
+header {
+    background: #999 url("https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png") 0 0 repeat-x;
+    background-color: rgb(153, 153, 153);
+    background-image: url("https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png");
+    padding-top: 60px;
+    padding-bottom: 110px;
+    
+}
+
+header .inner{
+  position: relative;
+  width: 600px;
+  font-size: 1.1em;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.8);
+
+}
+
+header .inner .title {
+    color: #000000;
+}
+
+
+header .inner .author, header .inner .date {
+    font-weight: 500;
+    color: #000000;
+}
+
+```
+
+
+</br> 
+
+# Bienvenue dans cet espace de formation !
 
 En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
 
@@ -34,7 +71,14 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
 - Site web des supports de formation : https://inseefrlab.github.io/formation-r-lissage-spatial
   * [Tutoriel](tuto.html)
   * [Exercices](exo.html)
-  
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
 **Pour réaliser l'exercice depuis la plateforme SSPCloud** :
 
   * Aller sur le SSPCloud : https://datalab.sspcloud.fr/  ;
@@ -62,6 +106,7 @@ Pour réaliser l'exercice, vous pouvez ouvrir l'environnement RStudio préconfig
   * Authentifiez-vous avec :
       * l'identifiant : « **rstudio** »
       * le mdp copié précédemment à l'aide d'un CTRL+V
+      * Puis Sign in !
 
 ![](../img/lancements_service3.png)
       

@@ -607,7 +607,7 @@ genercarte(sfcarLisse=sfcarLisse,
 ```
 
 ```{exo12, box.title = "Exercice 12", box.body = list(fill = "white"), box.icon = "fa-star"}
-Lisser le taux de place de stationnement pour personnes à mobilité réduite (en %).
+Lisser le taux de places de stationnement pour personnes à mobilité réduite (en %).
 
 ```
 
@@ -699,7 +699,7 @@ genercarte(sfcarLisse=sfcarLisse,
 ```
 
 
-# Phase 3 : Calcul d'indicateur sur une zone à façon
+# Phase 3 : Calcul d'indicateurs sur une zone à façon
 
 ```{exo14, box.title = "Exercice 14", box.body = list(fill = "white"), box.icon = "fa-star"}
 Combien d'habitants vivent dans le centre de Bordeaux tel que nous l'avons défini ?
@@ -712,10 +712,11 @@ Pour répondre à cette question :
 ```{r}
 url_bucket <- "https://minio.lab.sspcloud.fr/"
 bucket <- "projet-formation"
+object = "r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
 ```
   
 ```{r exo15charg,echo=TRUE,eval=FALSE}
-object = "r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
+
 st_read_maison <- function(chemin_tab){
   requete <- "SELECT IdINSPIRE,Depcom,Ind,Men, Log_soc, geom
             FROM Filosofi2015_carreaux_200m_metropole
@@ -753,11 +754,10 @@ head(car33)
 carreaux_centreBdx <- car33 %>% st_join(centreBdx,left = F)
 
 # Cartographie :
-mapview(centreBdx %>% st_cast("MULTILINESTRING"),
-        color="black",
-        lwd=4,
-        basemaps.color.shuffle=F)+
-  mapview(carreaux_centreBdx,col.region="yellow")
+
+mapview(centreBdx,color="black",lwd=6,alpha.regions=0,legend=F)+
+mapview(carreaux_centreBdx,col.regions="#ffff00")
+
 
 # Combien d'habitants dans le centre de Bordeaux ?
 cat("Il y a approximativement ",sum(carreaux_centreBdx$Ind), " habitants dans le centre de Bordeaux")

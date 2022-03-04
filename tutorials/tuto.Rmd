@@ -131,7 +131,7 @@ if (!require("aws.s3", character.only = TRUE)) {
 
 ## Chargement de la base
 
-Pour ce TP, nous utilisons la base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) », ou DVF, qui recense l’ensemble des ventes de biens fonciers réalisées au cours des cinq dernières années, en métropole et dans les départements et territoires d’outre-mer — sauf à Mayotte et en Alsace-Moselle. Les biens concernés peuvent être bâtis (appartement et maison) ou non bâtis (parcelles et exploitations). Les données sont produites par la direction générale des finances publiques. Elles proviennent des actes enregistrés chez les notaires et des informations contenues dans le cadastre.
+Pour ce TP, nous utilisons la base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) », ou DVF, qui recense l’ensemble des ventes de biens fonciers réalisées au cours des cinq dernières années, en métropole et dans les départements et territoires d’outre-mer — sauf à Mayotte et en Alsace-Moselle. Les biens concernés peuvent être bâtis (appartement et maison) ou non bâtis (parcelles et exploitations). Les données sont produites par la Direction générale des finances publiques. Elles proviennent des actes enregistrés chez les notaires et des informations contenues dans le cadastre.
 
 À partir de cette source, nous avons constitué une base de données qui s'intéresse uniquement au périmètre de la **petite couronne parisienne** (départements 75, 92, 93 et 94) et au **millésime 2021**.
 
@@ -146,7 +146,7 @@ La base contient les **8 variables** suivantes :
 - `x` : longitude (**en projection Lambert 93**)
 - `y` : latitude (**en projection Lambert 93**)
 
-<!-- <span style="background-color: #FFFF00">Le code ayant permis de constituer la base de données est disponible ici : XXXXXX. TODO. + préciser éventuellement à grands traits les filtres réalisés dans la remarque ci-dessous.</span> -->
+Le code ayant permis de constituer la base de données est disponible en suivant ce [lien](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R).
 
 **Remarque importante** : Cette base a été filtrée de manière à être la plus pédagogique possible pour cette formation. Elle n'est donc ni représentative de la réalité ni fidèle au champ proposé par le producteur. Mieux vaut donc de pas appuyer vos investissements immobiliers sur les résultats de ce TP.
 

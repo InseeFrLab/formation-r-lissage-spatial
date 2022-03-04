@@ -15,7 +15,7 @@ output:
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
-source("global.R")
+# source("global.R")
 library(knitr)
 
 ## Global options
@@ -74,7 +74,7 @@ L'objectif est de mettre en pratique les techniques présentées dans le [tutori
 
 ## Les objectifs et les données utilisées
 
-Pour cela, on utilise un jeux de données extrait d'un source *open-data* : les parkings publics géolocalisés dans dans l'agglomération bordelaise. Les données ont été téléchargées sur le site de l'[open-data de Bordeaux Métropole](https://opendata.bordeaux-metropole.fr/explore/dataset/st_park_p/export/?location=14,44.83244,-0.57022&basemap=jawg.streets) et ont été retravaillées pour les besoins de l'exercice.
+Pour cela, on utilise un jeux de données extrait d'un source *open-data* : les parkings publics géolocalisés dans dans l'agglomération bordelaise. Les données ont été téléchargées sur le site de l'[open-data de Bordeaux Métropole](https://opendata.bordeaux-metropole.fr/explore/dataset/st_park_p/export/?location=14,44.83244,-0.57022&basemap=jawg.streets) et ont été retravaillées pour les besoins de l'exercice (voir le script [suivant](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R) pour plus de détails).
 
 Par ailleurs, notre objectif sera d'étudier la situation du centre-ville de Bordeaux en termes de présence de places de stationnement, de proportion de places adaptées aux personnes à mobilité réduite et au prix de ces places. Le contour géographique du centre-ville de Bordeaux est fourni. À noter qu'il a été créé «\ à la main\ » par les auteurs de ce TP, et qu'il ne répond à aucune définition officielle ou urbanistique précise. 
 

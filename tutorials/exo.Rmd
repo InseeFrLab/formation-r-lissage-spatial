@@ -224,12 +224,13 @@ Pour importer cette fonction dans votre environnement global, copier-coller et e
 
 ```{r genercarte, echo=TRUE}
 
-genercarte <- function(sfcarLisse,nomvar,nbreaks=5,zone,titre){
+genercarte <- function(sfcarLisse,nomvar,nbreaks=5,zone,titre,epais=0.2){
   #'@param sfcarLisse : Table de carreaux portant les valeurs lissées
   #'@param nomvar : Nom de la variable lissée à cartographier
   #'@param nbreaks : Nombre de classes à représenter sur la carte (avec méthode des quantiles)
   #'@param zone : Polygone de la zone d'intérêt (ex : centre de Bordeaux)
   #'@param titre : Titre de la carte (chaîne de caracères)
+  #'@param epais : epaisseur des la grille des carreaux
   #'@returns : carte produite avec le package mapsf
   mf_init(x=sfcarLisse,theme = "agolalight")
   mf_map(x = sfcarLisse, 
@@ -237,7 +238,7 @@ genercarte <- function(sfcarLisse,nomvar,nbreaks=5,zone,titre){
          var=nomvar,
          breaks = "quantile",
          nbreaks = nbreaks,
-         lwd=1,
+         lwd = epais,
          add = TRUE)
   mf_map(x = st_cast(zone[,c("geom")],"MULTILINESTRING"), 
          lwd=4,
@@ -385,20 +386,21 @@ mapview(centreBdx,alpha.regions=0,lwd=4,legend=F)+mapview(sfcarreaux,zcol = "nbP
 ## Partie 2.2 : Lissage de la densité des parkings
 
 ```{exo6, box.title = "Exercice 6", box.body = list(fill = "white"), box.icon = "fa-star"}
-- Créer un "buffer" du centre-ville de Bordeaux (avec une marge de 2000 mètres autour) et enregistrer le résultat dans `centreBdxBuffer`
+- Créer un "buffer" du centre-ville de Bordeaux (avec une marge de 3 000 mètres autour) et enregistrer le résultat dans `centreBdxBuffer`
 - Sélectionner les parkings positionnés dans cette zone tampon et enregistrer la nouvelle table `parkingsBuff`. Attention : cette nouvelle table doit être issue de la table `parkings` non vectorielle pour garder des colonnes x et y en vue du carroyage.
 ```
 
 
 ```{exo6clue, opts.label = "clues"}
-- Créer un "buffer" du centre-ville de Bordeaux (avec une marge de 2000 mètres autour) et enregistrer le résultat dans `centreBdxBuffer` ==> Utiliser la fonction `sf::st_buffer`
+- Créer un "buffer" du centre-ville de Bordeaux (avec une marge de 3 000 mètres autour) et enregistrer le résultat dans `centreBdxBuffer` ==> Utiliser la fonction `sf::st_buffer`
 - Sélectionner les parkings (de la table vectorielle `sfparkings`) intersectant cette zone tampon et enregistrer la nouvelle table `parkingsBuff` ==> Utiliser la fonction `sf::st_contains` ou `sf::st_intersects`
 
 ```
 
 ```{r echo=TRUE, solution=TRUE}
 # Création d'un buffer autour du territoire
-centreBdxBuffer <- st_buffer(centreBdx, dist = 2000)
+marge <- 3000
+centreBdxBuffer <- st_buffer(centreBdx, dist = marge)
 
 # Représentation 
 mapview(centreBdxBuffer,col.region="gray")+mapview(centreBdx)
@@ -414,16 +416,17 @@ parkingsBuff
 
 ```{exo7, box.title = "Exercice 7", box.body = list(fill = "white"), box.icon = "fa-star"}
 - Créer une variable nbObsLisse = 1L
-- Lisser le nombre de parking dans le buffer du centre-ville de Bordeaux : 
-    - Avec un rayon de lissage de 1 500 mètres
-    - En générant une grille carroyée de 200 mètres de côté
-- Restreindre les carreaux de 200 mètres obtenus aux seuls intersectant le centre-ville et enregistrer le résultat dans `sfcarLisse`
+- Lisser le nombre de parkings dans le buffer du centre-ville de Bordeaux : 
+    - Avec un rayon de lissage de 1\ 700 mètres
+    - En générant une grille carroyée de 50 mètres de côté
+- Restreindre les carreaux de 50 mètres obtenus aux seuls intersectant le centre-ville et enregistrer le résultat dans `sfcarLisse`
 - Cartographier le résultat obtenu avec la fonction `genercarte` (chargée dans votre environnement global)
 
+Sous-question bonus : que représente la variable `nbObsLisse` de `sfcarLisse` ? Proposer une transformation permettant d'obtenir une densité au km². 
 ```
 
 ```{exo7clue, opts.label = "clues"}
-Utiliser la fonction `btb::kernelSmoothing`
+Utiliser la fonction `btb::kernelSmoothing` :)
 ```
 
 
@@ -432,8 +435,8 @@ Utiliser la fonction `btb::kernelSmoothing`
 parkingsBuff$nbObsLisse <- 1L
 
 # Lissage
-rayon <- 1500 # Rayon de lissage
-tcar <-  200 # Taille des carreaux de la grille
+rayon <- 1700 # Rayon de lissage
+tcar <-  50 # Taille des carreaux de la grille
 
 parkingsLissage <- parkingsBuff[,c("nbObsLisse","x","y")]
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
@@ -442,20 +445,31 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
                                     iBandwidth = rayon)
 
 # Filtrage ==> ne garder que les carreaux intersectant le centre de Bordeaux
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% st_join(centreBdx,left = F)
 
 # Carte lissée
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="nbObsLisse",
                        nbreaks=5,
                        zone=centreBdx,
-                       titre="Lissage de la densité de parkings avec un rayon de 1500 m")
+                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
+
+# Comment afficher une densité au km² ?
+sfcarLisse$nbObsLisse <- sfcarLisse$nbObsLisse*((1000/tcar)^2)
+
+# Même carte lissée avec une légende au km²
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="nbObsLisse",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
+
 
 ```
 
 
 ```{exo8, box.title = "Exercice 8", box.body = list(fill = "white"), box.icon = "fa-star"}
-Refaire le lissage avec un rayon de 600 mètres, puis avec un rayon de 2000 mètres
+Refaire le lissage avec un rayon de 600 mètres, puis avec un rayon de 3000 mètres
 
 ```
 
@@ -468,26 +482,33 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% 
+  st_join(centreBdx,left = F) %>% 
+  mutate(nbObsLisse=nbObsLisse*(1000/tcar)^2)
+
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="nbObsLisse",
                        nbreaks=5,
                        zone=centreBdx,
-                       titre="Lissage de la densité de parkings avec un rayon de 600 m")
+                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
 
-# Avec un rayon de 2000m
-rayon <- 2000 # Rayon de lissage
+# Avec un rayon de 3000m
+rayon <- 3000 # Rayon de lissage
 
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+
+sfcarLisse <- sfcarLisse %>% 
+  st_join(centreBdx,left = F) %>% 
+  mutate(nbObsLisse=nbObsLisse*(1000/tcar)^2)
+
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="nbObsLisse",
                        nbreaks=5,
                        zone=centreBdx,
-                       titre="Lissage de la densité de parkings avec un rayon de 2000 m")
+                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
 
 ```
 
@@ -497,12 +518,12 @@ genercarte(sfcarLisse=sfcarLisse,
 
 ```{exo9, box.title = "Exercice 9", box.body = list(fill = "white"), box.icon = "fa-star"}
 Lisser le nombre de places de stationnement (variable `np_global`), et non plus le nombre de parkings.
-Pour la suite, toujours prendre un rayon de lissage de 1500 mètres sauf mention contraire.
+Pour la suite, toujours prendre un rayon de lissage de 1 700 mètres sauf mention contraire.
 ```
 
 
 ```{r exo9solu,echo=TRUE, solution=TRUE}
-rayon <- 1500
+rayon <- 1700
 parkingsLissage <- parkingsBuff[,c("np_global","x","y")]
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
                                     sEPSG = "2154",
@@ -510,7 +531,9 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
                                     iBandwidth = rayon)
 
 # Filtrage des carreaux lissés dans Paris
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% 
+  st_join(centreBdx,left = F) %>% 
+  mutate(np_global=np_global*(1000/tcar)^2)
 
 # Carte lissée
 genercarte(sfcarLisse=sfcarLisse,
@@ -536,7 +559,9 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
 
 
 # Filtrage des carreaux lissés dans Paris
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% 
+  st_join(centreBdx,left = F)%>% 
+  mutate(np_pmr=np_pmr*(1000/tcar)^2)
 
 # Carte lissée
 genercarte(sfcarLisse=sfcarLisse,
@@ -572,7 +597,7 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
 # Création du ratio lissé à partir des numérateur et dénominateur lissés
 sfcarLisse <- sfcarLisse %>% mutate(place_par_parking=np_global/nbObsLisse)
 
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% st_join(centreBdx,left = F)
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="place_par_parking",
                        nbreaks=5,
@@ -582,7 +607,7 @@ genercarte(sfcarLisse=sfcarLisse,
 ```
 
 ```{exo12, box.title = "Exercice 12", box.body = list(fill = "white"), box.icon = "fa-star"}
-Lisser le taux de place de stationnement pour personnes à mobilité réduite.
+Lisser le taux de place de stationnement pour personnes à mobilité réduite (en %).
 
 ```
 
@@ -594,9 +619,9 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
 # Création du ratio lissé à partir des numérateur et dénominateur lissés
-sfcarLisse$part_pmf <- sfcarLisse$np_pmr/sfcarLisse$np_global
+sfcarLisse$part_pmf <- 100* sfcarLisse$np_pmr/sfcarLisse$np_global
 
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% st_join(centreBdx,left = F)
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="part_pmf",
                        nbreaks=5,
@@ -623,7 +648,7 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
 
 sfcarLisse$prix_moyen <- sfcarLisse$th_heur/sfcarLisse$nbObsLisse
 
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% st_join(centreBdx,left = F)
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="prix_moyen",
                        nbreaks=5,
@@ -662,7 +687,7 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
 sfcarLisse <- sfcarLisse %>% mutate(prix_moyen_place=prix_x_place/np_global)
 
 
-sfcarLisse <- sfcarLisse[unlist(st_intersects(centreBdx,sfcarLisse)),]
+sfcarLisse <- sfcarLisse %>% st_join(centreBdx,left = F)
 
 # Carte lissée
 genercarte(sfcarLisse=sfcarLisse,
@@ -725,7 +750,7 @@ car33 <- readRDS("carreaux_33.RDS")
 head(car33)
 
 # Sélection des carreaux intersectant le centre de Bordeaux
-carreaux_centreBdx <- car33[unlist(st_intersects(centreBdx,car33)),]
+carreaux_centreBdx <- car33 %>% st_join(centreBdx,left = F)
 
 # Cartographie :
 mapview(centreBdx %>% st_cast("MULTILINESTRING"),

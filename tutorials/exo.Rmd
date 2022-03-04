@@ -161,7 +161,7 @@ Le code ci-dessous permet d'importer les données utilisées dans ce tutoriel. E
 
 Quelques informations concernant ces jeux de données : 
 
-- `parkings.RDS` : table de données géolocalisées concernant les parkings publics dans l'agglomération bordelaise. Attention : on parle de parking publics et non de places de stationnements ! Pour chaque parking public, voici les variables renseignées : 
+- `parking.RDS` : table de données géolocalisées concernant les parkings publics dans l'agglomération bordelaise. Attention : on parle de parking publics et non de places de stationnements ! Pour chaque parking public, voici les variables renseignées : 
     - `ident` : identifiant du parking public
     - `exploit` : exploitant
     - `np_global` : nombre total de places de stationnement

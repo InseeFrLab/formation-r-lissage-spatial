@@ -1,5 +1,5 @@
 ---
-title: "Formation au carroyage et lissage spatial sur R [TUTORIEL]"
+title: "<center>Formation au carroyage et lissage spatial sur R </br></br>TUTORIEL</br></br><img src='https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png' width='20%'></center>"
 author: "Kim Antunez et Julien Pramil"
 date: "Dernière mise à jour : 11 mars 2022"
 output: 
@@ -407,8 +407,10 @@ Avant de lisser les données ponctuelles, on peut souhaiter représenter ces don
 ```{r carroyage1}
 iCellSize = 200 # Carreaux de 200m
 points_carroyage <- dfBase_filtre # On repart de la base filtrée selon la première méthode
-points_carroyage$x_centroide = points_carroyage$x - (points_carroyage$x %% iCellSize) + (iCellSize / 2)
-points_carroyage$y_centroide = points_carroyage$y - (points_carroyage$y %% iCellSize) + (iCellSize / 2)
+points_carroyage$x_centroide = points_carroyage$x -
+  (points_carroyage$x %% iCellSize) + (iCellSize / 2)
+points_carroyage$y_centroide = points_carroyage$y -
+  (points_carroyage$y %% iCellSize) + (iCellSize / 2)
 
 head(points_carroyage)
 
@@ -458,7 +460,8 @@ mf_map(x = carreaux,
 mf_map(x = contourParis,
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Carroyage du nombre de ventes",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Carroyage du nombre de ventes",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 Le carroyage pourrait aussi être utilisé pour simplifier les données avant lissage si le calcul de lissage est trop long en raison d'un très grand nombre d'observations.
@@ -527,7 +530,8 @@ mf_map(x = st_cast(sfCarrLiss[,c("geometry")],"LINESTRING"),
 mf_map(x = contourParis, 
        lwd=8,
        col="wheat",add = TRUE)
-mf_layout(title = "KernelSmoothing génère une grille carroyée",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "KernelSmoothing génère une grille carroyée",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 
@@ -577,7 +581,8 @@ mf_map(x = sfCarrLiss_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Lissage avec rayon de 400m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Lissage avec rayon de 400m",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 *Remarque : la variable lissée `nbObsLiss` correspond au nombre de ventes (observations) par carreau (ici de 200 mètres). Ainsi, il est possible d'obtenir une densité au km² en multipliant la variable `nbObsLiss` par 25 dans le cas présent.*  
@@ -610,7 +615,8 @@ mf_map(x = sfCarrLiss_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Lissage avec rayon de 600m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Lissage avec rayon de 600m",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 ```{r lissage1000, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
@@ -637,7 +643,8 @@ mf_map(x = sfCarrLiss_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Lissage avec rayon de 1000m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Lissage avec rayon de 1000m",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 À mesure que nous augmentons le rayon de lissage, la carte révèle des aspects structurels des données. Mais ceci se fait au détriment des spécificités locales visibles seulement avec un petit rayon de lissage. Le choix revient dont au statisticien-géographe, en fonction de sa connaissance des données et des objectifs recherchés.
@@ -658,7 +665,8 @@ mf_map(x = sfCarrLiss_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Lissage avec rayon de 1000m, sans grille",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Lissage avec rayon de 1000m, sans grille",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 ### Grille automatique; carreaux 50m; rayon de lissage 1km
@@ -689,7 +697,8 @@ mf_map(x = sfCarrLiss_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Lissage avec pas de 50m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Lissage avec pas de 50m",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
 
@@ -727,7 +736,8 @@ mf_map(x = sfCarLiss_paris,
 mf_map(x = contourParis, 
        border = NA,
        col="black",add = TRUE)
-mf_layout(title = "Sans effets de bord, avec R=2000m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Sans effets de bord, avec R=2000m",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 2. Dans le second cas, on lisse uniquement les ventes réalisées dans **Paris intramuros** pour observer les effets de bord. 
@@ -764,7 +774,8 @@ mf_map(x = sfCarLiss_intramuros_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Avec effets de bord, avec R=2000m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Avec effets de bord, avec R=2000m",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 Les effets de bord se matérialisent à la périphérie de Paris, où les densités lissées sont artificiellement plus faibles que quand on lisse en prenant une marge. 
@@ -781,7 +792,9 @@ La grille obtenue dépasse Paris intramuros et contient :
 - ... mais aussi les 4 carreaux limitrophes de ces derniers (règle automatique^[cf. séquence 5 de la formation «\ Comment utiliser les outils de l’analyse urbaine\ »]) 
 
 ```{r grilleAuto}
-mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),lwd=2,layer.name="Grille automatique") +
+mapview(sfCarLiss_intramuros %>%
+          st_cast("MULTILINESTRING"), lwd = 2,
+        layer.name="Grille automatique") +
   mapview(contourParis,color="red",lwd=10) 
 ```
 
@@ -852,7 +865,8 @@ mf_map(x = sfCarLiss_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
 
@@ -868,7 +882,8 @@ Nous nous intéressons ici à la proportion de ventes portant sur des grands log
 
 ```{r varQuatrePieces}
 # Créer une indicatrice renseignant si le logement comporte plus de 4 pièces principales
-dfBase_filtre$quatrePieces <- ifelse(dfBase_filtre$nombre_pieces_principales >= 4, 1, 0)
+dfBase_filtre$quatrePieces <- ifelse(
+  dfBase_filtre$nombre_pieces_principales >= 4, 1, 0)
 ```
 
 ```{r lissageTaux,  results='hide'}
@@ -900,7 +915,8 @@ mf_map(x = sfCarLiss_paris,
 mf_map(x = contourParis, 
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
 
@@ -939,7 +955,8 @@ mf_map(x = sfCarLiss_paris,
 mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"),
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Prix au m² (rayon de 800m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Prix au m² (rayon de 800m)",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
 
@@ -997,7 +1014,8 @@ mf_map(x = sfCarLiss_paris,
 mf_map(x = contourParis,
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 ```{r resLissQuantile50, eval = TRUE}
@@ -1015,7 +1033,8 @@ mf_map(x = sfCarLiss_paris,
 mf_map(x = contourParis,
        lwd=4,
        col="black",add = TRUE)
-mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
 Pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'observations ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé.
@@ -1023,7 +1042,8 @@ Pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'obse
 ```{r verifObsQuantiles, eval=FALSE}
 summary(sfCarLiss_paris$nbObs)
 
-# Part de centroïdes dans le quantile lissé a été calculé avec moins de 100 observations
+# Part de centroïdes dont le quantile lissé 
+# a été calculé avec moins de 100 observations
 sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count()
 ```
 
@@ -1102,7 +1122,8 @@ st_read_maison <- function(chemin_tab){
 }
 
 # Chargement des données
-chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg")
+chemin_file <- paste0(url_bucket, bucket, 
+                    "/r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg")
 carreaux <-  st_read_maison(chemin_file)
 head(carreaux)
 ```

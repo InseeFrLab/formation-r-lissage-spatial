@@ -1,12 +1,12 @@
 ---
-title: "Formation au carroyage et lissage spatial sur R [EXERCICES] "
+title: "<center>Formation au carroyage et lissage spatial sur R </br></br>EXERCICES</br></br><img src='https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png' width='20%'></center>"
 author: "Kim Antunez et Julien Pramil"
-date: "11 mars 2022"
+date: "Dernière modification : 11 mars 2022"
 output:
   unilur::tutorial_html_solution:
     toc: true
     toc_float: false
-    toc_depth: 1
+    toc_depth: 2
     suffix: ""
     theme: journal
     highlight: kate
@@ -74,66 +74,24 @@ L'objectif est de mettre en pratique les techniques présentées dans le [tutori
 
 ## Les objectifs et les données utilisées
 
-Pour cela, on utilise un jeux de données extrait d'un source *open-data* : les parkings publics géolocalisés dans dans l'agglomération bordelaise. Les données ont été téléchargées sur le site de l'[open-data de Bordeaux Métropole](https://opendata.bordeaux-metropole.fr/explore/dataset/st_park_p/export/?location=14,44.83244,-0.57022&basemap=jawg.streets) et ont été retravaillées pour les besoins de l'exercice (voir le script [suivant](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R) pour plus de détails).
+Pour cela, on utilise un jeu de données en *open-data* : les parkings publics géolocalisés situés dans l'agglomération bordelaise. Les données ont été téléchargées sur le site de l'[open-data de Bordeaux Métropole](https://opendata.bordeaux-metropole.fr/explore/dataset/st_park_p/export/?location=14,44.83244,-0.57022&basemap=jawg.streets) et ont été retravaillées pour les besoins de l'exercice (script [ici](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R) pour plus de détails).
 
 Par ailleurs, notre objectif sera d'étudier la situation du centre-ville de Bordeaux en termes de présence de places de stationnement, de proportion de places adaptées aux personnes à mobilité réduite et au prix de ces places. Le contour géographique du centre-ville de Bordeaux est fourni. À noter qu'il a été créé «\ à la main\ » par les auteurs de ce TP, et qu'il ne répond à aucune définition officielle ou urbanistique précise. 
 
 Par ailleurs, à la fin de ce TP, une dernière partie consistera à approximer le nombre d'habitants vivant dans le centre-ville de Bordeaux d'après les données Filosofi 2015 carroyées.
 
-## Comment travailler ? 
-
-Aller sur le SSPCloud : https://datalab.sspcloud.fr/ :
-
-  * Se connecter avec son adresse mail insee et son mot de passe ;
-  * Cliquer sur **Trainings** en haut à droite de la page d'accueil ;
-  * Trouver la formation **Carroyage et lissage spatial sur R** dans la partie **Tutoriels de data science** et cliquer sur **ouvrir** ;
-
-Les différentes parties de la présentation sont accessibles via le bouton **Lire**.
-Pour réaliser l'exercice, vous pouvez ouvrir l'environnement RStudio préconfiguré en cliquant sur **Lancer**.
-
-![](../img/sspcloud_lissage.png)
-
-  * Attendre le chargement
-  * Cliquer sur «\ **First, copy the service**\ »
-  
-![](../img/lancements_ervice1.png)
-
-  * Cliquer sur «\ **Open the service**\ »
-  
-![](../img/lancements_service2.png)
-  
-  * Authentifiez-vous avec :
-      * l'identifiant : « **rstudio** »
-      * le mdp copié précédemment à l'aide d'un CTRL+V
-
-![](../img/lancements_service3.png)
-      
-Et voilà, votre session RStudio préconfigurée est prête !
-Vous pouvez maintenant faire l'exercice en ouvrant un nouveau script vierge (CTRL+MAJ+N).
-
-
-
 # Partie 0 : Installation de la session et importation des données
 
 ## Installation des packages
 
-Pour cette partie, allez chercher directement la solution ci-dessous (hors programme de cette formation).
-
-Dans un premier temps, on installe tous les packages nécessaires : 
+Avant de débuter les exercices, on installe tous les packages nécessaires : 
 
 - `dplyr`
 - `sf`
 - `btb`
 - `mapsf`
-- `mapview`
-
-Par ailleurs, on installe `aws.s3` pour importer les données stockées sous Minio (solution de stockage de données sous SSPCloud).
-
-Pour information, `mapview` est un package de cartographie produisant des résultats proches de `leaflet`. Il est un peu plus rapide d'utilisation quant il s'agit de produire des résultats simples : notamment, il reprojette automatiquemeent les objets géograpahiques que vous souhaitez cartographier. Vous trouverez davantage d'informations à propos [ici](https://r-spatial.github.io/mapview/).
-
-
-
-
+- `mapview`^[`mapview` est un package de cartographie produisant des résultats proches de `leaflet`. Il est un peu plus rapide d'utilisation quant il s'agit de produire des résultats simples : notamment, il reprojette automatiquement les objets géographiques que vous souhaitez cartographier. Plus d'informations [ici](https://r-spatial.github.io/mapview/).]
+- `aws.s3` (seulement si vous travaillez sur le SSPCloud)
 
 ```{r installPackages, echo=TRUE}
 ## Liste des librairies utilisées
@@ -172,10 +130,7 @@ Quelques informations concernant ces jeux de données :
     - `epsg` : code EPSG (projection géographique)
 
 
-- `bordeaux_centre.gpkg` : découpage à façon du centre-ville de Bordeaux, réalisé manuellement par les auteurs de ce tutoriel en utilisant le [Geoportail](https://www.geoportail.gouv.fr/).
- 
-Là encore, il suffit de copier-coller et éxecuter le code ci-dessous dans votre session RStudio.
-
+- `bordeaux_centre.gpkg` : découpage à façon du centre-ville de Bordeaux^[construit manuellement par les auteurs de ce tutoriel en utilisant le [Geoportail](https://www.geoportail.gouv.fr/).].
 
 ```{r echo=TRUE}
 bucket <- "projet-formation"
@@ -204,7 +159,7 @@ centreBdx <-
 
 Pour information si vous voulez travailler en dehors du SSPCloud, l'importation peut se faire de cette manière : 
 
-```{r echo=TRUE}
+```{r echo=TRUE, message = FALSE, warning = FALSE}
 url_bucket <- "https://minio.lab.sspcloud.fr/"
 
 object <- "r-lissage-spatial/parking.RDS"
@@ -215,9 +170,9 @@ object <- "r-lissage-spatial/bordeaux_centre.gpkg"
 centreBdx <- st_read(paste0(url_bucket,bucket,"/",object))
 ```
 
-## Fonction de cartographie : genercarte
+## Fonction de cartographie `genercarte`
 
-Pour visualiser les résultats de vos lissages, on crée une fonction `genercarte` de cartographie s'appuyant sur le package `mapsf`. On pourra réutiliser cette fonction par la suite, et limiter ainsi le nombre de lignes à recopier dans le code à chaque exercice).
+Pour visualiser les résultats de vos lissages, on crée une fonction `genercarte` de cartographie s'appuyant sur le package `mapsf` s'appuyant sur les éléments vus dans le tutoriel. On pourra réutiliser cette fonction par la suite, et limiter ainsi le nombre de lignes à recopier dans le code à chaque exercice).
 
 Pour importer cette fonction dans votre environnement global, copier-coller et executer le code ci-dessous.
 
@@ -253,11 +208,11 @@ genercarte <- function(sfcarLisse,nomvar,nbreaks=5,zone,titre,epais=0.2){
 
 # Phase 1 : Appropriation des données
 
-```{exo1, box.title = "Exercice 1", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Répondre aux questions suivantes : 
 
 - Combien de parkings publics sont répertoriés dans la base `parkings` ?
-- Vérifier qu'il n'y a pas de données manquantes dans les variables de position géographiques.
+- Vérifier qu'il n'y a pas de données manquantes dans les variables de positions géographiques.
 - Regarder la distribution des variables (avec la fonction `base::summary`)
 
 ```
@@ -275,76 +230,81 @@ sum(is.na(parkings$y))
 parkings %>% summary()
 ```
 
-```{exo2, box.title = "Exercice 2", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 2", box.body = list(fill = "white"), box.icon = "fa-star"}
 Observer l'emprise du contour du centre-ville de Bordeaux en utilisant la fonction `mapview::mapview` (avec un fond de carte OpenStreetMap).
 
 ```
 
-```{exo2clue, opts.label = "clues"}
-Il suffit d'écrire `mapview(tableVectorielleSouhaitee)`
-```
-
-```{r exo2solu, echo=TRUE, solution=TRUE}
+```{r exo2solu, echo=TRUE, solution=TRUE, eval=FALSE}
 mapview(centreBdx)
 ```
 
-```{exo3, box.title = "Exercice 3", box.body = list(fill = "white"), box.icon = "fa-star"}
-- Transformer la base des parkings en format vectoriel et enregistrer la résultat dans la nouvelle variable `sfparkings`:
-- Cartographier conjointement le contour de Bordeaux-centre et les parkings en utilisant `mapview`.
+```{r, echo=FALSE}
+mapview(centreBdx)
 ```
 
-```{exo3clue, opts.label = "clues"}
-- Transformer la base des parkings en format vectoriel et enregistrer la résultat dans la nouvelle variable `sfparkings`:
-  - Utiliser la fonction `sf::st_as_sf`
-  - Attention à bien renseigner le système de projection des coordonnées xy dans le paramètre `crs`.
-- Cartographier conjointement le contour de Bordeaux-centre et les parkings de la base :
-  - On additionne les couches vectorielles avec "+" : `mapview(polygone)+mapview(points)` 
+```{block, box.title = "Exercice 3", box.body = list(fill = "white"), box.icon = "fa-star"}
+1. Transformer la base des parkings en format vectoriel et enregistrer la résultat dans la nouvelle variable `sfparkings`.
+2. Cartographier conjointement le contour de Bordeaux-centre et les parkings en utilisant `mapview`.
 ```
 
-```{r exo3solu,echo=TRUE, solution=TRUE}
-# Transformation en objet vectoriel (géographique)
+```{block, opts.label = "clues"}
+1. Pour transformer la base des parkings en format vectoriel, utiliser la fonction `sf::st_as_sf`.  Attention à bien renseigner le système de projection des coordonnées xy dans le paramètre `crs`.
+```
+
+```{block, opts.label = "clues"}
+2. Pour cartographier avec `mapview`, on additionne les couches vectorielles avec un `+` : `mapview(polygone)+mapview(points)`. 
+```
+
+```{r exo3solu,echo=TRUE, eval=FALSE, solution=TRUE}
+# 1. Transformation en objet vectoriel (géographique)
 sfparkings <- sf::st_as_sf(parkings,coords=c("x","y"),crs=2154)
 
-# Cartographie avec leaflet
+# 2. Cartographie avec mapview
+mapview(centreBdx)+mapview(sfparkings,col.region="black")
+```
+
+```{r, echo = FALSE}
+sfparkings <- sf::st_as_sf(parkings,coords=c("x","y"),crs=2154)
 mapview(centreBdx)+mapview(sfparkings,col.region="black")
 ```
 
 # Phase 2 : Le lissage spatial
+
 ## Partie 2.1 : Carroyer les données avant de lisser
 
 Dans le cas présent, le petit nombre de parkings ne rend pas indispensable cette phase de carroyage.
 Elle permet néanmoins de s'approprier un peu plus la structure spatiale des données avec le lissage. 
 
-```{exo4, box.title = "Exercice 4", box.body = list(fill = "white"), box.icon = "fa-star"}
-- Créer une variable `iCellSize <- 1000` correspondant à la taille des carreaux souhaités
-- Créer la table `centroides` des centroïdes des carreaux de 1000m :
-  - À partir de la table `parkings`
-  - En faisant des "modulo 1000" sur les coordonnées x et y (comme dans le tutoriel)
-  - Comptabiliser le nombre de parkings`contenus dans chaque carreau (nouvelle variable `nbParkings`)
+```{block, box.title = "Exercice 4", box.body = list(fill = "white"), box.icon = "fa-star"}
+1. Créer une constante `iCellSize <- 1000` correspondant à la taille des carreaux souhaités
+2. Créer la table `centroides` contenant les centroïdes `x_centroide` et `y_centroide` des carreaux de 1000m à partir de la table `parkings`.
+3. Comptabiliser le nombre de parkings contenus dans chaque carreau et créer une nouvelle variable `nbParkings`.
 
 
 ```
 
-```{exo5clue, opts.label = "clues"}
-On peut créer de nouvelles variables x_centroide et y_centroide correspondant respectivement à x et y auxquelles : 
-  - On retire le reste de leurs divisions euclidiennes de x modulo 1000 (respectivmeent y modulo 1000)
-  - A ce stade, x_centroide et y_centroide détermine le point en bas à gauche du carreau de 1km
-  - et on ajoute 1000/2 pour tomber sur le centre du carreau
+```{block, opts.label = "clues"}
+2. Les variables `x_centroide` et `y_centroide` correspondant respectivement aux variables `x` et `y` auxquelles : 
+  - On retire le reste de leurs divisions euclidiennes modulo 1000 pour déterminer le point en bas à gauche du carreau de 1km.
+  - Puis on ajoute 1000/2 pour tomber sur le centre du carreau
+```
 
-À chaque parking est maintenant associé le couple x_centroide et y_centroide du carreau de 1km auquel le parking appartient.
-En groupant la base de parkings sur le couple de centroides, on aboutit à la base souhaitée.
+```{block, opts.label = "clues"}
+3. En groupant la base de parkings sur le couple de centroides, on aboutit à la base souhaitée.
 ```
 
 
 ```{r exo4solu, echo=TRUE, solution=TRUE}
-# Taille des carreaux
+# 1. Taille des carreaux
 iCellSize = 1000 
 
+# 2. Centroïdes
 centroides <- parkings
 centroides$x_centroide = centroides$x - (centroides$x %% iCellSize) + (iCellSize / 2)
 centroides$y_centroide = centroides$y - (centroides$y %% iCellSize) + (iCellSize / 2)
 
-# Compter le nombre de parkings par carreau
+# 3. Compter le nombre de parkings par carreau
 centroides <- centroides %>% 
   group_by(x=x_centroide,y=y_centroide) %>% 
   count(name = "nbParkings")
@@ -352,177 +312,206 @@ centroides <- centroides %>%
 centroides
 ```
 
-```{exo5, box.title = "Exercice 5", box.body = list(fill = "white"), box.icon = "fa-star"}
-- Transformer `centroides` en grille de carreaux grâce à la fonction `btb::dfToGrid` (et stocker le résultat dans la variable `sfcarreaux`)
-- Restreindre cette base aux seuls carreaux intersectant le centre de Bordeaux
-- Cartographie les carreaux et le contour du centre de Bordeaux avec `mapview`. 
-- Colorier les carreaux différemment selon le nombre de parkings qu'ils contiennent.
+```{block, box.title = "Exercice 5", box.body = list(fill = "white"), box.icon = "fa-star"}
+1. Transformer `centroides` en grille de carreaux et stocker le résultat dans la variable `sfcarreaux`. 
+2. Restreindre cette base aux seuls carreaux intersectant le centre de Bordeaux.
+3. Cartographie les carreaux et le contour du centre de Bordeaux avec `mapview` en colorant les carreaux différemment selon le nombre de parkings qu'ils contiennent.
 ```
 
-```{exo5clue, opts.label = "clues"}
-Dans la fonction `mapview`, on peut utiliser les options : 
-  - zcol = "nbParkings"
-  - col.regions=list("grey","yellow","red")
+```{block, opts.label = "clues"}
+1. La fonction `btb::dfToGrid` permet de créer la grille de carreaux.
+```
+
+```{block, opts.label = "clues"}
+2. Utiliser la fonction `st_join` par exemple pour réaliser l'intersection.
+```
+
+
+```{block, opts.label = "clues"}
+3. Dans la fonction `mapview`, on peut utiliser les options : 
+  - `zcol = "nbParkings"`
+  - `col.regions = list("grey","yellow","red")`
 ```
 
 
 ```{r exo5solu, echo=TRUE, solution=TRUE}
-# Générer la grille
-sfcarreaux <- btb::dfToGrid(df = centroides, sEPSG = "2154", iCellSize = iCellSize)
+# 1. Générer la grille
+sfcarreaux <- btb::dfToGrid(df = centroides, sEPSG = "2154",
+                            iCellSize = iCellSize)
 
-# Restriction du champ : possibilité 1
-# on ne retient que les carreaux intersectant Bordeaux-centre
+# 2. Restriction du champ : on ne retient que les carreaux intersectant Bordeaux-centre
 sfcarreaux <- sfcarreaux %>% st_join(centreBdx,left = F)
-
-# # Restriction du champ : possibilité 2
-# # on ne retient que les carreaux intersectant Bordeaux-centre
 # sfcarreaux <- sfcarreaux[unlist(st_intersects(centreBdx,sfcarreaux)),]
-
-# Cartographie
-mapview(centreBdx,alpha.regions=0,lwd=4,legend=F)+mapview(sfcarreaux,zcol = "nbParkings",col.regions=list("grey","yellow","red"))
 ```
 
+```{r exo5solu2, echo=TRUE, eval=FALSE, solution=TRUE}
+# 3. Cartographie
+mapview(centreBdx, alpha.regions = 0,lwd = 4,legend = F) + 
+  mapview(sfcarreaux,zcol = "nbParkings",
+          col.regions = list("grey", "yellow", "red"))
+```
+
+```{r, echo=FALSE}
+mapview(centreBdx, alpha.regions = 0,lwd = 4,legend = F) + 
+  mapview(sfcarreaux,zcol = "nbParkings",
+          col.regions = list("grey", "yellow", "red"))
+```
 
 ## Partie 2.2 : Lissage de la densité des parkings
 
-```{exo6, box.title = "Exercice 6", box.body = list(fill = "white"), box.icon = "fa-star"}
-- Créer un "buffer" du centre-ville de Bordeaux (avec une marge de 3 000 mètres autour) et enregistrer le résultat dans `centreBdxBuffer`
-- Sélectionner les parkings positionnés dans cette zone tampon et enregistrer la nouvelle table `parkingsBuff`. Attention : cette nouvelle table doit être issue de la table `parkings` non vectorielle pour garder des colonnes x et y en vue du carroyage.
+```{block, box.title = "Exercice 6", box.body = list(fill = "white"), box.icon = "fa-star"}
+1. Créer un "buffer" du centre-ville de Bordeaux (avec une marge de 3 000 mètres autour) et enregistrer le résultat dans `centreBdxBuffer`.
+2. Représenter le centre de Bordeaux et son buffer avec la librairie `mapview`
+2. Sélectionner les parkings positionnés dans cette zone tampon et enregistrer la nouvelle table `parkingsBuff`.
+
+**Attention :** cette nouvelle table doit être issue de la table `parkings` non vectorielle pour garder des colonnes x et y en vue du carroyage.
 ```
 
 
-```{exo6clue, opts.label = "clues"}
-- Créer un "buffer" du centre-ville de Bordeaux (avec une marge de 3 000 mètres autour) et enregistrer le résultat dans `centreBdxBuffer` ==> Utiliser la fonction `sf::st_buffer`
-- Sélectionner les parkings (de la table vectorielle `sfparkings`) intersectant cette zone tampon et enregistrer la nouvelle table `parkingsBuff` ==> Utiliser la fonction `sf::st_contains` ou `sf::st_intersects`
+```{block, opts.label = "clues"}
+1.  Utiliser la fonction `sf::st_buffer`
+```
 
+
+```{block, opts.label = "clues"}
+3.  Utiliser la fonction `sf::st_contains` ou `sf::st_intersects`
 ```
 
 ```{r echo=TRUE, solution=TRUE}
-# Création d'un buffer autour du territoire
+# 1. Création d'un buffer autour du territoire
 marge <- 3000
 centreBdxBuffer <- st_buffer(centreBdx, dist = marge)
 
-# Représentation 
-mapview(centreBdxBuffer,col.region="gray")+mapview(centreBdx)
+# 2. Cartographie avec mapview
+mapview(centreBdxBuffer,col.region="gray") + mapview(centreBdx)
 
-# Repérer les indices des observations contenues dans notre buffer d'intérêt
+# 3. Repérer les indices des observations contenues le buffer
+# puis réduire la base aux seules observations dans le territoire
 indiceObsContenues <- unlist(sf::st_contains(centreBdxBuffer, sfparkings))
-
-# Réduire la base aux seules observations dans le territoire
 parkingsBuff <- parkings[indiceObsContenues, ]
-
 parkingsBuff
 ```
 
-```{exo7, box.title = "Exercice 7", box.body = list(fill = "white"), box.icon = "fa-star"}
-- Créer une variable nbObsLisse = 1L
-- Lisser le nombre de parkings dans le buffer du centre-ville de Bordeaux : 
+```{block, box.title = "Exercice 7", box.body = list(fill = "white"), box.icon = "fa-star"}
+1. Créer une variable `nbObsLisse = 1L` dans `parkingsBuff`. Que représente-t-elle ?
+2. Lisser le nombre de parkings dans le buffer du centre-ville de Bordeaux : 
     - Avec un rayon de lissage de 1\ 700 mètres
     - En générant une grille carroyée de 50 mètres de côté
-- Restreindre les carreaux de 50 mètres obtenus aux seuls intersectant le centre-ville et enregistrer le résultat dans `sfcarLisse`
-- Cartographier le résultat obtenu avec la fonction `genercarte` (chargée dans votre environnement global)
+3. Restreindre les carreaux de 50 mètres obtenus aux seuls carreaux intersectant le centre-ville et enregistrer le résultat dans `sfcarLisse`
+4. Cartographier le résultat obtenu avec la fonction `genercarte`. 
+5. [BONUS] Proposer une transformation permettant d'obtenir une densité au km². 
 
-Sous-question bonus : que représente la variable `nbObsLisse` de `sfcarLisse` ? Proposer une transformation permettant d'obtenir une densité au km². 
 ```
 
-```{exo7clue, opts.label = "clues"}
-Utiliser la fonction `btb::kernelSmoothing` :)
+```{block, opts.label = "clues"}
+2. Utiliser bien sûr la fonction `btb::kernelSmoothing` !
 ```
 
 
-```{r exo7solu,echo=TRUE, solution=TRUE}
-# Nouvelle variable de "comptage des observation"
+```{r exo7solu,echo=TRUE, solution=TRUE, results="hide"}
+# 1. Nouvelle variable nbObsLisse
 parkingsBuff$nbObsLisse <- 1L
+#### C'est une variable de "comptage des observations".
 
-# Lissage
+# 2. Lissage
 rayon <- 1700 # Rayon de lissage
 tcar <-  50 # Taille des carreaux de la grille
-
 parkingsLissage <- parkingsBuff[,c("nbObsLisse","x","y")]
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
 
-# Filtrage ==> ne garder que les carreaux intersectant le centre de Bordeaux
+# 3. Filtrage : ne garder que les carreaux intersectant le centre de Bordeaux
 sfcarLisse <- sfcarLisse %>% st_join(centreBdx,left = F)
+```
 
-# Carte lissée
+```{r exo7solu2,echo=TRUE, eval=FALSE, solution=TRUE}
+# 4. Carte lissée avec mapsf
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="nbObsLisse",
                        nbreaks=5,
                        zone=centreBdx,
                        titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
+```
 
-# Comment afficher une densité au km² ?
+```{r,echo=FALSE}
+# 4. Carte lissée avec mapsf
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="nbObsLisse",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
+```
+
+
+
+```{r exo7solu3,echo=TRUE, eval=FALSE, solution=TRUE}
+#5. densité au km2
 sfcarLisse$nbObsLisse <- sfcarLisse$nbObsLisse*((1000/tcar)^2)
-
-# Même carte lissée avec une légende au km²
 genercarte(sfcarLisse=sfcarLisse,
                        nomvar="nbObsLisse",
                        nbreaks=5,
                        zone=centreBdx,
                        titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
+```
 
+```{r,echo=FALSE}
+sfcarLisse$nbObsLisse <- sfcarLisse$nbObsLisse*((1000/tcar)^2)
+genercarte(sfcarLisse=sfcarLisse,
+                       nomvar="nbObsLisse",
+                       nbreaks=5,
+                       zone=centreBdx,
+                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
 
 ```
 
 
-```{exo8, box.title = "Exercice 8", box.body = list(fill = "white"), box.icon = "fa-star"}
-Refaire le lissage avec un rayon de 600 mètres, puis avec un rayon de 3000 mètres
-
+```{block, box.title = "Exercice 8", box.body = list(fill = "white"), box.icon = "fa-star"}
+Refaire le lissage avec un rayon de 600 mètres, puis avec un rayon de 3000 mètres. Essayer de créer une fonction générale pour automatiser vos traitements.
 ```
 
 
 ```{r exo8solu,echo=TRUE, solution=TRUE}
-# Avec un rayon de 600m
-rayon <- 600 # Rayon de lissage
+lissage_maison <- function(rayon){
 
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = tcar, 
-                                    iBandwidth = rayon)
-sfcarLisse <- sfcarLisse %>% 
-  st_join(centreBdx,left = F) %>% 
-  mutate(nbObsLisse=nbObsLisse*(1000/tcar)^2)
-
-genercarte(sfcarLisse=sfcarLisse,
-                       nomvar="nbObsLisse",
-                       nbreaks=5,
-                       zone=centreBdx,
-                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
-
-# Avec un rayon de 3000m
-rayon <- 3000 # Rayon de lissage
-
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = tcar, 
-                                    iBandwidth = rayon)
-
-sfcarLisse <- sfcarLisse %>% 
-  st_join(centreBdx,left = F) %>% 
-  mutate(nbObsLisse=nbObsLisse*(1000/tcar)^2)
-
-genercarte(sfcarLisse=sfcarLisse,
-                       nomvar="nbObsLisse",
-                       nbreaks=5,
-                       zone=centreBdx,
-                       titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
-
+       sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+                                     sEPSG = "2154",
+                                     iCellSize = tcar, 
+                                     iBandwidth = rayon)
+ 
+  sfcarLisse <- sfcarLisse %>% 
+    st_join(centreBdx,left = F) %>% 
+    mutate(nbObsLisse=nbObsLisse*(1000/tcar)^2)
+  
+  genercarte(sfcarLisse=sfcarLisse,
+             nomvar="nbObsLisse",
+             nbreaks=5,
+             zone=centreBdx,
+             titre=paste0("Lissage de la densité de parkings avec un rayon de ",rayon," m"))
+}
 ```
 
+```{r exo8solu2,echo=TRUE, eval=FALSE, solution=TRUE}
+lissage_maison(600)
+lissage_maison(3000)
+```
 
+```{r,echo=FALSE, eval=TRUE, results="hide"}
+lissage_maison(600)
+lissage_maison(3000)
+```
 
 ## Partie 2.3 : Lissage du nombre de places de parkings
 
-```{exo9, box.title = "Exercice 9", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 9", box.body = list(fill = "white"), box.icon = "fa-star"}
 Lisser le nombre de places de stationnement (variable `np_global`), et non plus le nombre de parkings.
-Pour la suite, toujours prendre un rayon de lissage de 1 700 mètres sauf mention contraire.
+
+**Remarque :** Pour la suite, toujours prendre un rayon de lissage de 1 700 mètres sauf mention contraire.
 ```
 
 
-```{r exo9solu,echo=TRUE, solution=TRUE}
+```{r exo9solu,echo=TRUE, solution=TRUE, results="hide"}
 rayon <- 1700
 parkingsLissage <- parkingsBuff[,c("np_global","x","y")]
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
@@ -545,11 +534,11 @@ genercarte(sfcarLisse=sfcarLisse,
 ```
 
 
-```{exo10, box.title = "Exercice 10", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 10", box.body = list(fill = "white"), box.icon = "fa-star"}
 Lisser le nombre de places de stationnement pour les personnes à mobilité réduite (variable `np_pmr`).
 ```
 
-```{r exo10solu,echo=TRUE, solution=TRUE}
+```{r exo10solu,echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("np_pmr","x","y")]
 
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
@@ -576,17 +565,15 @@ genercarte(sfcarLisse=sfcarLisse,
 
 ## Partie 2.4 : Lissage de ratios
 
-```{exo11, box.title = "Exercice 11", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 11", box.body = list(fill = "white"), box.icon = "fa-star"}
 Lisser le nombre moyen de places de stationnement par parking.
-
 ```
 
-```{exo11clue, opts.label = "clues"}
-Ne jamais lisser directement le ratio ! On lisse le numérateur et le dénominateur, puis on fait le ratio sur les carreaux générés par `kernelSmoothing`.
+```{block, opts.label = "clues"}
+Ne jamais lisser directement le ratio ! On lisse le numérateur et le dénominateur séparément. Puis, on fait le ratio sur les carreaux générés par `kernelSmoothing`.
 ```
 
-```{r exo11solu,echo=TRUE, solution=TRUE}
-
+```{r exo11solu,echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("nbObsLisse","np_global","x","y")]
 
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
@@ -603,15 +590,13 @@ genercarte(sfcarLisse=sfcarLisse,
                        nbreaks=5,
                        zone=centreBdx,
                        titre="Lissage du nombre de places par parking")
-
 ```
 
-```{exo12, box.title = "Exercice 12", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 12", box.body = list(fill = "white"), box.icon = "fa-star"}
 Lisser le taux de places de stationnement pour personnes à mobilité réduite (en %).
-
 ```
 
-```{r exo12solu,echo=TRUE, solution=TRUE}
+```{r exo12solu,echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("np_global","np_pmr","x","y")]
 
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
@@ -632,14 +617,14 @@ genercarte(sfcarLisse=sfcarLisse,
 
 
 
-## Partie 2.5 (bonus) : où trouver des places de parking pas chères ?
+## Partie 2.5 [BONUS] : où trouver des places de parking pas chères ?
 
-```{exo13, box.title = "Exercice 13", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 13", box.body = list(fill = "white"), box.icon = "fa-star"}
 Lisser le prix moyen d'une heure de stationnement par parking (sans pondérer par le nombre de places)
 
 ```
 
-```{r exo13solu, echo=TRUE, solution=TRUE}
+```{r exo13solu, echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("nbObsLisse","th_heur","x","y")]
 sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
                                     sEPSG = "2154",
@@ -657,21 +642,23 @@ genercarte(sfcarLisse=sfcarLisse,
 
 ```
 
-```{exo14, box.title = "Exercice 14", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 14", box.body = list(fill = "white"), box.icon = "fa-star"}
 Lisser le prix moyen d'une heure de stationnement (prendre en compte le nombre de places de stationnement par parking).
 
 ```
 
 
-```{exo14clue, opts.label = "clues"}
+```{block, opts.label = "clues"}
 Pour chaque parking de la base, il faut lisser :
-  - la multiplication du prix et du nombre de place
-  - le nombre de place
-et faire le ratio pour obtenir le "prix moyen d'une place" lissé.
+
+  - la multiplication du prix et du nombre de places
+  - le nombre de places
+  
+Puis, faire le ratio pour obtenir le "prix moyen d'une place" lissé.
 ```
 
 
-```{r exo14solu,echo=TRUE, solution=TRUE}
+```{r exo14solu,echo=TRUE, solution=TRUE, results="hide"}
 
 # Création de la variable "multiplication du prix et du nmbre de places" pour chaque parking
 parkingsBuff <- parkingsBuff %>% mutate(prix_x_place=np_global*th_heur)
@@ -683,7 +670,7 @@ sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage,
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
 
-# Et on rapport par le nombre de places lissé.
+# Et on rapporte par le nombre de places lissé.
 sfcarLisse <- sfcarLisse %>% mutate(prix_moyen_place=prix_x_place/np_global)
 
 
@@ -701,21 +688,25 @@ genercarte(sfcarLisse=sfcarLisse,
 
 # Phase 3 : Calcul d'indicateurs sur une zone à façon
 
-```{exo14, box.title = "Exercice 14", box.body = list(fill = "white"), box.icon = "fa-star"}
+```{block, box.title = "Exercice 15", box.body = list(fill = "white"), box.icon = "fa-star"}
 Combien d'habitants vivent dans le centre de Bordeaux tel que nous l'avons défini ?
+
 Pour répondre à cette question : 
-  - Charger la base des données Filosofi 2015 carroyées (grille de 200m) en utilisant le code ci-dessous. Le code permet de ne charger que les carreaux de la Gironde.
-  - Faire une intersection géographique entre les carreaux de la Gironde et le contour géographique du centre de Bordeaux
-  - Calculer le nombre d'habitants grâce à la variable `Ind`
+
+1. Comme dans le tutoriel, charger la base des données Filosofi 2015 carroyées (grille de 200m) en ne chargeant que les carreaux de la Gironde grâce à l'option `query` de `sf::st_read`.
+  
+2. Vérifier les projections cartographiques utilisées puis faire une intersection géographique entre les carreaux de la Gironde et le contour géographique du centre de Bordeaux
+
+3. Cartographier avec `mapview` les carreaux du centre de Bordeaux.
+
+4. Calculer le nombre d'habitants grâce à la variable `Ind`.
 ```
 
-```{r}
+```{r exo15solu,echo=TRUE, eval=FALSE, solution=TRUE, results="hide"}
+#1. Chargement des données de Filosofi 2015 en Gironde
 url_bucket <- "https://minio.lab.sspcloud.fr/"
 bucket <- "projet-formation"
 object = "r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg"
-```
-  
-```{r exo15charg,echo=TRUE,eval=FALSE}
 
 st_read_maison <- function(chemin_tab){
   requete <- "SELECT IdINSPIRE,Depcom,Ind,Men, Log_soc, geom
@@ -724,11 +715,10 @@ st_read_maison <- function(chemin_tab){
   sf::st_read(chemin_tab, query = requete)
 }
 
+# sans s3
 car33 <-  st_read_maison(paste0(url_bucket,bucket,"/",object))
-```
 
-Ou avec `aws.s3` :
-```{r,echo=TRUE, eval=FALSE}
+# avec s3
 car33 <- 
   aws.s3::s3read_using(
     FUN = st_read_maison,
@@ -746,22 +736,22 @@ download.file(paste0(url_bucket,bucket,"/",object), destfile = "carreaux_33.RDS"
 car33 <- readRDS("carreaux_33.RDS")
 ```
 
-```{r exo15solu,echo=TRUE, solution=TRUE}
-# Visualisation de la base ==> projection 2154 (en Lambert93) : c'est bon.
-head(car33)
+```{r exo15solu2,echo=TRUE, solution=TRUE}
+# 2. Vérification de la projection 
+# puis sélection des carreaux intersectant le centre de Bordeaux
 
-# Sélection des carreaux intersectant le centre de Bordeaux
+head(car33)
+# Projection 2154 (Lambert93).
+
 carreaux_centreBdx <- car33 %>% st_join(centreBdx,left = F)
 
-# Cartographie :
+# 3. Cartographie des carreaux du centre de Bordeaux
+mapview(centreBdx, color = "black", lwd = 6, alpha.regions = 0,legend=F) + 
+mapview(carreaux_centreBdx, col.regions="#ffff00")
 
-mapview(centreBdx,color="black",lwd=6,alpha.regions=0,legend=F)+
-mapview(carreaux_centreBdx,col.regions="#ffff00")
 
-
-# Combien d'habitants dans le centre de Bordeaux ?
+# 4. Combien d'habitants dans le centre de Bordeaux ?
 cat("Il y a approximativement ",sum(carreaux_centreBdx$Ind), " habitants dans le centre de Bordeaux")
-
 ```
 
 

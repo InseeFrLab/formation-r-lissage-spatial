@@ -1,6 +1,6 @@
 ---
 title: "Formation au carroyage et lissage spatial sur R"
-author: "Kim Antunez et Julien Pramil "
+author: "Kim Antunez et Julien Pramil"
 date: "Dernière modification : 11 mars 2022"
 output:
   prettydoc::html_pretty:

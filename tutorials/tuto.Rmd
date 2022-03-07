@@ -98,7 +98,7 @@ WGS84            GPS (utile pour utiliser Leaflet)                          4326
 
 ## Chargement des librairies
 
-Quatre librairies sont nécessaires pour ce TP.
+Cinq librairies sont nécessaires pour ce TP.
 
    * `sf` pour manipuler des fichiers spatiaux (importer des .shp, transformer des projections, et réaliser des géotraitements)
    * `mapsf` pour réaliser des cartes dans RStudio
@@ -126,7 +126,7 @@ package.check <- lapply(
 )
 ```
 
-Pour les personnes utilisant l'environnement de développement du SSPCloud, il est possible d'utiliser le package `aws.s3` pour charger les données stockées dans le cloud `Minio` de l'Insee. Ce package permet un chargement des données plus rapide qu'un chaargement classique.
+Pour les personnes utilisant l'environnement de développement du SSPCloud, il est possible d'utiliser le package `aws.s3` pour charger les données stockées dans le cloud `Minio` de l'Insee. Ce package permet un chargement des données plus rapide qu'un chargement classique.
 
 ```{r message=FALSE, warning=FALSE}
 # Chunk permettant d'utiliser les données S3. Trouver une autre solution à termes
@@ -211,7 +211,7 @@ dim(dfBase)
 
 ### Fond de carte du territoire à étudier
 
-Nous allons charger le contour géographique des départements de la petite couronne parisienne. En cartographie, ces fichiers sont appelés des «\ couches vectorielles\ » (à ne pas confondre avec les couches «\ raster\ » qui correspondent, pas exemple, aux fonds de carte satellite OpenStreetMap ou Google Maps). 
+Nous allons charger le contour géographique des départements de la petite couronne parisienne. En cartographie, ces fichiers sont appelés des «\ couches vectorielles\ » (à ne pas confondre avec les couches «\ raster\ » qui correspondent, par exemple, aux fonds de carte satellite OpenStreetMap ou Google Maps). 
 
 Différents types de fichiers permettent de stocker des couches vectorielles. Les deux principaux sont le Geopackage (**.gpkg**) et le Shapefile (**.shp**). Nous recommandons l'utilisation du **.gpkg** pour les raisons suivantes :
 
@@ -222,7 +222,7 @@ Différents types de fichiers permettent de stocker des couches vectorielles. Le
 
 Pour aller plus loin sur la comparaison des formats, voir [ici](https://www.gis-blog.com/geopackage-vs-shapefile/).
 
-Récupérons donc le contour du territoire étudié avec la fonction `read_sf` du package `sf`.
+Récupérons donc le contour du territoire étudié avec la fonction `st_read` du package `sf`.
 
 ```{r chargeContour}
 # Charger le fond de carte du territoire étudié
@@ -484,7 +484,7 @@ Nous allons préalablement créer une variable `nbObsLisse` qui vaudra `1` pour 
 dfBase_filtre$nbObsLisse <- 1
 
 # Visualiser les premières lignes de la base
-head(dfBase)
+head(dfBase_filtre)
 ```
 
 La fonction de lissage `btb::kernelSmoothing` intègre automatiquement l'étape de génération de la grille de carreaux. Puis, chaque carreau est affecté de la densité lissée en son centroïde. 
@@ -519,7 +519,7 @@ Attention, la fonction retourne une erreur en cas de :
 - présence d'une variable non-numérique ;
 - valeur(s) absente(s) dans les colonnes `x` ou `y`.
 
-Ci-dessous la grille carroyée obtenue (hors données lissées). On remarque épouse le périmètre des points en entrée de la fonction. Par défaut, elle va même un peu au-delà (voir partie 4.1.5).
+Ci-dessous la grille carroyée obtenue (hors données lissées). On remarque qu'elle épouse le périmètre des points en entrée de la fonction. Par défaut, elle va même un peu au-delà (voir partie 4.1.5).
 
 <!-- \@ref(sec:grilleautom) -->
 
@@ -900,7 +900,7 @@ sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
 sfCarLiss$txQuatrePieces <- sfCarLiss$quatrePieces / sfCarLiss$nbObsLisse
 
 # Intersection géographique avec Paris
-sfCarLiss_paris <- sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
+sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
 
 # Cartographie
 mf_init(x=sfCarLiss_paris,theme = "agolalight")
@@ -1039,7 +1039,7 @@ mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",
 
 Pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'observations ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé.
 
-```{r verifObsQuantiles, eval=FALSE}
+```{r verifObsQuantiles}
 summary(sfCarLiss_paris$nbObs)
 
 # Part de centroïdes dont le quantile lissé 
@@ -1097,7 +1097,7 @@ nrow(transac_triangle)
 mean(transac_triangle$valeur_fonciere)
 ```
 
-**Remarque** : On ne voit que 12 points sur la cartes, alors qu'on a trouvé 20 transactions dans le triangle : ceci s'explique car certaines transactions sont géolocalisées au même endroit (appartements situés dans un même immeuble par exemple). 
+**Remarque** : On ne voit que 12 points sur la cartes, alors qu'on a trouvé 20 transactions dans le triangle\ :\ ceci s'explique car certaines transactions sont géolocalisées au même endroit (appartements situés dans un même immeuble par exemple). 
 
 ## Indicateurs sur zones à façon à partir de données carroyées
 
@@ -1134,7 +1134,7 @@ carreaux <- readRDS(url_file)
 head(carreaux)
 ```
 
-2. Créer un cercle de 1km autour du White
+2. Créer un disque de 1km autour du White
 
 ```{r zoneAFacon1}
 white <- st_sfc(st_point(c(649218.36,6857569.14)),crs=2154)

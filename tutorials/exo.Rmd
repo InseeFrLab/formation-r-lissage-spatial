@@ -1,7 +1,7 @@
 ---
 title: "<center>Formation au carroyage et lissage spatial sur R </br></br>EXERCICES</br></br><img src='https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png' width='20%'></center>"
 pagetitle: "Exercices - Formation au carroyage et lissage spatial sur R"
-author: "Kim Antunez et Julien Pramil "
+author: "Kim Antunez et Julien Pramil"
 date: "Dernière modification : 11 mars 2022"
 output:
   unilur::tutorial_html_solution:

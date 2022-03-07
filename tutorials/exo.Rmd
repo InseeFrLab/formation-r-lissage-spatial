@@ -194,6 +194,7 @@ genercarte <- function(sfcarLisse,nomvar,nbreaks=5,zone,titre,epais=0.2){
          breaks = "quantile",
          nbreaks = nbreaks,
          lwd = epais,
+         leg_pos = "bottomleft2", 
          add = TRUE)
   mf_map(x = st_cast(zone[,c("geom")],"MULTILINESTRING"), 
          lwd=4,

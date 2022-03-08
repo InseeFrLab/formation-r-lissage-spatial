@@ -1045,7 +1045,7 @@ mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",
 ```
 
 
-Un intérêt majeur du «\ lissage quantile\ » est d'offrir des indicateurs lissés de disparité des distributions. En effet, on peut par exemple calculer le rapport interdécile lissé afin de représenter l'ampleur des écarts de prix dans les différents quartiers de Paris intramuros.
+Un intérêt majeur du «\ lissage quantile\ » est d'offrir des indicateurs lissés de disparité des distributions. En effet, on peut par exemple calculer le rapport interdéciles lissé afin de représenter l'ampleur des écarts de prix dans les différents quartiers de Paris intramuros.
 
 ```{r interdeciles, eval = TRUE}
 

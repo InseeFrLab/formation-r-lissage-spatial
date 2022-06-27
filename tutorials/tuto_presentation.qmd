@@ -4,11 +4,12 @@ author: "Kim ANTUNEZ - Julien PRAMIL"
 date: "octobre 2022"
 format:
   revealjs: 
-    theme: sky
+    theme: default
     logo: images/hexagon-01.png
 editor: visual
 execute:
   echo: true
+  cache: true
 ---
 
 # Introduction
@@ -96,7 +97,9 @@ Cinq librairies sont nécessaires pour ce TP.
 -   `dplyr` pour le traitement des données, en particulier l'agrégation géographique.
 :::
 
+::: notes
 **Remarque** : Le choix de `dplyr` plutôt que `data.table` se justifie ici du fait de sa forte compatibilité avec les objets géomatiques.
+:::
 
 ------------------------------------------------------------------------
 
@@ -127,8 +130,8 @@ mapviewOptions(leafletWidth = "100%")
 
 Sur le **SSPCloud** :
 
-- Utiliser le package `aws.s3` pour charger les données stockées dans `Minio` ; 
-- Plus rapide qu'un chargement classique.
+-   Utiliser le package `aws.s3` pour charger les données stockées dans `Minio` ;
+-   Plus rapide qu'un chargement classique.
 
 ```{r message=FALSE, warning=FALSE}
 
@@ -138,4 +141,91 @@ if (!require("aws.s3", character.only = TRUE)) {
       library("aws.s3", character.only = TRUE)
     }
 
+```
+
+## Chargement de la base
+
+-   On utilise le base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) »,
+-   Produite par la Direction générale des finances publiques (actes notariés).
+
+Elle recense :
+
+-   l'ensemble des ventes de biens fonciers,
+-   Au cours des 5 dernières années,
+-   Hors Mayotte et en Alsace-Moselle.
+-   Biens bâtis ou terrains
+
+------------------------------------------------------------------------
+
+À partir de cette source, nous avons constitué une base :
+
+-   Uniquement au périmètre de la **petite couronne parisienne**
+-   Pour l'année **2021**.
+
+-----------------------------------------------------------------------
+
+Avec les **8 variables** suivantes :
+
+ -   `id_mutation` : identifiant unique de la vente
+ -   `date_mutation` : date de la vente
+ -   `type_local` : appartement ou maison
+ -   `nombre_pieces_principales` : nombre de pièces dans le logement
+ -   `valeur_fonciere` : prix de vente
+ -   `surface_reelle_bati` : surface du logement
+ -   `x` : longitude (**en projection Lambert 93**)
+ -   `y` : latitude (**en projection Lambert 93**)
+
+------------------------------------------------------------------------
+
+Remarques :
+
+-   [Code de production de la base](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R).
+-   Base non représentative de la réalité : usage purement pédagogique.
+
+------------------------------------------------------------------------
+
+Dans le SSPcloud :
+
+Importation de la base `ventesImmo_couronneParis.RDS`, stockée sous Minio
+
+::: notes
+dans le "bucket public" : s3/projet-formation/r-lissage-spatial/.
+:::
+
+```{r}
+# Charger la source de données (variable nommée dfBase) avec S3
+url_bucket <- "https://minio.lab.sspcloud.fr/"
+bucket <- "projet-formation"
+object <- "r-lissage-spatial/ventesImmo_couronneParis.RDS"
+```
+
+```{r eval = FALSE}
+dfBase <-
+  aws.s3::s3read_using(
+    FUN = base::readRDS,
+    object = object,
+    bucket = bucket
+    ,
+    opts = list("region" = "")
+  )
+```
+
+------------------------------------------------------------------------
+
+En dehors du SSPCloud : téléchargement via URL.
+
+```{r chargeBase}
+# Charger la source de données (variable nommée dfBase) avec son URL
+url_file <- url(paste0(url_bucket,bucket,"/",object))
+dfBase <- readRDS(url_file)
+```
+
+------------------------------------------------------------------------
+
+On peut ensuite manipuler notre base de données chargée en mémoire.
+
+```{r}
+# Visualiser les premières lignes de la base
+head(dfBase)
+dim(dfBase)
 ```

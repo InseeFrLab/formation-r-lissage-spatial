@@ -1,25 +1,141 @@
 ---
-title: "Lissage spatiale avec BTB"
+title: "Formation au carroyage et lissage spatial sur R"
 author: "Kim ANTUNEZ - Julien PRAMIL"
-format: revealjs
+date: "octobre 2022"
+format:
+  revealjs: 
+    theme: sky
+    logo: images/hexagon-01.png
 editor: visual
+execute:
+  echo: true
 ---
 
-## Quarto
+# Introduction
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+## Objectifs du TP
 
-## Bullets
+En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
 
-When you click the **Render** button a document will be generated that includes:
+Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R.
 
--   Content authored with markdown
--   Output from executable code
+------------------------------------------------------------------------
 
-## Code
+À partir de données ponctuelles, nous allons apprendre en utilisant le langage R :
 
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+::: incremental
+-   À carroyer les informations.
+-   À réaliser des lissages de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
+-   À calculer un indicateur sur une zone à façon à partir des données ponctuelles et de données carroyées de l'Insee.
+:::
 
-```{r}
-1 + 1
+------------------------------------------------------------------------
+
+**Liens utiles**
+
+-   [Code de la formation](https://github.com/InseeFrLab/formation-r-lissage-spatial)
+-   [Site web des supports de formation](https://inseefrlab.github.io/formation-r-lissage-spatial)
+
+## Avertissements
+
+------------------------------------------------------------------------
+
+### Secret statistique
+
+Avant toute diffusion auprès des partenaires, il faut bien veiller à respecter :
+
+-   le **secret**
+    -   **primaire**
+    -   **secondaire**
+    -   **fiscal**
+-   les **conventions** établies avec les fournisseurs des données
+
+------------------------------------------------------------------------
+
+### Qualité des cartes
+
+Pour simplifier : on prend des libertés avec la **sémiologie cartographique**
+
+![](images/lightsemio.png){fig-align="center" width="300"}
+
+*Auteur : Timothée Giraud, auteur de la librairie `mapsf`*
+
+------------------------------------------------------------------------
+
+### Système de projection
+
+| Nom       | Description                                      | Code EPSG |
+|:----------|:-------------------------------------------------|:----------|
+| Lambert93 | Système de projection officiel pour la métropole | 2154      |
+| LAEA      | Système de projection européen                   | 3035      |
+| WGS84     | GPS (utile pour utiliser Leaflet)                | 4326      |
+
+::: notes
+PI, voici les systèmes de projection que vous pouvez régulièrement rencontrer pour la métropole :
+:::
+
+------------------------------------------------------------------------
+
+# Configurations
+
+------------------------------------------------------------------------
+
+## Chargement des librairies
+
+Cinq librairies sont nécessaires pour ce TP.
+
+::: incremental
+-   `sf` pour manipuler des fichiers spatiaux (importer des .shp, transformer des projections, et réaliser des géotraitements)
+
+-   `mapsf` pour réaliser des cartes dans RStudio
+
+-   `mapview` (reposant sur `leaflet`) pour réaliser des cartes interactives (fond de carte OpenStreetMap)
+
+-   `btb` pour le carroyage et lissage
+
+-   `dplyr` pour le traitement des données, en particulier l'agrégation géographique.
+:::
+
+**Remarque** : Le choix de `dplyr` plutôt que `data.table` se justifie ici du fait de sa forte compatibilité avec les objets géomatiques.
+
+------------------------------------------------------------------------
+
+Charger les librairies nécessaires
+
+```{r message=FALSE, warning=FALSE}
+
+## Liste des librairies utilisées
+packages <-  c("dplyr","sf","btb","mapsf","leaflet","mapview")
+
+## Vérifier si la librairie est installée, si non l'installer, puis la charger
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE, quiet = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+mapviewOptions(leafletWidth = "100%")
+```
+
+------------------------------------------------------------------------
+
+Sur le **SSPCloud** :
+
+- Utiliser le package `aws.s3` pour charger les données stockées dans `Minio` ; 
+- Plus rapide qu'un chargement classique.
+
+```{r message=FALSE, warning=FALSE}
+
+if (!require("aws.s3", character.only = TRUE)) {
+      install.packages("aws.s3",repos = "https://cloud.R-project.org",
+                       dependencies = TRUE, quiet = TRUE)
+      library("aws.s3", character.only = TRUE)
+    }
+
 ```

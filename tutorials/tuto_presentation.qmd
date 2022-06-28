@@ -2,19 +2,31 @@
 title: "Formation au carroyage et lissage spatial sur R"
 author: "Kim ANTUNEZ - Julien PRAMIL"
 date: "octobre 2022"
+#toc: true
+
 format:
-  revealjs: 
+  revealjs:
+    transition: slide
+    background-transition: zoom
+    scrollable: true
+    slide-level: 3
+    code-link: true
+    code-line-numbers: true
     theme: default
     logo: images/hexagon-01.png
-editor: visual
+#editor: visual
 execute:
   echo: true
-  cache: true
+  #cache: true
 ---
 
 # Introduction
 
+------------------------------------------------------------------------
+
 ## Objectifs du TP
+
+------------------------------------------------------------------------
 
 En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
 
@@ -36,6 +48,8 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
 
 -   [Code de la formation](https://github.com/InseeFrLab/formation-r-lissage-spatial)
 -   [Site web des supports de formation](https://inseefrlab.github.io/formation-r-lissage-spatial)
+
+------------------------------------------------------------------------
 
 ## Avertissements
 
@@ -82,6 +96,8 @@ PI, voici les systèmes de projection que vous pouvez régulièrement rencontrer
 ------------------------------------------------------------------------
 
 ## Chargement des librairies
+
+------------------------------------------------------------------------
 
 Cinq librairies sont nécessaires pour ce TP.
 
@@ -143,7 +159,11 @@ if (!require("aws.s3", character.only = TRUE)) {
 
 ```
 
+------------------------------------------------------------------------
+
 ## Chargement de la base
+
+------------------------------------------------------------------------
 
 -   On utilise le base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) »,
 -   Produite par la Direction générale des finances publiques (actes notariés).
@@ -162,24 +182,25 @@ Elle recense :
 -   Uniquement au périmètre de la **petite couronne parisienne**
 -   Pour l'année **2021**.
 
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 Avec les **8 variables** suivantes :
 
- -   `id_mutation` : identifiant unique de la vente
- -   `date_mutation` : date de la vente
- -   `type_local` : appartement ou maison
- -   `nombre_pieces_principales` : nombre de pièces dans le logement
- -   `valeur_fonciere` : prix de vente
- -   `surface_reelle_bati` : surface du logement
- -   `x` : longitude (**en projection Lambert 93**)
- -   `y` : latitude (**en projection Lambert 93**)
+-   `id_mutation` : identifiant unique de la vente
+-   `date_mutation` : date de la vente
+-   `type_local` : appartement ou maison
+-   `nombre_pieces_principales` : nombre de pièces dans le logement
+-   `valeur_fonciere` : prix de vente
+-   `surface_reelle_bati` : surface du logement
+-   `x` : longitude (**en projection Lambert 93**)
+-   `y` : latitude (**en projection Lambert 93**)
 
 ------------------------------------------------------------------------
 
 Remarques :
 
 -   [Code de production de la base](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R).
+
 -   Base non représentative de la réalité : usage purement pédagogique.
 
 ------------------------------------------------------------------------
@@ -215,7 +236,6 @@ dfBase <-
 En dehors du SSPCloud : téléchargement via URL.
 
 ```{r chargeBase}
-# Charger la source de données (variable nommée dfBase) avec son URL
 url_file <- url(paste0(url_bucket,bucket,"/",object))
 dfBase <- readRDS(url_file)
 ```
@@ -225,7 +245,372 @@ dfBase <- readRDS(url_file)
 On peut ensuite manipuler notre base de données chargée en mémoire.
 
 ```{r}
-# Visualiser les premières lignes de la base
 head(dfBase)
 dim(dfBase)
 ```
+
+------------------------------------------------------------------------
+
+## Chargement des données cartographiques
+
+------------------------------------------------------------------------
+
+### Fond de carte du territoire à étudier
+
+-   Chargement contour géographique des départements de la petite couronne parisienne.
+-   =\> Couches dites « vectorielles »
+-   Type de fichiers : `.gpkg` ou `.shp`
+-   On recommande le `.gpkg` (voir détails [ici](https://www.gis-blog.com/geopackage-vs-shapefile/))
+
+::: notes
+En cartographie, ces fichiers sont appelés des « couches vectorielles » (à ne pas confondre avec les couches « raster » qui correspondent, par exemple, aux fonds de carte satellite OpenStreetMap ou Google Maps). - Un .gpkg est un fichier unique alors qu'un fichier .shp tient dans 5 fichiers séparés et interdépendants. - Le format Géopackage est libre et ouvert, contrairement à Shapefile. - Un Shapefile impose des noms de variables de moins de 10 caractères, ce qui peut être pénible en pratique. - Le géopackage est devenu le format standard dans Qgis depuis la version 3 (logiciel libre de cartographie préconisé à l'Insee).
+:::
+
+------------------------------------------------------------------------
+
+Récupérons donc le contour du territoire étudié avec la fonction `st_read` du package `sf`.
+
+```{r chargeContour}
+chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/depCouronne.gpkg")
+depCouronne_sf <- sf::st_read(chemin_file)
+```
+
+------------------------------------------------------------------------
+
+Visualisons cette couche vectorielle
+
+```{r}
+
+head(depCouronne_sf)
+plot(depCouronne_sf$geom)
+```
+
+------------------------------------------------------------------------
+
+On renomme la variable "geom" en "geometry"
+
+```{r}
+depCouronne_sf <- depCouronne_sf %>% rename(geometry=geom)
+```
+
+------------------------------------------------------------------------
+
+Une fois les départements chargés, nous allons sélectionner le contour de la commune de Paris.
+
+```{r}
+# Sélection de Paris
+paris_sf <- depCouronne_sf[depCouronne_sf$code=="75",]
+```
+
+------------------------------------------------------------------------
+
+Visualisons cette couche vectorielle
+
+```{r}
+head(paris_sf)
+plot(paris_sf$geometry)
+```
+
+------------------------------------------------------------------------
+
+On reprojète dans le même système de projection (si besoin). Ici, en Lambert 93 (epsg 2154)
+
+```{r stTransform}
+depCouronne_sf <- sf::st_transform(depCouronne_sf, crs = 2154)
+paris_sf <- sf::st_transform(paris_sf, crs = 2154)
+```
+
+::: notes
+Pour être certain que les données et le territoire soient dans le même système de projection, il est possible de transformer ce dernier à l'aide de la fonction `st_transform`.
+:::
+
+------------------------------------------------------------------------
+
+### Territoires englobants, sélection des données à lisser
+
+Pour éviter les **effets de bord** ==\> sélectionner des données au-delà de notre zone d'intérêt (ici Paris intramuros)
+
+::: notes
+Autrement dit, si on ne sélectionne que les ventes immobilières situées dans Paris intramuros, et qu'on lisse ce nuage de points, les zones situées à proximité du périphérique seront artificiellement peu denses en ventes immobilières. En effet, elles sont situées à proximité de zones artificiellement vides en ventes immobilières dans notre nuage de points, à savoir dans les communes limitrophes. Pourtant, dans la réalité, il y a bien des ventes réalisées à Malakoff, Vanves, Montrouge, etc. Et ces ventes influencent la densité lissée aux niveau de la Porte de Vanves.
+:::
+
+------------------------------------------------------------------------
+
+#### Première méthode (sélection **non-géométrique** des ventes)
+
+> -   filtrer les xy compris dans un grand rectangle englobant Paris intramuros
+> -   Très efficace computationnellement
+> -   Mais requiert de construire au préalable un rectangle adapté...
+
+::: notes
+Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros.
+
+L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans le rectangle. Cette méthode est très efficace d'un point de vue calculatoire, mais requiert de construire au préalable un rectangle adapté.
+:::
+
+------------------------------------------------------------------------
+
+-   Mise en forme de la couche "territoire" : sélection des variables et renommage
+-   Création d'une bbox autour du territoire
+
+```{r creaBbox}
+paris_sf$nom <- "territoire"
+paris_sf <- paris_sf[,c("nom","geometry")]
+
+bbox <- sf::st_bbox(paris_sf)
+bbox
+```
+
+------------------------------------------------------------------------
+
+Création d'un buffer de la bbox, avec une marge de 2000 mètres
+
+```{r}
+
+marge <- 2000
+bufferBbox <- bbox
+bufferBbox[["xmin"]] <- bufferBbox[["xmin"]]-marge
+bufferBbox[["xmax"]] <- bufferBbox[["xmax"]]+marge
+bufferBbox[["ymin"]] <- bufferBbox[["ymin"]]-marge
+bufferBbox[["ymax"]] <- bufferBbox[["ymax"]]+marge
+
+```
+
+------------------------------------------------------------------------
+
+Schéma explicatif des zones sélectionnées :
+
+```{r schemaBbox}
+#| code-fold: true
+#| code-summary: code du schema
+
+# Petit rectangle vectoriel
+bbox_sf = st_sf(nom="bbox", geometry = st_as_sfc(bbox), crs = 2154)
+
+# Grand rectangle vectoriel
+bufferBbox_sf = st_sf(nom="buffer_bbox", geometry = st_as_sfc(bufferBbox), crs = 2154)
+
+# Options globales pour les cartes avec mapview
+mapviewOptions(
+  basemaps = c(
+    "OpenStreetMap",
+    "CartoDB.Positron",
+    "CartoDB.DarkMatter",
+    "Esri.WorldImagery"
+  )
+)
+# Cartographie pédagogique avec mapview
+m <- mapview(paris_sf ,col.regions= "#26cce7")+
+  mapview(bufferBbox_sf %>% st_cast("MULTILINESTRING"),color="#FFC300",lwd=6)+
+  mapview(bbox_sf %>% st_cast("MULTILINESTRING"),color="#229954",lwd=6)
+
+m
+
+```
+
+::: notes
+-   en bleu, le territoire d'intérêt (Paris)
+-   en vert, la bbox du territoire d'intérêt (à savoir le plus petit rectangle englobant cette zone)
+-   en jaune, la bbox élargie avec une marge de 2km = zone tampon autour de la bbox permettant de prendre en compte des observations au-delà de la seule zone d'intérêt, et d'ainsi éviter les effets de bord au moment du lissage.
+
+Filtrage des coordonnées sont comprises à l'intérieur du rectangle jaune.
+
+-   très efficace computationnellement (filtre de valeurs numériques)
+-   Pas de traitement vectorielle (plus chronophages).
+:::
+
+------------------------------------------------------------------------
+
+Filtrer (numériquement) les logements dans le triangle jaune
+
+```{r selectDonnee}
+# Repérer les coordonnées extrêmes, avec une marge (ici 2km)
+bufferBbox
+
+xMin <- bufferBbox["xmin"]
+xMax <- bufferBbox["xmax"]
+yMin <- bufferBbox["ymin"]
+yMax <- bufferBbox["ymax"]
+
+# Ne garder que les données dans le rectangle englobant, sans traitement vectoriel !
+dfBase_filtre <- dfBase[dfBase$x >= xMin & dfBase$x <= xMax & dfBase$y >= yMin & dfBase$y <= yMax, ]
+dim(dfBase_filtre)
+dim(dfBase)
+
+```
+
+------------------------------------------------------------------------
+
+#### Seconde méthode : la sélection **géométrique** des ventes
+
+-   Utiliser nos données individuelles comme un ensemble de points géolocalisés
+-   et procéder à des intersections géographiques.
+
+------------------------------------------------------------------------
+
+1.  On transforme nos observations en points vectoriels ;
+
+```{r selectDonnee2a}
+sfBase <- sf::st_as_sf(dfBase, coords = c("x", "y"), crs = 2154)
+```
+
+------------------------------------------------------------------------
+
+2.  On crée une zone tampon (buffer) autour du territoire d'intérêt, avec une marge (ici 2 000m), sous la forme d'un objet `sf` vectoriel ;
+
+```{r selectDonnee2b}
+buffer_sf <- st_buffer(paris_sf, dist = 2000)
+```
+
+
+**Remarque:** Pour la zone tampon, prendre une marge légèrement plus grande que le rayon de lissage envisagé.
+
+------------------------------------------------------------------------
+
+3. On repère les observations comprises dans cette zone tampon par intersection géographique.
+
+```{r selectDonnee2c}
+sfBase_filtre <- st_join(sfBase,buffer_sf,left=F)
+sfBase_filtre
+```
+
+------------------------------------------------------------------------------------------
+
+- Potentiellement lourd d'un point de vue calculatoire. 
+- Avec des données volumineuses, faire au minimum un premier filtrage non géométrique.
+
+-----------------------------------------------------------------------------------------
+
+Ci-dessous le code permettant d'avoir un aperçu de la zone, du buffer et de 2000 points tirés aléatoirement dedans.
+
+```{r schemaBuffer}
+#| code-fold: true
+#| code-summary: code du schema
+
+# Mise en forme de la couche buffer
+buffer_sf$nom <- "buffer"
+
+# Échantillon de 2000 observations dans le buffer
+sfBase_sample <- sfBase_filtre[sample(1:nrow(sfBase_filtre),2000) ,]
+
+# Cartographie pédagogique avec mapview
+mapview(paris_sf ,col.regions= "#26cce7")+
+  mapview(buffer_sf %>% st_cast("MULTILINESTRING"),color="#FFC300",lwd=6)+
+  mapview(sfBase_sample,#col.regions = "black",alpha.regions=0.5,
+          alpha=0,cex=2)
+```
+
+----------------------------------------------------------------------------------------
+# Carroyage de données
+
+----------------------------------------------------------------------------------------
+
+Avant de lisser les données ponctuelles, on peut souhaiter représenter ces données sous **forme carroyée** afin de se les approprier. Il faut pour cela : 
+
+----------------------------------------------------------------------------------------
+1. Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient (le territoire est découpé en carreaux de 200 mètres à partir de l'origine du référentiel)
+
+```{r carroyage1}
+iCellSize = 200 # Carreaux de 200m
+points_carroyage <- dfBase_filtre # On repart de la base filtrée selon la première méthode
+points_carroyage$x_centroide = points_carroyage$x -
+  (points_carroyage$x %% iCellSize) + (iCellSize / 2)
+points_carroyage$y_centroide = points_carroyage$y -
+  (points_carroyage$y %% iCellSize) + (iCellSize / 2)
+
+head(points_carroyage)
+
+```
+
+----------------------------------------------------------------------------------------
+
+2. Agréger les données sur chaque centroïde de la grille. En d'autres termes, compter le nombre de ventes par carreau 
+
+```{r carroyage2}
+points_carroyage <- points_carroyage %>% 
+  group_by(x=x_centroide,y=y_centroide) %>% 
+  count(name = "nbVentes")
+```
+
+----------------------------------------------------------------------------------------
+
+**Remarque :** Ces deux premières étapes ne sont pas intégrées dans des fonctions du package `btb`. Il faut donc s'inspirer du code ci-dessus pour reproduire le même type de carroyage. Il est envisagé qu'une future version du package `btb` simplifie le code permettant de réaliser un carroyage.
+
+
+----------------------------------------------------------------------------------------
+
+3. Passer d'une table de centroïdes à une table de carreaux vectoriels grâce à la fonction `dfToGrid` du package `btb` qui attend comme paramètres obligatoires :
+
+  - `df` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille ;
+  - `sEPSG` : une chaîne de caractères indiquant le code epsg du système de projection utilisé ;
+  - `iCellSize` : la taille des carreaux (longueur du côté, en mètres).
+
+```{r carroyage3}
+carreaux <- btb::dfToGrid(df = points_carroyage, sEPSG = "2154", iCellSize = iCellSize)
+```
+
+----------------------------------------------------------------------------------------
+
+4. Se restreindre au champ des carreaux intersectant Paris
+
+```{r carroyage4}
+carreaux <- carreaux %>% st_join(paris_sf,left=F)
+```
+
+----------------------------------------------------------------------------------------
+
+On obtient le carroyage des ventes dans Paris intramuros
+
+```{r carroyage5}
+#| code-fold: true
+#| code-summary: code du production de la carte
+
+contourParis <- st_cast(paris_sf[,c("geometry")],"MULTILINESTRING")
+
+mf_init(x=carreaux,theme = "agolalight")
+mf_map(x = carreaux,
+       type = "choro",
+       var="nbVentes",
+       breaks = "quantile",
+       nbreaks = 5,
+       lwd=1,
+       leg_val_rnd = 1,
+       add = TRUE)
+mf_map(x = contourParis,
+       lwd=4,
+       col="black",add = TRUE)
+mf_layout(title = "Carroyage du nombre de ventes",
+          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
+```
+
+
+-----------------------------------------------------------------------------------
+
+Remarque : 
+
+Le carroyage pourrait aussi être utilisé pour simplifier les données avant lissage si le calcul de lissage est trop long en raison d'un très grand nombre d'observations.
+
+-----------------------------------------------------------------------------------
+
+# Lissage
+
+-----------------------------------------------------------------------------------
+
+## Calcul de densité
+
+-----------------------------------------------------------------------------------
+
+test 
+
+<!-- ::: incremental -->
+<!-- -  Lissage le plus simple à réaliser -->
+<!-- -  Quantité par unité de surface (un carreau) -->
+<!-- -  Ici : densité de ventes de logements dans la ville de Paris au cours de l'année 2021 -->
+<!-- ::: -->
+
+
+
+
+
+
+

@@ -17,7 +17,7 @@ format:
 #editor: visual
 execute:
   echo: true
-  #cache: true
+  #cache: false
 ---
 
 ```{css, echo=FALSE}

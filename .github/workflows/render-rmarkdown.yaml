@@ -28,12 +28,13 @@ jobs:
       
       - name: Install rmarkdown
         run: |
-          Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc","rmdformats","mapview"))' #,"quarto"
+          Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc","rmdformats"))' #,"quarto"
           Rscript -e 'install.packages("rgeos", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org", type="source")'
-          Rscript -e 'install.packages("terra", repos="http://R-Forge.R-project.org", type="source")'
+          # Rscript -e 'install.packages("terra", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("sf", type = "mac.binary")'
           Rscript -e "remotes::install_github('koncina/unilur')"
+          Rscript -e "remotes::install_github('rspatial/terra')"
           Rscript -e "download.file('https://github.com/inseefrlab/formation-r-lissage-spatial/archive/refs/heads/gh-pages.zip',
               destfile = 'gh-pages.zip')"
           Rscript -e "unzip('gh-pages.zip', overwrite = FALSE, exdir='tutorials/', junkpaths = TRUE)"

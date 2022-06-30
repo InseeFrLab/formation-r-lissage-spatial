@@ -3,9 +3,9 @@
 on:
   push:
     branches: [ main ]
-    paths: 
-       - '**.Rmd'
-       - '**.qmd'
+    # paths: 
+    #   - '**.Rmd'
+    #   - '**.qmd'
 
 name: render-rmarkdown
 

@@ -64,7 +64,7 @@ jobs:
       - name: Move files to build directory
         run: |
           mkdir build
-          cp tutorials/* build
+          cp -R tutorials/* build
       - name: Push to gh-pages branch
         uses: crazy-max/ghaction-github-pages@v2
         with:

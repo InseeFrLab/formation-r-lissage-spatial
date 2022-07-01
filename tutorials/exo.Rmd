@@ -736,6 +736,7 @@ car33 <-
 object = "r-lissage-spatial/carreaux_33.RDS"
 download.file(paste0(url_bucket,bucket,"/",object), destfile = "carreaux_33.RDS")
 car33 <- readRDS("carreaux_33.RDS")
+car33 <- st_set_crs(car33,2154)
 ```
 
 ```{r exo15solu2,echo=TRUE, solution=TRUE}

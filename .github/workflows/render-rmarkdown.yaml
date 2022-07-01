@@ -42,7 +42,7 @@ jobs:
 
       
       - name: Render Quarto files
-         run: |
+        run: |
            Rscript -e "quarto::quarto_render('tutorials/tuto_presentation.qmd')"
            #QMD_PATH=($(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '[.]qmd$'))
            #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) quarto::quarto_render(f)' ${QMD_PATH[*]}

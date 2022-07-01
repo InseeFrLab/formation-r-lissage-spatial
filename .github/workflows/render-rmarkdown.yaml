@@ -46,6 +46,7 @@ jobs:
           #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) rmarkdown::render(f)' ${RMD_PATH[*]}
           Rscript -e "rmarkdown::render('tutorials/index.Rmd')"
           Rscript -e "rmarkdown::render('tutorials/tuto.Rmd')"
+          Rscript -e "rmarkdown::render('tutorials/exo.Rmd')"
           
       #- name: Render Quarto files
       #  run: |

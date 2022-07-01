@@ -1164,6 +1164,7 @@ head(carreaux)
 ```{r echo=FALSE}
 url_file <- url(paste0(url_bucket,bucket,"/r-lissage-spatial/carreaux_idf.RDS"))
 carreaux <- readRDS(url_file)
+carreaux <- st_set_crs(carreaux,2154)
 head(carreaux)
 ```
 

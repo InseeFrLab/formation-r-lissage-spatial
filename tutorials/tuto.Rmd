@@ -1000,7 +1000,7 @@ sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
 object <- "r-lissage-spatial/sfCarLiss_quantiles.RDS"
 url_file <- url(paste0(url_bucket,bucket,"/",object))
 sfCarLiss <- readRDS(url_file)
-sfCarLiss <- st_set_crs(sfCarLiss)
+sfCarLiss <- st_set_crs(sfCarLiss,2154)
 ```
 
 ```{r resLissQuantile10}

@@ -1002,7 +1002,7 @@ url_file <- url(paste0(url_bucket,bucket,"/",object))
 sfCarLiss <- readRDS(url_file)
 ```
 
-```{r resLissQuantile10, eval=TRUE}
+```{r resLissQuantile10, eval=F}
 # Visualiser les premières lignes des données lissées
 head(sfCarLiss)
 
@@ -1025,7 +1025,7 @@ mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
-```{r resLissQuantile50, eval = TRUE}
+```{r resLissQuantile50, eval = F}
 
 # Cartographie
 mf_init(x=sfCarLiss_paris,theme = "agolalight")
@@ -1047,7 +1047,7 @@ mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",
 
 Un intérêt majeur du «\ lissage quantile\ » est d'offrir des indicateurs lissés de disparité des distributions. En effet, on peut par exemple calculer le rapport interdéciles lissé afin de représenter l'ampleur des écarts de prix dans les différents quartiers de Paris intramuros.
 
-```{r interdeciles, eval = TRUE}
+```{r interdeciles, eval = F}
 
 sfCarLiss_paris$rapp_interdecile <- sfCarLiss_paris$valeur_fonciere_09 / sfCarLiss_paris$valeur_fonciere_01
 
@@ -1072,7 +1072,7 @@ mf_layout(title = "Rapport interdéciles des prix de vente (rayon de 1500m)",
 
 Enfin, pour que le quantile lissé ait du sens, il faut qu'un nombre conséquent d'observations ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé.
 
-```{r verifObsQuantiles}
+```{r verifObsQuantiles, eval=FALSE}
 summary(sfCarLiss_paris$nbObs)
 
 # Part de centroïdes dont le quantile lissé 

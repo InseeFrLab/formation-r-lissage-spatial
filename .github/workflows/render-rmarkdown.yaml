@@ -1,5 +1,5 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/master/examples 
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+## Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [ main ]
@@ -43,9 +43,9 @@ jobs:
       
       - name: Render Quarto files
         run: |
-           Rscript -e "quarto::quarto_render('tutorials/tuto_presentation.qmd')"
-           #QMD_PATH=($(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '[.]qmd$'))
-           #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) quarto::quarto_render(f)' ${QMD_PATH[*]}
+          Rscript -e "quarto::quarto_render('tutorials/tuto_presentation.qmd')"
+          #QMD_PATH=($(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '[.]qmd$'))
+          #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) quarto::quarto_render(f)' ${QMD_PATH[*]}
 
       
       - name: Render Rmarkdown files

@@ -26,6 +26,10 @@ jobs:
 
       - uses: r-lib/actions/setup-renv@v1
       
+      - uses: cderv/install-quarto-action@v1
+      - run: |
+          quarto --version
+      
       - name: Install rmarkdown
         run: |
           Rscript -e 'install.packages(c("remotes"))'

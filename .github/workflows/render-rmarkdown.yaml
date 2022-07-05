@@ -33,8 +33,8 @@ jobs:
       - name: Install rmarkdown
         run: |
           Rscript -e 'install.packages(c("remotes"))'
-          Rscript -e "install.packages('terra', repos='https://rspatial.r-universe.dev')"
-          Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc","rmdformats","mapview"))' #,"quarto"
+          # Rscript -e "install.packages('terra', repos='https://rspatial.r-universe.dev')"
+          Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc","rmdformats"))' #,"quarto",,"mapview"
           Rscript -e 'install.packages("rgeos", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org", type="source")'
           # Rscript -e 'install.packages("terra", repos="http://R-Forge.R-project.org", type="source")'
@@ -57,8 +57,8 @@ jobs:
           #RMD_PATH=($(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '[.]Rmd$'))
           #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) rmarkdown::render(f)' ${RMD_PATH[*]}
           Rscript -e "rmarkdown::render('tutorials/index.Rmd')"
-          #Rscript -e "rmarkdown::render('tutorials/tuto.Rmd')"
-          #Rscript -e "rmarkdown::render('tutorials/exo.Rmd')" 
+          Rscript -e "rmarkdown::render('tutorials/tuto.Rmd')"
+          Rscript -e "rmarkdown::render('tutorials/exo.Rmd')"
        
       
       - name: Move files to build directory

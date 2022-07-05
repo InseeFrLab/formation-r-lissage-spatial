@@ -79,6 +79,7 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
 
 - Site web des supports de formation : https://inseefrlab.github.io/formation-r-lissage-spatial
   * [Tutoriel](tuto.html)
+  * [Diaporama](tuto_presentation.html)
   * [Exercices](exo.html)
 
 </br>

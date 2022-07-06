@@ -12,12 +12,12 @@ format:
     slide-level: 3
     code-link: true
     code-line-numbers: true
-    theme: default
+    theme: serif
     logo: images/hexagon-01.png
 #editor: visual
 execute:
   echo: true
-  #cache: true
+  # cache: true
 ---
 
 ```{css, echo=FALSE}
@@ -34,17 +34,25 @@ execute:
 }
 ```
 
-# Introduction
+**Plan** :
+
+1.  Introduction
+2.  Configurations
+3.  Lissage
+4.  Indicateurs sur zonage à façon
 
 ------------------------------------------------------------------------
 
-## Objectifs du TP
+# Introduction {background-image="images/slide_titres.png"}
 
 ------------------------------------------------------------------------
 
-En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
+## Objectifs du TP {background-color="aquamarine"}
 
-Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R.
+------------------------------------------------------------------------
+
+-   En 2018, création du package `btb` (PSAR analyse urbaine, Arlindo Dos Santo et François Sémécurbe).
+-   Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R.
 
 ------------------------------------------------------------------------
 
@@ -52,8 +60,8 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
 
 ::: incremental
 -   À carroyer les informations.
--   À réaliser des lissages de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
--   À calculer un indicateur sur une zone à façon à partir des données ponctuelles et de données carroyées de l'Insee.
+-   À réaliser des **lissages** de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
+-   À calculer un **indicateur sur une zone à façon** à partir des données ponctuelles et de données carroyées de l'Insee.
 :::
 
 ------------------------------------------------------------------------
@@ -65,7 +73,7 @@ Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement 
 
 ------------------------------------------------------------------------
 
-## Avertissements
+## Avertissements {background-color="aquamarine"}
 
 ------------------------------------------------------------------------
 
@@ -105,24 +113,24 @@ PI, voici les systèmes de projection que vous pouvez régulièrement rencontrer
 
 ------------------------------------------------------------------------
 
-# Configurations
+# Configurations {background-image="images/slide_titres.png"}
 
 ------------------------------------------------------------------------
 
-## Chargement des librairies
+## Chargement des librairies{background-color="aquamarine"}
 
 ------------------------------------------------------------------------
 
 Cinq librairies sont nécessaires pour ce TP.
 
 ::: incremental
--   `sf` pour manipuler des fichiers spatiaux (importer des .shp, transformer des projections, et réaliser des géotraitements)
+-   `sf` pour manipuler des fichiers spatiaux (importer des .shp, transformer des projections, et réaliser des géotraitements) ;
 
--   `mapsf` pour réaliser des cartes dans RStudio
+-   `mapsf` pour réaliser des cartes dans RStudio ;
 
--   `mapview` (reposant sur `leaflet`) pour réaliser des cartes interactives (fond de carte OpenStreetMap)
+-   `mapview` (reposant sur `leaflet`) pour réaliser des cartes interactives (fond de carte OpenStreetMap);
 
--   `btb` pour le carroyage et lissage
+-   `btb` pour le carroyage et lissage ;
 
 -   `dplyr` pour le traitement des données, en particulier l'agrégation géographique.
 :::
@@ -133,7 +141,7 @@ Cinq librairies sont nécessaires pour ce TP.
 
 ------------------------------------------------------------------------
 
-Charger les librairies nécessaires
+**Charger les librairies nécessaires**
 
 ```{r message=FALSE, warning=FALSE}
 
@@ -175,7 +183,7 @@ if (!require("aws.s3", character.only = TRUE)) {
 
 ------------------------------------------------------------------------
 
-## Chargement de la base
+## Chargement de la base {background-color="aquamarine"}
 
 ------------------------------------------------------------------------
 
@@ -265,7 +273,7 @@ dim(dfBase)
 
 ------------------------------------------------------------------------
 
-## Chargement des données cartographiques
+## Chargement des données cartographiques{background-color="aquamarine"}
 
 ------------------------------------------------------------------------
 
@@ -605,11 +613,11 @@ Le carroyage pourrait aussi être utilisé pour simplifier les données avant li
 
 ------------------------------------------------------------------------
 
-# Lissage
+# Lissage {background-image="images/slide_titres.png"}
 
 ------------------------------------------------------------------------
 
-## Calcul de densité
+## Calcul de densité{background-color="aquamarine"}
 
 ------------------------------------------------------------------------
 
@@ -1165,7 +1173,7 @@ Dans ce cas :
 
 ------------------------------------------------------------------------
 
-## Calcul de moyenne
+## Calcul de moyenne{background-color="aquamarine"}
 
 ------------------------------------------------------------------------
 
@@ -1251,16 +1259,15 @@ Les prix moyens sont particulièrement élevés dans le centre et l'Ouest de la 
 le lissage en moyenne est potentiellement sensible aux **valeurs atypiques** (contrairement au lissage quantile)
 :::
 
+------------------------------------------------------------------------
 
--------------------------------------------------------------------------
+## Calcul de taux{background-color="aquamarine"}
 
-## Calcul de taux
-
--------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Taux de grands logements
 
-Nous nous intéressons ici à la proportion de ventes portant sur des grands logements (comportant plus de 4 pièces principales). 
+Nous nous intéressons ici à la proportion de ventes portant sur des grands logements (comportant plus de 4 pièces principales).
 
 ...
 
@@ -1271,12 +1278,12 @@ dfBase_filtre$quatrePieces <- ifelse(
   dfBase_filtre$nombre_pieces_principales >= 4, 1, 0)
 ```
 
-----------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Taux de grands logements
 
-- Lissage des variables `quatrePieces` et `nbObsLisse`
-- Ratio des deux variables lissées
+-   Lissage des variables `quatrePieces` et `nbObsLisse`
+-   Ratio des deux variables lissées
 
 ```{r lissageTaux,  results='hide'}
 #| code-line-numbers: "2,8"
@@ -1294,7 +1301,7 @@ sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
 
 ```
 
-----------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Taux de grands logements
 
@@ -1318,7 +1325,7 @@ mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",
 
 ```
 
-----------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Taux de grands logements
 
@@ -1328,21 +1335,19 @@ Fort logiquement, la carte des prix moyens et la carte des grands logements ont 
 
 On peut alors avoir envie de lisser le prix au mètre-carré.
 
-----------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Prix au m²
 
 ::: {.boite data-latex=""}
-Il convient de lisser séparément les prix de vente (numérateur) et le nombre de mètres-carrés (dénominateur) des logements vendus. 
+Il convient de lisser séparément les prix de vente (numérateur) et le nombre de mètres-carrés (dénominateur) des logements vendus.
 
 Autrement, si on lisse le prix au m² de chaque logement vendu, on sur-pondère artificiellement les prix au m² des petits logements (car l'unité statistique devient alors le logement, et non le m² vendu).
 :::
 
-----------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Prix au m²
-
-
 
 ```{r lissageMoyenneM2,  results='hide'}
 #| code-fold: true
@@ -1382,47 +1387,47 @@ mf_layout(title = "Prix au m² (rayon de 800m)",
 
 ```
 
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
-## Calcul de quantiles géographiquement pondérés
+## Calcul de quantiles géographiquement pondérés{background-color="aquamarine"}
 
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Lissage quantile : pourquoi ?
 
 ::: incremental
--  Moins sensibles aux valeurs extrêmes
--  Obtenir des indicateurs de dispersion lissés
-      - ex : écart interquantile
+-   Moins sensibles aux valeurs extrêmes
+-   Obtenir des indicateurs de dispersion lissés
+    -   ex : écart interquantile
 :::
 
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Lissage quantile : comment ?
 
 ::: incremental
--  Toujours avec la fonction `kernelSmoothing`
--  En ajoutant un paramètre, `vQuantiles`, qui contient la liste des quantiles souhaités
+-   Toujours avec la fonction `kernelSmoothing`
+-   En ajoutant un paramètre, `vQuantiles`, qui contient la liste des quantiles souhaités
 :::
 
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Lissage quantile : rappel
 
-Contrairement au lissage classique : 
+Contrairement au lissage classique :
 
 ::: incremental
--  il n'est pas conservatif
--  la fonction crée :
-    -  une colonne `nbObs` indiquant le nombre **réel** (non lissé) d'observations ayant contribué au calcul du carreau.
-    -  pour chaque variable, autant de colonnes qu'il y a de quantiles souhaités
+-   il n'est pas conservatif
+-   la fonction crée :
+    -   une colonne `nbObs` indiquant le nombre **réel** (non lissé) d'observations ayant contribué au calcul du carreau.
+    -   pour chaque variable, autant de colonnes qu'il y a de quantiles souhaités
 :::
 
 ------------------------------------------------------------------------
 
 ### Lissage quantile : exemple
 
-Nous allons calculer le 1er décile, la médiane et le 9ème décile du prix de vente des logements à Paris. 
+Nous allons calculer le 1er décile, la médiane et le 9ème décile du prix de vente des logements à Paris.
 
 ```{r, results='hide'}
 #| code-line-numbers: "6"
@@ -1436,10 +1441,15 @@ sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
 ```
 
 <!-- ```{r, echo=FALSE} -->
+
 <!-- #saveRDS(sfCarLiss,"sfCarLiss_quantiles.RDS") -->
+
 <!-- object <- "r-lissage-spatial/sfCarLiss_quantiles.RDS" -->
+
 <!-- url_file <- url(paste0(url_bucket,bucket,"/",object)) -->
+
 <!-- sfCarLiss <- readRDS(url_file) -->
+
 <!-- ``` -->
 
 ------------------------------------------------------------------------
@@ -1550,35 +1560,34 @@ summary(sfCarLiss_paris$nbObs)
 sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count()
 ```
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
-# Indicateurs sur zonage à façon
+# Indicateurs sur zonage à façon {background-image="images/slide_titres.png"}
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 Objectif : agréger des données sur un zonage particulier
 
-2 cas : 
+2 cas :
 
 ::: incremental
 1.  données ponctuelles
 2.  données carroyées
 :::
 
---------------------------------------------------
+------------------------------------------------------------------------
 
-## Données ponctuelles
+## Données ponctuelles{background-color="aquamarine"}
 
 Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans le **triangle d'or**.
 
 Pour information, ce triangle a été créé manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/).
 
------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données ponctuelles
 
-
-1. Import et visualisation de la zone à façon «\ Triangle d'or\ ». Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `sf::st_read`.
+1.  Import et visualisation de la zone à façon « Triangle d'or ». Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `sf::st_read`.
 
 ```{r triangleOr, results='hide'}
 
@@ -1587,11 +1596,11 @@ triangleOr <- st_read(chemin_file)
 mapview(triangleOr,col.regions="#ffff00")
 ```
 
------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données ponctuelles
 
-2. Intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention au système de projection
+2.  Intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention au système de projection
 
 ```{r dviTriangle}
 # Système de projection de triangleOr
@@ -1607,7 +1616,7 @@ transac_triangle <- sfBase %>% st_join(triangleOr[,"geometry"],left=F)
 transac_triangle
 ```
 
------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données ponctuelles
 
@@ -1619,11 +1628,11 @@ mapview(transac_triangle)+mapview(triangleOr,col.regions="#ffff00")
 
 ```
 
--------------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données ponctuelles
 
-3. Calculer du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier 
+3.  Calculer du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier
 
 ```{r resTriangle}
 # Nombre de transactions en 2021 : 
@@ -1634,26 +1643,26 @@ mean(transac_triangle$valeur_fonciere)
 ```
 
 ::: notes
-**Remarque** : On ne voit que 12 points sur la cartes, alors qu'on a trouvé 20 transactions dans le triangle\ :\ ceci s'explique car certaines transactions sont géolocalisées au même endroit (appartements situés dans un même immeuble par exemple). 
+**Remarque** : On ne voit que 12 points sur la cartes, alors qu'on a trouvé 20 transactions dans le triangle : ceci s'explique car certaines transactions sont géolocalisées au même endroit (appartements situés dans un même immeuble par exemple).
 :::
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
-## Données carroyées
+## Données carroyées{background-color="aquamarine"}
 
 Objectif : obtenir la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee.
 
 On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire=4176305).
 
 ::: {.boite data-latex=""}
-**Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées. 
+**Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées.
 :::
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données carroyées
 
-1. Chargement des données carroyées de Filosofi 2015 à 200m, uniquement en région parisienne, en ne conservant que 6 variables dont le nombre de logements sociaux.
+1.  Chargement des données carroyées de Filosofi 2015 à 200m, uniquement en région parisienne, en ne conservant que 6 variables dont le nombre de logements sociaux.
 
 ```{r results='hide'}
 # Fonction permettant de faire le chargement souhaité
@@ -1671,7 +1680,7 @@ carreaux <-  st_read_maison(chemin_file)
 head(carreaux)
 ```
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données carroyées
 
@@ -1679,44 +1688,47 @@ head(carreaux)
 head(carreaux)
 ```
 
-
 <!-- ```{r echo=FALSE} -->
+
 <!-- url_file <- url(paste0(url_bucket,bucket,"/r-lissage-spatial/carreaux_idf.RDS")) -->
+
 <!-- carreaux <- readRDS(url_file) -->
+
 <!-- head(carreaux) -->
+
 <!-- ``` -->
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données carroyées
 
-2. Créer un disque de 1km autour du White
+2.  Créer un disque de 1km autour du White
 
 ```{r zoneAFacon1}
 white <- st_sfc(st_point(c(649218.36,6857569.14)),crs=2154)
 buffer_white <- st_buffer(white,1000) %>% st_as_sf()
 ```
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données carroyées
 
-3. Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent 
+3.  Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent
 
 ::: notes
-**Remarque :** L'ensemble de carreaux étant en général plus large que la zone, les agrégats obtenus seront des estimations des valeurs réelles, plus ou moins précises. Le problème ne se pose pas si vous travaillez directement sur des données disponibles au niveau «\ individu statistique\ » (avec des coordonnées x,y).
+**Remarque :** L'ensemble de carreaux étant en général plus large que la zone, les agrégats obtenus seront des estimations des valeurs réelles, plus ou moins précises. Le problème ne se pose pas si vous travaillez directement sur des données disponibles au niveau « individu statistique » (avec des coordonnées x,y).
 :::
 
 ```{r zoneAFacon2}
 carreaux_select <- carreaux %>% st_join(buffer_white,left=F)
 ```
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données carroyées
 
 ::: notes
-À noter que ces carreaux sont «\ penchés\ » : ceci est la résultante de leur reprojection en Lambert 93. En effet, ces carreaux ont été produits en projection LAEA (standard européen), ce qui leur donne cet aspect une fois reprojetés dans le standard français.
+À noter que ces carreaux sont « penchés » : ceci est la résultante de leur reprojection en Lambert 93. En effet, ces carreaux ont été produits en projection LAEA (standard européen), ce qui leur donne cet aspect une fois reprojetés dans le standard français.
 :::
 
 ```{r zoneAFacon3}
@@ -1724,11 +1736,11 @@ mapview(carreaux_select)+
   mapview(buffer_white,color="#ffff00",lwd=10,alpha.regions=0,legend=F)
 ```
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Données carroyées
 
-4. Calculer l'indicateur souhaité sur la zone par somme des données par carreau.
+4.  Calculer l'indicateur souhaité sur la zone par somme des données par carreau.
 
 ```{r resZoneAFacon}
 tx_logSoc_white <- sum(carreaux_select$Log_soc)/sum(carreaux_select$Men)
@@ -1737,23 +1749,20 @@ cat("On compte ",
     "% de logements sociaux dans un rayon de 1km autour du white")
 ```
 
----------------------------------------------------------------------
+------------------------------------------------------------------------
 
 # Conclusion
 
-Vous êtes désormais capables de carroyer et lisser toutes les données que vous aurez à votre disposition ! 
-
+Vous êtes désormais capables de carroyer et lisser toutes les données que vous aurez à votre disposition !
 
 ## Autre logiciels
 
+-   **Python** : library[`BTBpy`](https://github.com/InseeFrLab/btbpy)
+-   **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est). Tutoriel à destinations des agents de l'Insee disponible sur l'interface AUS (V:/PSAR-AU/Formation Comment utiliser les outils AU/2019/Séquence 6 - Outils/Formation_AU_Sequence_6\_TP_partie_1.odt)
+-   **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue à ce jour)
 
--  **Python** : library[ `BTBpy`](https://github.com/InseeFrLab/btbpy)
--  **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est). Tutoriel à destinations des agents de l'Insee disponible sur l'interface AUS (V:/PSAR-AU/Formation Comment utiliser les outils AU/2019/Séquence 6 - Outils/Formation_AU_Sequence_6_TP_partie_1.odt)
--  **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue à ce jour)
+## Références :
 
-
-## Références : 
-
--  [Manuel d’analyse spatiale](https://www.insee.fr/fr/information/3635442) de l'Insee
-- [Introduction à la géomatique pour le statisticien](https://www.insee.fr/fr/statistiques/6049652), Document de travail, Insee
--  Github du package [BTB](https://github.com/InseeFr/btb)
+-   [Manuel d'analyse spatiale](https://www.insee.fr/fr/information/3635442) de l'Insee
+-   [Introduction à la géomatique pour le statisticien](https://www.insee.fr/fr/statistiques/6049652), Document de travail, Insee
+-   Github du package [BTB](https://github.com/InseeFr/btb)

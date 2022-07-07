@@ -1164,19 +1164,34 @@ Par exemple :
 
 ### Les grilles automatiques de `btb`
 
-```{r  results='hide'}
+```{r eval=F}
 #| code-fold: true
 #| code-summary: code lissage
 #| code-line-numbers: "5"
 
-sfCarLiss_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuros, 
-                                    sEPSG = "2154",
-                                    iCellSize = 200, 
-                                    iBandwidth = 2000,
-                                    iNeighbor = 0)
+sfCarLiss_intramuros <- btb::kernelSmoothing(
+  dfObservations = dfBase_intramuros, 
+  sEPSG = "2154",
+  iCellSize = 200, 
+  iBandwidth = 2000,
+  iNeighbor = 0)
 ```
 
-```{r echo=FALSE}
+```{r include=F}
+#| code-fold: true
+#| code-summary: code lissage
+#| code-line-numbers: "5"
+
+sfCarLiss_intramuros <- btb::kernelSmoothing(
+  dfObservations = dfBase_intramuros, 
+  sEPSG = "2154",
+  iCellSize = 200, 
+  iBandwidth = 2000,
+  iNeighbor = 0)
+```
+
+
+```{r }
 #| code-fold: true
 #| code-summary: code carte
 mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),lwd=2,layer.name="Grille automatique") +
@@ -1301,7 +1316,7 @@ le lissage en moyenne est potentiellement sensible aux **valeurs atypiques** (co
 
 Nous nous intéressons ici à la proportion de ventes portant sur des grands logements (comportant plus de 4 pièces principales).
 
-...
+. . .
 
 Création de la variable `quatrePieces` (indicatrice)
 
@@ -1363,7 +1378,7 @@ mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",
 
 Fort logiquement, la carte des prix moyens et la carte des grands logements ont des similitudes importantes.
 
-...
+. . .
 
 On peut alors avoir envie de lisser le prix au mètre-carré.
 
@@ -1428,8 +1443,8 @@ mf_layout(title = "Prix au m² (rayon de 800m)",
 ### Lissage quantile : pourquoi ?
 
 ::: incremental
--   Moins sensibles aux valeurs extrêmes
--   Obtenir des indicateurs de dispersion lissés
+-   Moins sensible aux valeurs extrêmes ;
+-   Obtenir des indicateurs de dispersion lissés ;
     -   ex : écart interquantile
 :::
 
@@ -1621,10 +1636,19 @@ Pour information, ce triangle a été créé manuellement sur le site du [Géopo
 
 1.  Import et visualisation de la zone à façon « Triangle d'or ». Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `sf::st_read`.
 
-```{r triangleOr, results='hide'}
+```{r triangleOrLoad, results='hide'}
 
 chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/triangle_or.kml")
 triangleOr <- st_read(chemin_file)
+```
+
+------------------------------------------------------------------------
+
+### Données ponctuelles
+
+On visualise le triangle : 
+
+```{r triangleOr}
 mapview(triangleOr,col.regions="#ffff00")
 ```
 
@@ -1632,20 +1656,16 @@ mapview(triangleOr,col.regions="#ffff00")
 
 ### Données ponctuelles
 
-2.  Intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention au système de projection
+2.  Intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention au système de projection.
 
 ```{r dviTriangle}
-# Système de projection de triangleOr
-st_crs(triangleOr)[["input"]]
-
-# Transformation du système de projection de triangleOr 
-triangleOr <- st_transform(triangleOr,crs = 2154)
+st_crs(triangleOr)[["input"]] # Système de projection de triangleOr
+triangleOr <- st_transform(triangleOr,crs = 2154) # Transformation en Lambert93
 
 # Intersection géographique avec les transactions
 transac_triangle <- sfBase %>% st_join(triangleOr[,"geometry"],left=F)
 
-# Visualisation de points retenus
-transac_triangle
+head(transac_triangle,4) # Visualisation de points retenus
 ```
 
 ------------------------------------------------------------------------
@@ -1709,7 +1729,6 @@ st_read_maison <- function(chemin_tab){
 chemin_file <- paste0(url_bucket, bucket, 
                     "/r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg")
 carreaux <-  st_read_maison(chemin_file)
-head(carreaux)
 ```
 
 ------------------------------------------------------------------------

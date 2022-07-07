@@ -14,6 +14,8 @@ format:
     code-line-numbers: true
     theme: serif
     logo: images/hexagon-01.png
+    slide-number: true
+    show-slide-number: all
 #editor: visual
 execute:
   echo: true
@@ -43,11 +45,15 @@ execute:
 
 ------------------------------------------------------------------------
 
-# Introduction {background-image="images/slide_titres.png"}
+# Introduction {background-color="black"}
+
+
+
+
 
 ------------------------------------------------------------------------
 
-## Objectifs du TP {background-color="aquamarine"}
+## Objectifs du TP {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -60,8 +66,12 @@ execute:
 
 ::: incremental
 -   À carroyer les informations.
--   À réaliser des **lissages** de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
--   À calculer un **indicateur sur une zone à façon** à partir des données ponctuelles et de données carroyées de l'Insee.
+-   À réaliser des **lissages** : 
+    - de densité, 
+    - de moyennes, 
+    - des lissages de taux,
+    - et des lissages quantiles.
+-   À calculer un **indicateur sur une zone à façon** (données ponctuelles et de carroyées).
 :::
 
 ------------------------------------------------------------------------
@@ -73,7 +83,7 @@ execute:
 
 ------------------------------------------------------------------------
 
-## Avertissements {background-color="aquamarine"}
+## Avertissements {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -113,11 +123,11 @@ PI, voici les systèmes de projection que vous pouvez régulièrement rencontrer
 
 ------------------------------------------------------------------------
 
-# Configurations {background-image="images/slide_titres.png"}
+# Configurations {background-color="black"}
 
 ------------------------------------------------------------------------
 
-## Chargement des librairies{background-color="aquamarine"}
+## Chargement des librairies {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -183,7 +193,7 @@ if (!require("aws.s3", character.only = TRUE)) {
 
 ------------------------------------------------------------------------
 
-## Chargement de la base {background-color="aquamarine"}
+## Chargement de la base {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -201,7 +211,7 @@ Elle recense :
 
 À partir de cette source, nous avons constitué une base :
 
--   Uniquement au périmètre de la **petite couronne parisienne**
+-   Uniquement sur le périmètre de la **petite couronne parisienne**
 -   Pour l'année **2021**.
 
 ------------------------------------------------------------------------
@@ -273,7 +283,7 @@ dim(dfBase)
 
 ------------------------------------------------------------------------
 
-## Chargement des données cartographiques{background-color="aquamarine"}
+## Chargement et préparation des données cartographiques {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -309,7 +319,7 @@ plot(depCouronne_sf$geom)
 
 ------------------------------------------------------------------------
 
-On renomme la variable "geom" en "geometry"
+On renomme la variable  `geom`  en `geometry`
 
 ```{r}
 depCouronne_sf <- depCouronne_sf %>% rename(geometry=geom)
@@ -350,7 +360,9 @@ Pour être certain que les données et le territoire soient dans le même systè
 
 ### Territoires englobants, sélection des données à lisser
 
+::: {.boite data-latex=""}
 Pour éviter les **effets de bord** ==\> sélectionner des données au-delà de notre zone d'intérêt (ici Paris intramuros)
+:::
 
 ::: notes
 Autrement dit, si on ne sélectionne que les ventes immobilières situées dans Paris intramuros, et qu'on lisse ce nuage de points, les zones situées à proximité du périphérique seront artificiellement peu denses en ventes immobilières. En effet, elles sont situées à proximité de zones artificiellement vides en ventes immobilières dans notre nuage de points, à savoir dans les communes limitrophes. Pourtant, dans la réalité, il y a bien des ventes réalisées à Malakoff, Vanves, Montrouge, etc. Et ces ventes influencent la densité lissée aux niveau de la Porte de Vanves.
@@ -523,7 +535,7 @@ mapview(paris_sf ,col.regions= "#26cce7")+
 
 ------------------------------------------------------------------------
 
-Carroyage de données
+## Carroyage de données {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -550,9 +562,10 @@ head(points_carroyage)
 2.  Agréger les données sur chaque centroïde de la grille. En d'autres termes, compter le nombre de ventes par carreau
 
 ```{r carroyage2}
-points_carroyage <- points_carroyage %>%
+points_centroides <- points_carroyage %>%
   group_by(x=x_centroide,y=y_centroide) %>% 
   count(name = "nbVentes")
+head(points_centroides,3)
 ```
 
 ------------------------------------------------------------------------
@@ -561,14 +574,16 @@ points_carroyage <- points_carroyage %>%
 
 ------------------------------------------------------------------------
 
-                                                                                        3. Passer d'une table de centroïdes à une table de carreaux vectoriels grâce à la fonction `dfToGrid` du package `btb` qui attend comme paramètres obligatoires :
+3.  Passer d'une table de centroïdes à une table de carreaux vectoriels 
+
+Utilisation de `dfToGrid` du package `btb`, avec comme paramètres obligatoires.
 
 -   `df` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille ;
 -   `sEPSG` : une chaîne de caractères indiquant le code epsg du système de projection utilisé ;
 -   `iCellSize` : la taille des carreaux (longueur du côté, en mètres).
 
 ```{r carroyage3}
-carreaux <- btb::dfToGrid(df = points_carroyage, sEPSG = "2154", iCellSize = iCellSize)
+carreaux <- btb::dfToGrid(df = points_centroides, sEPSG = "2154", iCellSize = iCellSize)
 ```
 
 ------------------------------------------------------------------------
@@ -613,25 +628,30 @@ Le carroyage pourrait aussi être utilisé pour simplifier les données avant li
 
 ------------------------------------------------------------------------
 
-# Lissage {background-image="images/slide_titres.png"}
+# Lissage {background-color="black"}
 
 ------------------------------------------------------------------------
 
-## Calcul de densité{background-color="aquamarine"}
+## Calcul de densité {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
-::: incremental
 -   Lissage le plus simple à réaliser
 -   Quantité par unité de surface (un carreau)
 -   Ici : densité de ventes de logements dans la ville de Paris au cours de l'année 2021
-:::
 
-| \### Premier lissage de densité                                                                                      |
-|:-----------------------------------------------------------------------|
-| \### Premier lissage de densité                                                                                      |
-| Toujours pour éviter les effets de bord :                                                                            |
-| \- lissage sur une zone plus large que la zone d'intérêt - Utilisation de `dfBase_filtre` (construite précédemment). |
+------------------------------------------------------------------------
+
+### Premier lissage de densité
+
+-----------------------------------------------------------------------
+
+Toujours pour éviter les effets de bord :
+
+- Lissage sur une zone plus large que la zone d'intérêt 
+- Utilisation de `dfBase_filtre` (construite précédemment).
+
+-----------------------------------------------------------------------
 
 ### Premier lissage de densité
 
@@ -802,7 +822,7 @@ Remarque : la variable lissée `nbObsLiss` correspond au nombre de ventes (obser
 
 ### Premier lissage de densité (recapitulatif)
 
-On souahite obtenir le nombre de ventes lissé, en 2021 dans Paris intramuros :
+On souhaite obtenir le nombre de ventes lissé, en 2021 dans Paris intramuros :
 
 ::: incremental
 -   On sélectionne les ventes au-delà de Paris intramuros (effets de bord)
@@ -912,9 +932,9 @@ mf_layout(title = "Lissage avec rayon de 1000m",
 ### Faire varier le rayon de lissage
 
 -   Rayon grand : aspects structurels des données
--   Rayon petits : spécificités locales des données.
+-   Rayon petit : spécificités locales des données.
 
-Le choix revient dont au statisticien-géographe, en fonction de sa connaissance des données et des objectifs recherchés.
+Le choix revient donc au statisticien-géographe, en fonction de sa connaissance des données et des objectifs recherchés.
 
 ------------------------------------------------------------------------
 
@@ -945,7 +965,19 @@ mf_layout(title = "Lissage avec rayon de 1000m, sans grille",
 
 ### Eviter l'effet granuleux
 
-Arètes des carreaux visibles ... Idée : réduite la taille des carreaux (=\> 50m) ... Attention au temps de calcul ! ... (et on en protite aussi pour faire varier le rayon de lissage =\> 1km)
+Arètes des carreaux visibles 
+
+. . .
+
+Idée : réduite la taille des carreaux (=\> 50m) 
+
+. . .
+
+Attention au temps de calcul ! 
+
+. . .
+
+(et on en profite aussi pour faire varier le rayon de lissage =\> 1km)
 
 ------------------------------------------------------------------------
 
@@ -986,7 +1018,7 @@ mf_layout(title = "Lissage avec pas de 50m",
 
 ------------------------------------------------------------------------
 
-### Illustrons des effets de bord
+### Illustration des effets de bord
 
 Que se passe-t-il si on lisse **uniquement les ventes réalisées dans Paris intramuros** ?
 
@@ -994,7 +1026,7 @@ Que se passe-t-il si on lisse **uniquement les ventes réalisées dans Paris int
 
 Comparons avec les mêmes paramètres :
 
--   Rayon de lissage de 2 000 mètres
+-   Rayon de lissage de 2 000 mètres
 -   Taille des carreaux de 200m
 -   Bornes de discrétisation communes (comparabilité)
 
@@ -1057,7 +1089,7 @@ sfCarLiss_intramuros_paris <- sfCarLiss_intramuros %>%
   st_join(paris_sf,left = F)
 ```
 
-```{r resEffetBord2, echo=FALSE}
+```{r resEffetBord2}
 #| code-fold: true
 #| code-summary: code carte
 mf_init(x=sfCarLiss_intramuros_paris,theme = "agolalight")
@@ -1132,7 +1164,7 @@ Par exemple :
 
 ### Les grilles automatiques de `btb`
 
-```{r echo=FALSE,  results='hide'}
+```{r  results='hide'}
 #| code-fold: true
 #| code-summary: code lissage
 #| code-line-numbers: "5"
@@ -1173,7 +1205,7 @@ Dans ce cas :
 
 ------------------------------------------------------------------------
 
-## Calcul de moyenne{background-color="aquamarine"}
+## Calcul de moyenne {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -1261,7 +1293,7 @@ le lissage en moyenne est potentiellement sensible aux **valeurs atypiques** (co
 
 ------------------------------------------------------------------------
 
-## Calcul de taux{background-color="aquamarine"}
+## Calcul de taux {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -1389,7 +1421,7 @@ mf_layout(title = "Prix au m² (rayon de 800m)",
 
 ------------------------------------------------------------------------
 
-## Calcul de quantiles géographiquement pondérés{background-color="aquamarine"}
+## Calcul de quantiles géographiquement pondérés {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -1562,7 +1594,7 @@ sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count()
 
 ------------------------------------------------------------------------
 
-# Indicateurs sur zonage à façon {background-image="images/slide_titres.png"}
+# Indicateurs sur zonage à façon {background-color="black"}
 
 ------------------------------------------------------------------------
 
@@ -1577,7 +1609,7 @@ Objectif : agréger des données sur un zonage particulier
 
 ------------------------------------------------------------------------
 
-## Données ponctuelles{background-color="aquamarine"}
+## Données ponctuelles {background-color="powderblue"}
 
 Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans le **triangle d'or**.
 
@@ -1648,7 +1680,7 @@ mean(transac_triangle$valeur_fonciere)
 
 ------------------------------------------------------------------------
 
-## Données carroyées{background-color="aquamarine"}
+## Données carroyées {background-color="powderblue"}
 
 Objectif : obtenir la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee.
 

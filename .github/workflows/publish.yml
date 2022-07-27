@@ -21,19 +21,20 @@ jobs:
       - uses: r-lib/actions/setup-renv@v1
 
 
-      - name: Set up Quarto
-        uses: quarto-dev/quarto-actions/setup@v2
 
 
       - name: Install rmarkdown
         run: |
           Rscript -e 'install.packages(c("remotes"))'
-          Rscript -e "install.packages('terra', repos='https://rspatial.r-universe.dev')"
+          #Rscript -e "install.packages('terra', repos='https://rspatial.r-universe.dev')"
           Rscript -e 'install.packages(c("rmarkdown","prettydoc","rmdformats","mapview"))'
           Rscript -e 'install.packages("rgeos", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("sf")'
           Rscript -e "remotes::install_github('koncina/unilur')"
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
           
       - name: Render and Publish Quarto
         uses: quarto-dev/quarto-actions/publish@v2

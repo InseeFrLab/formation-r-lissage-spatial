@@ -24,14 +24,6 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Render and Publish Quarto
-        uses: quarto-dev/quarto-actions/publish@v2
-        with:
-          target: gh-pages
-          path: tutorials/tuto_presentation.qmd
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Install rmarkdown
         run: |
           Rscript -e 'install.packages(c("remotes"))'
@@ -39,10 +31,18 @@ jobs:
           Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc","rmdformats","mapview"))' #,"quarto",
           Rscript -e 'install.packages("rgeos", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org", type="source")'
-          #Rscript -e 'install.packages("terra", repos="http://R-Forge.R-project.org", type="source")'
-          Rscript -e 'install.packages("sf", type = "mac.binary")'
+          Rscript -e 'install.packages("sf")'
           Rscript -e "remotes::install_github('koncina/unilur')"
-          
+ 
+       - name: Render and Publish Quarto
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+          path: tutorials/tuto_presentation.qmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+         
 
       - name: Render Rmd
         run: |

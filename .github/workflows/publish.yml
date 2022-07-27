@@ -26,6 +26,7 @@ jobs:
       - name: Install rmarkdown
         run: |
           Rscript -e 'install.packages(c("remotes","rmarkdown","prettydoc","rmdformats"))'
+          Rscript -e 'install.packages("sp", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("rgeos", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("sf", type = "mac.binary")'

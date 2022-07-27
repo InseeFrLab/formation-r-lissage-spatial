@@ -1,35 +1,24 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/master/examples 
-## Need help debugging build failures ? Start at https://github.com/r-lib/actions#where-to-find-help
+# Workflow derived from https://github.com/InseeFrLab/onyxia-quarto
+
 on:
   push:
-    branches: [ main ]
-    # paths: 
-    #   - '**.Rmd'
-    #   - '**.qmd'
+    branches: main
 
-name: render-rmarkdown
+name: Quarto and Rmd Publish
 
 jobs:
-  render-rmarkdown:
-    runs-on: macOS-latest
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout repo
+      - name: Check out repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
       - uses: r-lib/actions/setup-pandoc@v1
-
       - uses: r-lib/actions/setup-r@v1
-
       - uses: r-lib/actions/setup-renv@v1
-      
-    #  - uses: cderv/install-quarto-action@v1
-    #  - run: |
-    #      quarto --version
-      
       - name: Install rmarkdown
         run: |
           Rscript -e 'install.packages(c("remotes"))'
@@ -44,24 +33,27 @@ jobs:
           #     destfile = 'gh-pages.zip')"
           # Rscript -e "unzip('gh-pages.zip', overwrite = FALSE, exdir='tutorials/', junkpaths = TRUE)"
 
-      
-      # - name: Render Quarto files
-      #   run: |
-      #     Rscript -e "quarto::quarto_render('tutorials/tuto_presentation.qmd')"
-      #     #QMD_PATH=($(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '[.]qmd$'))
-      #     #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) quarto::quarto_render(f)' ${QMD_PATH[*]}
 
-      
-      - name: Render Rmarkdown files
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render and Publish Quarto
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+          path: tutorials/tuto_presentation.qmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Render Rmd
         run: |
           #RMD_PATH=($(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '[.]Rmd$'))
           #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) rmarkdown::render(f)' ${RMD_PATH[*]}
           Rscript -e "rmarkdown::render('tutorials/index.Rmd')"
           Rscript -e "rmarkdown::render('tutorials/tuto.Rmd')"
           Rscript -e "rmarkdown::render('tutorials/exo.Rmd')"
-       
-      
-      - name: Move files to build directory
+
+      - name: Publish Rmd
         run: |
           mkdir build
           cp -R tutorials/* build

@@ -35,11 +35,11 @@ jobs:
           Rscript -e "remotes::install_github('koncina/unilur')"
  
        - name: Render and Publish Quarto
-        uses: quarto-dev/quarto-actions/publish@v2
-        with:
+         uses: quarto-dev/quarto-actions/publish@v2
+         with:
           target: gh-pages
           path: tutorials/tuto_presentation.qmd
-        env:
+         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
          

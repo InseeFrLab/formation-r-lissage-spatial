@@ -1,0 +1,81 @@
+/*-- scss:defaults --*/
+
+/*$body-bg: #b7b09c;
+$body-color: #4e3629;
+$link-color: #ffc72c;
+$presentation-heading-color: #cc0000;
+$code-color: #cc0000;
+$code-block-bg: #ded9ca;
+$code-block-border-color: #000000;*/
+
+/*-- scss:rules --*/
+
+/*.reveal .slide-number {
+  color: $link-color;
+}
+
+.reveal .footer {
+  font-size: 0.35em !important;
+  text-align: right !important;
+}
+
+.reveal .slides section .fragment.semi-fade-out {
+	opacity: 1;
+	visibility: inherit;
+
+	&.visible {
+		opacity: 0.25;
+		visibility: inherit;
+	}
+}
+
+.sectionhead {
+  font-size: 1em;
+  text-align: center;
+  color: $presentation-heading-color;
+  font-family: $presentation-heading-font;
+  background-color: $body-bg;
+  margin: 1px;
+  padding: 2px 2px 2px 2px;
+  width: 120px;
+  border-left: 10px solid;
+}
+
+.blackbox {
+  color: #000000;
+  background-color: transparent;
+  margin: 1px;
+  padding: 5px 2px 5px 2px;
+  height: 205px;
+  border: 2px solid;
+}*/
+
+.boite {
+  background: #F0F8FF;
+  color: black;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 0px;
+  margin-bottom: 10px;
+}
+
+nav[role='doc-toc'] {
+    font-size: 0.75em;
+}
+
+/* NE MARCHE PAS Augmentation de la taille du logo, en conflit avec footer.css*/
+.reveal .slide-logo {
+    max-height: 5rem;
+    height: 100%;
+}
+
+.textmini {
+  font-size: min(2.2vw, 40px);
+}
+
+.textmini2 {
+  font-size: 30px;
+}

@@ -1,59 +1,44 @@
 ---
-title: "Formation au carroyage et lissage spatial sur R"
+title: "Formation au carroyage et lissage spatial sur R </br><center><img src='images/hexagon-01.png' width='20%'></center>"
 author: "Kim ANTUNEZ - Julien PRAMIL"
-date: "octobre 2022"
-
-
+date: "Dernière modification : 26 juillet 2022"
 format:
   revealjs:
     transition: slide
+    theme: [simple, customslides.css]
+    footer: "[inseefrlab.github.io/formation-r-lissage-spatial](https://inseefrlab.github.io/formation-r-lissage-spatial)&nbsp;&nbsp;&nbsp;"
+    number-sections: false
     background-transition: zoom
     scrollable: true
+    toc : true
+    toc-depth: 2
+    toc-title: "Plan :"
     slide-level: 3
     code-link: true
     code-line-numbers: true
-    theme: serif
+    preview-links: auto
     logo: images/hexagon-01.png
     slide-number: true
+    chalkboard: 
+      boardmarker-width: 5
     show-slide-number: all
 #editor: visual
+from: markdown+emoji
 execute:
   echo: true
   # cache: true
 ---
 
-```{css, echo=FALSE}
-.boite {
-  background: #F0F8FF;
-  color: black;
-  border: 1px solid black;
-  border-radius: 10px;
-  padding-top: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-bottom: 0px;
-  margin-bottom: 10px;
-}
-```
 
-**Plan** :
-
-1.  Introduction
-2.  Configurations
-3.  Lissage
-4.  Indicateurs sur zonage à façon
-
-------------------------------------------------------------------------
-
-# Introduction {background-color="black"}
+# 1. Introduction {background-color="skyblue"}
 
 
+<!-- Biblio -->
+<!-- https://quarto.org/docs/presentations/revealjs/themes.html : beige blood dark default league moon night serif simple sky solarized -->
+<!-- https://meghan.rbind.io/blog/quarto-slides/ -->
 
 
-
-------------------------------------------------------------------------
-
-## Objectifs du TP {background-color="powderblue"}
+## 1.1 Objectifs du TP {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -64,15 +49,21 @@ execute:
 
 À partir de données ponctuelles, nous allons apprendre en utilisant le langage R :
 
-::: incremental
--   À carroyer les informations.
+-   À **carroyer** les informations.
+
+. . .
+
 -   À réaliser des **lissages** : 
     - de densité, 
     - de moyennes, 
     - des lissages de taux,
-    - et des lissages quantiles.
--   À calculer un **indicateur sur une zone à façon** (données ponctuelles et de carroyées).
-:::
+    
+<!-- - et des lissages quantiles. -->
+
+. . .
+
+-   À calculer un **indicateur sur une zone à façon** 
+<!-- (données ponctuelles ou déjà carroyées). -->
 
 ------------------------------------------------------------------------
 
@@ -81,9 +72,8 @@ execute:
 -   [Code de la formation](https://github.com/InseeFrLab/formation-r-lissage-spatial)
 -   [Site web des supports de formation](https://inseefrlab.github.io/formation-r-lissage-spatial)
 
-------------------------------------------------------------------------
 
-## Avertissements {background-color="powderblue"}
+## 1.2 Avertissements {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
@@ -121,19 +111,14 @@ Pour simplifier : on prend des libertés avec la **sémiologie cartographique**
 PI, voici les systèmes de projection que vous pouvez régulièrement rencontrer pour la métropole :
 :::
 
-------------------------------------------------------------------------
+# 2. Configurations {background-color="skyblue"}
 
-# Configurations {background-color="black"}
-
-------------------------------------------------------------------------
-
-## Chargement des librairies {background-color="powderblue"}
+## 2.1 Chargement des librairies {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
 Cinq librairies sont nécessaires pour ce TP.
 
-::: incremental
 -   `sf` pour manipuler des fichiers spatiaux (importer des .shp, transformer des projections, et réaliser des géotraitements) ;
 
 -   `mapsf` pour réaliser des cartes dans RStudio ;
@@ -143,7 +128,6 @@ Cinq librairies sont nécessaires pour ce TP.
 -   `btb` pour le carroyage et lissage ;
 
 -   `dplyr` pour le traitement des données, en particulier l'agrégation géographique.
-:::
 
 ::: notes
 **Remarque** : Le choix de `dplyr` plutôt que `data.table` se justifie ici du fait de sa forte compatibilité avec les objets géomatiques.
@@ -191,13 +175,12 @@ if (!require("aws.s3", character.only = TRUE)) {
 
 ```
 
-------------------------------------------------------------------------
-
-## Chargement de la base {background-color="powderblue"}
+## 2.2 Chargement de la base {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
--   On utilise le base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) »,
+###   Base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) »,
+
 -   Produite par la Direction générale des finances publiques (actes notariés).
 
 Elle recense :
@@ -209,14 +192,16 @@ Elle recense :
 
 ------------------------------------------------------------------------
 
-À partir de cette source, nous avons constitué une base :
+### Constitution de la base à partir de cette source
 
 -   Uniquement sur le périmètre de la **petite couronne parisienne**
 -   Pour l'année **2021**.
 
 ------------------------------------------------------------------------
 
-Avec les **8 variables** suivantes :
+### 8 variables utilisées
+
+::::: {.textmini}
 
 -   `id_mutation` : identifiant unique de la vente
 -   `date_mutation` : date de la vente
@@ -227,9 +212,12 @@ Avec les **8 variables** suivantes :
 -   `x` : longitude (**en projection Lambert 93**)
 -   `y` : latitude (**en projection Lambert 93**)
 
+:::::
+
+
 ------------------------------------------------------------------------
 
-Remarques :
+### Remarques
 
 -   [Code de production de la base](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R).
 
@@ -237,7 +225,7 @@ Remarques :
 
 ------------------------------------------------------------------------
 
-Dans le SSPcloud :
+### Dans le SSPcloud
 
 Importation de la base `ventesImmo_couronneParis.RDS`, stockée sous Minio
 
@@ -265,7 +253,9 @@ dfBase <-
 
 ------------------------------------------------------------------------
 
-En dehors du SSPCloud : téléchargement via URL.
+### En dehors du SSPCloud
+
+Téléchargement via URL :
 
 ```{r chargeBase}
 url_file <- url(paste0(url_bucket,bucket,"/",object))
@@ -274,42 +264,37 @@ dfBase <- readRDS(url_file)
 
 ------------------------------------------------------------------------
 
-On peut ensuite manipuler notre base de données chargée en mémoire.
+### Manipulation de notre base chargée en mémoire
 
 ```{r}
 head(dfBase)
 dim(dfBase)
 ```
 
-------------------------------------------------------------------------
-
-## Chargement et préparation des données cartographiques {background-color="powderblue"}
+## 2.3 Chargement et préparation des données cartographiques {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
-### Fond de carte du territoire à étudier
+### Fond de carte du territoire à étudier [Chargement]
 
--   Chargement contour géographique des départements de la petite couronne parisienne.
--   =\> Couches dites « vectorielles »
--   Type de fichiers : `.gpkg` ou `.shp`
--   On recommande le `.gpkg` (voir détails [ici](https://www.gis-blog.com/geopackage-vs-shapefile/))
+-   Chargement de la **couche vectorielle** des départements de la petite couronne parisienne.
+-   Type de fichiers : `.shp` ou `.gpkg` (format recommmandé, voir [ici](https://www.gis-blog.com/geopackage-vs-shapefile/))
+
+```{r chargeContour}
+# Récupération du fond de carte grâce à sf::st_read
+chemin_file <- paste0(url_bucket,
+                      bucket,"/r-lissage-spatial/depCouronne.gpkg")
+depCouronne_sf <- sf::st_read(chemin_file)
+```
 
 ::: notes
 En cartographie, ces fichiers sont appelés des « couches vectorielles » (à ne pas confondre avec les couches « raster » qui correspondent, par exemple, aux fonds de carte satellite OpenStreetMap ou Google Maps). - Un .gpkg est un fichier unique alors qu'un fichier .shp tient dans 5 fichiers séparés et interdépendants. - Le format Géopackage est libre et ouvert, contrairement à Shapefile. - Un Shapefile impose des noms de variables de moins de 10 caractères, ce qui peut être pénible en pratique. - Le géopackage est devenu le format standard dans Qgis depuis la version 3 (logiciel libre de cartographie préconisé à l'Insee).
 :::
 
-------------------------------------------------------------------------
-
-Récupérons donc le contour du territoire étudié avec la fonction `st_read` du package `sf`.
-
-```{r chargeContour}
-chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/depCouronne.gpkg")
-depCouronne_sf <- sf::st_read(chemin_file)
-```
 
 ------------------------------------------------------------------------
 
-Visualisons cette couche vectorielle
+### Fond de carte du territoire à étudier [Visualisation]
 
 ```{r}
 
@@ -317,35 +302,33 @@ head(depCouronne_sf)
 plot(depCouronne_sf$geom)
 ```
 
-------------------------------------------------------------------------
-
-On renomme la variable  `geom`  en `geometry`
-
 ```{r}
+#On renomme la variable  `geom`  en `geometry`
 depCouronne_sf <- depCouronne_sf %>% rename(geometry=geom)
 ```
 
 ------------------------------------------------------------------------
 
-Une fois les départements chargés, nous allons sélectionner le contour de la commune de Paris.
+### Contours de Paris
 
 ```{r}
 # Sélection de Paris
 paris_sf <- depCouronne_sf[depCouronne_sf$code=="75",]
-```
-
-------------------------------------------------------------------------
-
-Visualisons cette couche vectorielle
-
-```{r}
 head(paris_sf)
 plot(paris_sf$geometry)
 ```
 
+::: notes
+Une fois les départements chargés, nous allons sélectionner le contour de la commune de Paris.
+:::
+
 ------------------------------------------------------------------------
 
-On reprojète dans le même système de projection (si besoin). Ici, en Lambert 93 (epsg 2154)
+### Projections
+
+- Si besoin, on reprojette les deux bases dans le même système de projection.
+
+- Ici, en Lambert 93 (epsg 2154)
 
 ```{r stTransform}
 depCouronne_sf <- sf::st_transform(depCouronne_sf, crs = 2154)
@@ -358,10 +341,12 @@ Pour être certain que les données et le territoire soient dans le même systè
 
 ------------------------------------------------------------------------
 
-### Territoires englobants, sélection des données à lisser
+### Territoires englobants
 
 ::: {.boite data-latex=""}
-Pour éviter les **effets de bord** ==\> sélectionner des données au-delà de notre zone d'intérêt (ici Paris intramuros)
+:skull_and_crossbones: **Eviter les effets de bord**
+
+:arrow_right: Toujours électionner des données à lisser **au-delà de la zone d'intérêt** (ici Paris intramuros)
 :::
 
 ::: notes
@@ -370,11 +355,17 @@ Autrement dit, si on ne sélectionne que les ventes immobilières situées dans 
 
 ------------------------------------------------------------------------
 
-#### Première méthode (sélection **non-géométrique** des ventes)
+### **Méthode 1** : sélection **non-géométrique** [1/4]
 
-> -   filtrer les xy compris dans un grand rectangle englobant Paris intramuros
-> -   Très efficace computationnellement
-> -   Mais requiert de construire au préalable un rectangle adapté...
+<!-- https://emojipedia.org/fr/signe-de-la-main/ -->
+
+-   filtrer les x et y compris dans un grand rectangle englobant Paris intramuros
+
+**Avantages / Inconvénients**
+
+- :heavy_check_mark:  Très efficace computationnellement
+
+- :x:   Mais requiert de construire au préalable un rectangle adapté...
 
 ::: notes
 Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros.
@@ -384,39 +375,39 @@ L'idée est de pouvoir réduire la quantité de ventes à considérer avant le l
 
 ------------------------------------------------------------------------
 
--   Mise en forme de la couche "territoire" : sélection des variables et renommage
--   Création d'une bbox autour du territoire
+### **Méthode 1** : sélection **non-géométrique** [2/4]
 
-```{r creaBbox}
+```{r}
+# Couche "territoire" : sélection des variables et renommage
 paris_sf$nom <- "territoire"
 paris_sf <- paris_sf[,c("nom","geometry")]
+```
 
+-   Création d'une bbox autour du territoire...
+
+```{r creaBbox}
 bbox <- sf::st_bbox(paris_sf)
 bbox
 ```
 
-------------------------------------------------------------------------
-
-Création d'un buffer de la bbox, avec une marge de 2000 mètres
+-   ... puis buffer autour de celle-ci (marge : 2000m)
 
 ```{r}
-
 marge <- 2000
 bufferBbox <- bbox
 bufferBbox[["xmin"]] <- bufferBbox[["xmin"]]-marge
 bufferBbox[["xmax"]] <- bufferBbox[["xmax"]]+marge
 bufferBbox[["ymin"]] <- bufferBbox[["ymin"]]-marge
 bufferBbox[["ymax"]] <- bufferBbox[["ymax"]]+marge
-
 ```
 
 ------------------------------------------------------------------------
 
-Schéma explicatif des zones sélectionnées :
+### **Méthode 1** : sélection **non-géométrique** [3/4]
 
 ```{r schemaBbox}
 #| code-fold: true
-#| code-summary: code du schema
+#| code-summary: code du schema explicatif des zones sélectionnées
 
 # Petit rectangle vectoriel
 bbox_sf = st_sf(nom="bbox", geometry = st_as_sfc(bbox), crs = 2154)
@@ -455,7 +446,9 @@ Filtrage des coordonnées sont comprises à l'intérieur du rectangle jaune.
 
 ------------------------------------------------------------------------
 
-Filtrer (numériquement) les logements dans le triangle jaune
+### **Méthode 1** : sélection **non-géométrique** [5/5]
+
+Filtrer (via les x,y) les logements du rectangle jaune
 
 ```{r selectDonnee}
 # Repérer les coordonnées extrêmes, avec une marge (ici 2km)
@@ -466,8 +459,10 @@ xMax <- bufferBbox["xmax"]
 yMin <- bufferBbox["ymin"]
 yMax <- bufferBbox["ymax"]
 
-# Ne garder que les données dans le rectangle englobant, sans traitement vectoriel !
-dfBase_filtre <- dfBase[dfBase$x >= xMin & dfBase$x <= xMax & dfBase$y >= yMin & dfBase$y <= yMax, ]
+# Ne garder que les données dans le rectangle englobant,
+# sans traitement vectoriel !
+dfBase_filtre <- dfBase[dfBase$x >= xMin & dfBase$x <= xMax &
+                          dfBase$y >= yMin & dfBase$y <= yMax, ]
 dim(dfBase_filtre)
 dim(dfBase)
 
@@ -475,12 +470,24 @@ dim(dfBase)
 
 ------------------------------------------------------------------------
 
-#### Seconde méthode : la sélection **géométrique** des ventes
+### **Méthode 2** : sélection **géométrique** [1/4]
 
 -   Utiliser nos données individuelles comme un ensemble de points géolocalisés
 -   et procéder à des intersections géographiques.
 
+**Avantages / Inconvénients**
+
+-   :heavy_check_mark: plus court à coder et plus logique 
+
+-   :x: Potentiellement lourd d'un point de vue calculatoire.
+
+:arrow_right: Avec des données volumineuses, faire au minimum un premier filtrage non géométrique.
+
+
 ------------------------------------------------------------------------
+
+
+### **Méthode 2** : sélection **géométrique** [2/4]
 
 1.  On transforme nos observations en points vectoriels ;
 
@@ -488,7 +495,7 @@ dim(dfBase)
 sfBase <- sf::st_as_sf(dfBase, coords = c("x", "y"), crs = 2154)
 ```
 
-------------------------------------------------------------------------
+. . .
 
 2.  On crée une zone tampon (buffer) autour du territoire d'intérêt, avec une marge (ici 2 000m), sous la forme d'un objet `sf` vectoriel ;
 
@@ -500,25 +507,27 @@ buffer_sf <- st_buffer(paris_sf, dist = 2000)
 
 ------------------------------------------------------------------------
 
+### **Méthode 2** : sélection **géométrique** [3/4]
+
 3.  On repère les observations comprises dans cette zone tampon par intersection géographique.
 
 ```{r selectDonnee2c}
 sfBase_filtre <- st_join(sfBase,buffer_sf,left=F)
-sfBase_filtre
+head(sfBase_filtre,2)
 ```
 
 ------------------------------------------------------------------------
 
--   Potentiellement lourd d'un point de vue calculatoire.
--   Avec des données volumineuses, faire au minimum un premier filtrage non géométrique.
 
-------------------------------------------------------------------------
+### **Méthode 2** : sélection **géométrique** [4/4]
 
-Ci-dessous le code permettant d'avoir un aperçu de la zone, du buffer et de 2000 points tirés aléatoirement dedans.
+::::: {.textmini2}
+Zone, buffer et 2000 points tirés aléatoirement dedans.
+:::::
 
 ```{r schemaBuffer}
 #| code-fold: true
-#| code-summary: code du schema
+#| code-summary: code du schema explicatif des zones selectionnées
 
 # Mise en forme de la couche buffer
 buffer_sf$nom <- "buffer"
@@ -533,31 +542,43 @@ mapview(paris_sf ,col.regions= "#26cce7")+
           alpha=0,cex=2)
 ```
 
-------------------------------------------------------------------------
-
-## Carroyage de données {background-color="powderblue"}
+## 2.4 Carroyage de données {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
-Avant de lisser les données ponctuelles, on peut souhaiter représenter ces données sous **forme carroyée** afin de se les approprier. Il faut pour cela :
+### Les étapes du carroyage [1/8]
+
+Avant de lisser les données ponctuelles, on peut souhaiter représenter ces données sous **forme carroyée** afin de se les approprier. 
+
+:arrow_right: Le carroyage nécessite **plusieurs étapes**
 
 ------------------------------------------------------------------------
 
-1.  Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient (le territoire est découpé en carreaux de 200 mètres à partir de l'origine du référentiel)
+### Les étapes du carroyage [2/8]
+
+::::: {.textmini2}
+1.  Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient.
+
+:arrow_right: Le territoire est découpé en carreaux de 200 mètres à partir de l'origine du référentiel.
+:::::
+
 
 ```{r carroyage1}
 iCellSize = 200 # Carreaux de 200m
-points_carroyage <- dfBase_filtre # On repart de la base filtrée selon la première méthode
+# On repart de la base filtrée selon la première méthode
+points_carroyage <- dfBase_filtre 
 points_carroyage$x_centroide = points_carroyage$x -
   (points_carroyage$x %% iCellSize) + (iCellSize / 2)
 points_carroyage$y_centroide = points_carroyage$y -
   (points_carroyage$y %% iCellSize) + (iCellSize / 2)
-
-head(points_carroyage)
-
 ```
 
+```{r}
+head(points_carroyage,1)
+```
 ------------------------------------------------------------------------
+
+### Les étapes du carroyage [3/8]
 
 2.  Agréger les données sur chaque centroïde de la grille. En d'autres termes, compter le nombre de ventes par carreau
 
@@ -570,23 +591,38 @@ head(points_centroides,3)
 
 ------------------------------------------------------------------------
 
-**Remarque :** Ces deux premières étapes ne sont pas intégrées dans des fonctions du package `btb`. Il faut donc s'inspirer du code ci-dessus pour reproduire le même type de carroyage. Il est envisagé qu'une future version du package `btb` simplifie le code permettant de réaliser un carroyage.
+### Les étapes du carroyage [4/8]
+
+**Remarque**
+
+:pensive: Ces deux premières étapes ne sont pas intégrées dans des fonctions du package `btb`. Il faut donc s'inspirer du code ci-dessus pour reproduire le même type de carroyage.
+
+:smiley_cat: Nous envisageons d'intégrer prochainement une fonctionnalité au package `btb` qui simplifierait le code permettant de réaliser un carroyage.
+
 
 ------------------------------------------------------------------------
 
-3.  Passer d'une table de centroïdes à une table de carreaux vectoriels 
+### Les étapes du carroyage [5/8]
 
-Utilisation de `dfToGrid` du package `btb`, avec comme paramètres obligatoires.
+3.  Passer d'une table de centroïdes à une table de carreaux vectoriels via  `btb::dfToGrid`.
+
+::::: {.textmini2}
+**Paramètres obligatoires :**
 
 -   `df` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille ;
 -   `sEPSG` : une chaîne de caractères indiquant le code epsg du système de projection utilisé ;
 -   `iCellSize` : la taille des carreaux (longueur du côté, en mètres).
+:::::
+
 
 ```{r carroyage3}
-carreaux <- btb::dfToGrid(df = points_centroides, sEPSG = "2154", iCellSize = iCellSize)
+carreaux <- btb::dfToGrid(df = points_centroides,
+                          sEPSG = "2154", iCellSize = iCellSize)
 ```
 
 ------------------------------------------------------------------------
+
+### Les étapes du carroyage [6/8]
 
 4.  Se restreindre au champ des carreaux intersectant Paris
 
@@ -595,6 +631,8 @@ carreaux <- carreaux %>% st_join(paris_sf,left=F)
 ```
 
 ------------------------------------------------------------------------
+
+### Les étapes du carroyage [7/8]
 
 On obtient le carroyage des ventes dans Paris intramuros
 
@@ -622,67 +660,59 @@ mf_layout(title = "Carroyage du nombre de ventes",
 
 ------------------------------------------------------------------------
 
-Remarque :
+### Les étapes du carroyage [8/8]
+
+**Remarque :**
 
 Le carroyage pourrait aussi être utilisé pour simplifier les données avant lissage si le calcul de lissage est trop long en raison d'un très grand nombre d'observations.
 
-------------------------------------------------------------------------
 
-# Lissage {background-color="black"}
+# 3. Lissage {background-color="skyblue"}
 
-------------------------------------------------------------------------
-
-## Calcul de densité {background-color="powderblue"}
+## 3.1 Calcul de densité {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
--   Lissage le plus simple à réaliser
--   Quantité par unité de surface (un carreau)
+### Lissage le plus simple à réaliser
+
+-   Densité = Quantité par unité de surface (un carreau)
 -   Ici : densité de ventes de logements dans la ville de Paris au cours de l'année 2021
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité
-
------------------------------------------------------------------------
+### :skull_and_crossbones: Effets de bord
 
 Toujours pour éviter les effets de bord :
 
 - Lissage sur une zone plus large que la zone d'intérêt 
-- Utilisation de `dfBase_filtre` (construite précédemment).
+
+:arrow_right:  Utilisation de `dfBase_filtre` (construite précédemment).
 
 -----------------------------------------------------------------------
 
-### Premier lissage de densité
+### Création une variable `nbObsLisse`
 
--   Création une variable `nbObsLisse` qui vaudra `1` pour chaque observation
--   et on lisse `nbObsLisse` avec la fonction `kernelSmoothing` du package `btb`.
+-   On crée la variable `nbObsLisse = 1` pour chaque observation
 
 ```{r varComptage}
-#| output-location: fragment
-
 dfBase_filtre$nbObsLisse <- 1
-head(dfBase_filtre)
+head(dfBase_filtre,2)
 ```
 
+:arrow_right:   On lissera ensuite la variable `nbObsLisse` avec la fonction `btb::kernelSmoothing`
+
 ------------------------------------------------------------------------
 
-### Premier lissage de densité
+### Lissage et enregistrement dans `sfCarrLiss`
 
-Paramètres de `kernelSmoothing` :
+::::: {.textmini2}
+**Paramètres de `kernelSmoothing` **
 
-::: incremental
 -   `dfObservations` : le tableau des données à lisser. Il doit nécessairement contenir une colonne `x`, une colonne `y`, et 1 à n colonnes numériques (variables à lisser) ;
--   `sEPSG` : chaine de caractères indiquant le code epsg du système de projection utilisé ;
+-   `sEPSG` : chaîne de caractères indiquant le code epsg du système de projection utilisé ;
 -   `iCellSize` : un entier indiquant la taille des carreaux ;
 -   `iBandwidth` : un entier indiquant le rayon de lissage.
-:::
-
-------------------------------------------------------------------------
-
-### Premier lissage de densité
-
-Lissage et enregistrement dans `sfCarrLiss`
+:::::
 
 ```{r lissAuto400,  results='hide'}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
@@ -694,27 +724,17 @@ sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité
-
-Visualisation du résultat :
+### Visualisation du lissage [1/2]
 
 ```{r visLissAuto400}
 head(sfCarrLiss)
-```
-
-------------------------------------------------------------------------
-
-### Premier lissage de densité
-
-Nombre de lignes lissées
-
-```{r}
+#Nombre de lignes lissées
 nrow(sfCarrLiss)
 ```
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité
+### Visualisation du lissage [2/2]
 
 ```{r grilleCarrDefaut}
 #| code-fold: true
@@ -732,27 +752,21 @@ mf_layout(title = "KernelSmoothing génère une grille carroyée",
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité
+### Remarques
 
-Remarque :
-
--   la grille lissée épouse le périmètre des points en entrée.
+-   La grille lissée épouse le périmètre des points en entrée.
 -   Elle va même un peu au-delà (voir infra).
 
-------------------------------------------------------------------------
+. . .
 
-### Premier lissage de densité
-
-Attention, la fonction retourne une erreur en cas de :
+:bangbang: la fonction retourne une **erreur** en cas de :
 
 -   présence d'une variable non-numérique ;
 -   valeur(s) absente(s) dans les colonnes `x` ou `y`.
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité
-
-La fonction de **lissage** classique du package `btb` est **conservative**.
+### Le lissage par densité est conservatif
 
 ```{r}
 # Nombre de ventes dans la petite couronne
@@ -764,12 +778,11 @@ sum(sfCarrLiss$nbObsLisse)
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité
+### Remarque sur le secret statistique
 
-**Remarque sur le secret** :
+:bangbang: Toujours vérifier le **respect du secret statistique** avant publication de cartes !
 
--   Toujours vérifier son respect avant publication de cartes !
--   Par exemple, avec données fiscales, pas de carreaux comportant moins de 11 observations, même lissées...
+Par exemple, avec données fiscales, pas de carreaux comportant moins de **11 observations**, même lissées...
 
 ```{r filtreSecret}
 #| eval: false
@@ -779,21 +792,27 @@ sfCarrLiss <- sfCarrLiss[sfCarrLiss$nbObsLisse >= 11, ]
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité (représentation)
+### Représentation cartographique de la densité lissée
 
-On cartographie les carreaux :
 
--   On réalise une carte de type `choroplèthe` ;
--   On discrétise de la densité lissée (ici : quantiles) ;
--   Avec 5 classes (c'est-à-dire 5 couleurs).
+:::: {.columns}
 
-------------------------------------------------------------------------
+::: {.column width="30%"}
 
-### Premier lissage de densité (représentation)
+-   Carte **choroplèthe** ;
+-   **Discrétisation quantile** de la densité lissée ;
+-   Avec **5 classes** de carreaux (5 couleurs) .
+
+:::
+
+::: {.column width="70%"}
+
 
 ```{r resLissAuto400}
 #| code-fold: true
 #| code-summary: code
+#| fig-height : 6
+
 
 # Filtrage des carreaux lissés intersectant la ville de Paris
 sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
@@ -813,6 +832,10 @@ mf_map(x = contourParis,
 mf_layout(title = "Lissage avec rayon de 400m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
+:::
+
+::::
+
 
 ::: notes
 Remarque : la variable lissée `nbObsLiss` correspond au nombre de ventes (observations) par carreau (ici de 200 mètres). Ainsi, il est possible d'obtenir une densité au km² en multipliant la variable `nbObsLiss` par 25 dans le cas présent.
@@ -820,8 +843,7 @@ Remarque : la variable lissée `nbObsLiss` correspond au nombre de ventes (obser
 
 ------------------------------------------------------------------------
 
-### Premier lissage de densité (recapitulatif)
-
+### Récapitulatif : lissage de densité
 On souhaite obtenir le nombre de ventes lissé, en 2021 dans Paris intramuros :
 
 ::: incremental
@@ -836,21 +858,15 @@ On souhaite obtenir le nombre de ventes lissé, en 2021 dans Paris intramuros :
 
 ### Faire varier le rayon de lissage
 
+
 Taille optimale du rayon de lissage ?
 
-::: {.fragment .fade-in}
-Inconnu *a priori*...
-:::
+-   Rayon grand (1km) : aspects structurels des données
+-   Rayon petit (600m) : spécificités locales des données.
 
-::: {.fragment .fade-in}
-Compromis entre **précision** et **généralisation**
-:::
 
-::: {.fragment .fade-in}
-On teste avec :
-
--   600m
--   puis 1km
+::: {.boite data-latex=""}
+:arrow_right: Compromis à faire par le statisticien géographe entre **précision** et **généralisation** (connaissance des données et objectifs recherchés)
 :::
 
 ------------------------------------------------------------------------
@@ -927,18 +943,12 @@ mf_layout(title = "Lissage avec rayon de 1000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
-------------------------------------------------------------------------
-
-### Faire varier le rayon de lissage
-
--   Rayon grand : aspects structurels des données
--   Rayon petit : spécificités locales des données.
-
-Le choix revient donc au statisticien-géographe, en fonction de sa connaissance des données et des objectifs recherchés.
 
 ------------------------------------------------------------------------
 
-### Sans la grille apparente
+### Faire varier le rayon de lissage (1000m)
+
+**Sans grille apparente !**
 
 ```{r resLissage1000ssGrille}
 #| code-fold: true
@@ -963,25 +973,21 @@ mf_layout(title = "Lissage avec rayon de 1000m, sans grille",
 
 ------------------------------------------------------------------------
 
-### Eviter l'effet granuleux
+### Faire varier la taille des carreaux (50m)
 
-Arètes des carreaux visibles 
 
-. . .
+:::: {.columns}
 
-Idée : réduite la taille des carreaux (=\> 50m) 
+::: {.column width="40%"}
 
-. . .
 
-Attention au temps de calcul ! 
+- :x: **Trop petits carreaux = effet granuleux** : arètes des carreaux visibles 
+- :x: **Temps de calcul important**
 
-. . .
+:::
 
-(et on en profite aussi pour faire varier le rayon de lissage =\> 1km)
+::: {.column width="60%"}
 
-------------------------------------------------------------------------
-
-### Eviter l'effet granuleux
 
 ```{r lissPetitscarr, results='hide'}
 #| code-fold: true
@@ -1016,23 +1022,21 @@ mf_layout(title = "Lissage avec pas de 50m",
 
 ```
 
+:::
+
+::::
+
+
 ------------------------------------------------------------------------
 
 ### Illustration des effets de bord
 
-Que se passe-t-il si on lisse **uniquement les ventes réalisées dans Paris intramuros** ?
+:::: {.columns}
 
-. . .
+::: {.column width="50%"}
 
-Comparons avec les mêmes paramètres :
-
--   Rayon de lissage de 2 000 mètres
--   Taille des carreaux de 200m
--   Bornes de discrétisation communes (comparabilité)
-
-------------------------------------------------------------------------
-
-#### Sans effets de bord
+::::: {.textmini2}
+**Sans effet de bord**
 
 ```{r lissEffetBord1, results='hide'}
 #| code-fold: true
@@ -1063,12 +1067,16 @@ mf_map(x = contourParis,
 mf_layout(title = "Sans effets de bord, avec R=2000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
+:::::
 
-------------------------------------------------------------------------
+:::
 
-#### Avec effets de bord
+::: {.column width="50%"}
 
-```{r resEffetBord1, echo=TRUE, results='hide'}
+::::: {.textmini2}
+**Avec effets de bord** 
+
+```{r resEffetBord1, results='hide'}
 #| code-fold: true
 #| code-summary: code lissage
 #| code-line-numbers: 1-9
@@ -1084,12 +1092,11 @@ sfCarLiss_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuros,
                                     sEPSG = "2154",
                                     iCellSize = 200, 
                                     iBandwidth = 2000)
-
 sfCarLiss_intramuros_paris <- sfCarLiss_intramuros %>%
   st_join(paris_sf,left = F)
 ```
 
-```{r resEffetBord2}
+```{r resEffetBord2, eval=TRUE}
 #| code-fold: true
 #| code-summary: code carte
 mf_init(x=sfCarLiss_intramuros_paris,theme = "agolalight")
@@ -1107,28 +1114,42 @@ mf_map(x = contourParis,
 mf_layout(title = "Avec effets de bord, avec R=2000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
+:::::
+
+:::
+
+::::
+
+
+::::: {.textmini2}
+:arrow_right: Périphérie de Paris : densités artificiellement plus faibles avec une marge
+::::: 
+
 
 ------------------------------------------------------------------------
 
-### Illustrons des effets de bord (conclusion)
+### Les grilles automatiques de `btb` [1/2]
 
-Les effets de bord se matérialisent à la périphérie de Paris, où les densités lissées sont artificiellement plus faibles que quand on lisse en prenant une marge.
 
-------------------------------------------------------------------------
+:::: {.columns}
 
-### Les grilles automatiques de `btb`
+::: {.column width="50%"}
 
-Par défaut : la grille produite automatiquement par `btb::kernelSmoothing` dépasse les limites de la zone d'étude choisie.
 
-. . .
 
-Prenons l'exemple précédent du lissage sur les ventes à l'intérieur de Paris intramuros.
+::::: {.textmini2}
+La grille **par défaut** produite par `btb::kernelSmoothing` dépasse les limites de la zone d'étude choisie (ici Paris intramuros) et  contient :
 
-------------------------------------------------------------------------
+-   l'ensemble des carreaux contenant au moins une vente...
+-   **+ 4 carreaux limitrophes** (règle automatique)
+:::::
 
-### Les grilles automatiques de `btb`
+:::
 
-```{r grilleAuto}
+::: {.column width="50%"}
+
+
+```{r grilleAuto, eval=TRUE}
 #| code-fold: true
 #| code-summary: code carte
 mapview(sfCarLiss_intramuros %>%
@@ -1137,37 +1158,46 @@ mapview(sfCarLiss_intramuros %>%
   mapview(contourParis,color="red",lwd=10) 
 ```
 
-. . .
-
-La grille obtenue dépasse Paris intramuros et contient :
-
--   l'ensemble des carreaux contenant au moins une vente...
--   **+ 4 carreaux limitrophes** (règle automatique - cf. formation « Comment utiliser les outils de l'analyse urbaine »)
-
-------------------------------------------------------------------------
-
-### Les grilles automatiques de `btb`
-
-Modification de cette règle avec le paramètre `iNeighbor`.
-
-. . .
-
-Par exemple :
-
-::: incremental
--   `iNeighbor=2` =\> 2 carreaux limitrophes aux carreaux contenant au moins une vente.
--   `iNeighbor=0` =\> grille uniquement constituée des carreaux contenant au moins une vente
-    -   attention à l'effet « gruyère »
 :::
 
+::::
+
+
 ------------------------------------------------------------------------
 
-### Les grilles automatiques de `btb`
+### Les grilles automatiques de `btb` [2/2]
 
-```{r eval=F}
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+::::: {.textmini2}
+Modification possible de cette règle avec le paramètre `iNeighbor` :
+
+-   `iNeighbor=2` :arrow_right: 2 carreaux limitrophes aux carreaux contenant au moins une vente.
+-   `iNeighbor=0` :arrow_right: grille uniquement constituée des carreaux contenant au moins une vente (attention à l'effet « gruyère »)
+:::::
+
+:::
+
+::: {.column width="50%"}
+
+::::: {.textmini2}
+
+```{r, include=FALSE}
+sfCarLiss_intramuros <- btb::kernelSmoothing(
+  dfObservations = dfBase_intramuros, 
+  sEPSG = "2154",
+  iCellSize = 200, 
+  iBandwidth = 2000,
+  iNeighbor = 0)
+```
+
+```{r, eval=FALSE}
 #| code-fold: true
 #| code-summary: code lissage
-#| code-line-numbers: "5"
+#| code-line-numbers: "6"
 
 sfCarLiss_intramuros <- btb::kernelSmoothing(
   dfObservations = dfBase_intramuros, 
@@ -1177,78 +1207,84 @@ sfCarLiss_intramuros <- btb::kernelSmoothing(
   iNeighbor = 0)
 ```
 
-```{r include=F}
-#| code-fold: true
-#| code-summary: code lissage
-#| code-line-numbers: "5"
 
-sfCarLiss_intramuros <- btb::kernelSmoothing(
-  dfObservations = dfBase_intramuros, 
-  sEPSG = "2154",
-  iCellSize = 200, 
-  iBandwidth = 2000,
-  iNeighbor = 0)
-```
-
-
-```{r }
+```{r, eval=TRUE}
 #| code-fold: true
 #| code-summary: code carte
-mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),lwd=2,layer.name="Grille automatique") +
+mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),
+        lwd=2,layer.name="Grille iNeighbor = 0") +
   mapview(contourParis,color="red",lwd=10) 
 ```
 
+:::::
+
+:::
+
+::::
+
 ------------------------------------------------------------------------
 
-### Les grilles automatiques de `btb`
+### Spécificités locales : ville cotière...
 
 On peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné.
 
-. . .
+Par exemple, sur une **ville cotière**, on ne veut :
 
-Par exemple, sur une ville cotière, on ne veut :
-
+::::: {.textmini2}
 -   ni de carreau dans la mer
 -   ni l'effet « gruyère » du paramétrage `iNeighbor=0`.
-
-. . .
+:::::
 
 Dans ce cas :
 
+::::: {.textmini2}
 -   il convient de la confectionner soi-même
 -   et de la renseigner dans le paramètre `dfCentroids` de la fonction `kernelSmoothing`.
+:::::
+
+## 3.2 Calcul de moyenne {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
-## Calcul de moyenne {background-color="powderblue"}
+### Calcul de moyenne [1/2]
 
-------------------------------------------------------------------------
+Nous allons nous intéresser désormais au **prix moyen des logements vendus** à Paris en 2021. 
 
-Dans cette section, nous allons nous intéresser au prix moyen des logements vendus à Paris en 2021.
+Il faut : 
 
-. . .
-
-::: {.boite data-latex=""}
-**Remarque** :
-
-Une moyenne n'est pas le lissage du rapport *liss(variable / nbObsLisse)* mais le rapport des lissages **liss(variable) / liss(nbObs)**.
-:::
-
-------------------------------------------------------------------------
-
-### Calcul de moyenne : comment faire ?
-
-Il faut :
-
-::: incremental
+::::: {.textmini2}
 1.  Lisser les prix de ventes des biens vendus
 2.  Lisser le nombre de biens vendus (exactement comme précédemment)
 3.  Faire le ratio des deux précédents lissages pour chaque carreau de la grille produite.
+:::::
+
+::: {.boite data-latex=""}
+:bangbang:  Une moyenne n'est pas le lissage du rapport *liss(variable / nbObsLisse)* mais le rapport des lissages **liss(variable) / liss(nbObs)**.
 :::
 
 ------------------------------------------------------------------------
 
-### Calcul de moyenne : comment faire ?
+### Calcul de moyenne [2/2]
+:::: {.columns}
+
+::: {.column width="40%"}
+
+::::: {.textmini2}
+Les prix moyens sont particulièrement élevés dans le centre et l'Ouest de la capitale
+:::::
+
+::: {.boite data-latex=""}
+::::: {.textmini2}
+**Remarque** 
+
+le lissage en moyenne est potentiellement sensible aux **valeurs atypiques** (contrairement au lissage quantile).
+:::::
+:::
+
+:::
+
+::: {.column width="60%"}
+
 
 ```{r lissageMoyenne, results='hide'}
 #| code-fold: true
@@ -1291,50 +1327,50 @@ mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
-
-------------------------------------------------------------------------
-
-### Calcul de moyenne : resultats
-
-Les prix moyens sont particulièrement élevés dans le centre et l'Ouest de la capitale
-
-. . .
-
-::: {.boite data-latex=""}
-**Remarque** :
-
-le lissage en moyenne est potentiellement sensible aux **valeurs atypiques** (contrairement au lissage quantile)
 :::
 
-------------------------------------------------------------------------
+:::: 
 
-## Calcul de taux {background-color="powderblue"}
+
+
+
+
+
+## 3.3 Calcul de taux {background-color="powderblue"}
 
 ------------------------------------------------------------------------
 
 ### Taux de grands logements
 
-Nous nous intéressons ici à la proportion de ventes portant sur des grands logements (comportant plus de 4 pièces principales).
+:::: {.columns}
 
-. . .
+::: {.column width="40%"}
 
-Création de la variable `quatrePieces` (indicatrice)
+Proportion de ventes portant comportant **plus de 4 pièces principales** ?
 
-```{r varQuatrePieces}
+::::: {.textmini2}
+- indicatrice quatrePieces
+- lissage numérateur et dénominateur
+- calcul taux 
+- intersection géographique avec Paris
+:::::
+
+
+:::
+
+::: {.column width="60%"}
+
+
+
+```{r vissageTaux,  results='hide'}
+#| code-fold: true
+#| code-summary: code
+
+# Creation indicatrice quatrePieces
 dfBase_filtre$quatrePieces <- ifelse(
   dfBase_filtre$nombre_pieces_principales >= 4, 1, 0)
-```
 
-------------------------------------------------------------------------
-
-### Taux de grands logements
-
--   Lissage des variables `quatrePieces` et `nbObsLisse`
--   Ratio des deux variables lissées
-
-```{r lissageTaux,  results='hide'}
-#| code-line-numbers: "2,8"
-# Lissage
+# Lissage des variables `quatrePieces` et `nbObsLisse`
 dataLissage <- dfBase_filtre[,c("nbObsLisse","quatrePieces","x","y")]
 sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
                                     sEPSG = "2154",
@@ -1346,15 +1382,7 @@ sfCarLiss$txQuatrePieces <- sfCarLiss$quatrePieces / sfCarLiss$nbObsLisse
 # Intersection géographique avec Paris
 sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
 
-```
-
-------------------------------------------------------------------------
-
-### Taux de grands logements
-
-```{r reslissageTaux}
-#| code-fold: true
-
+# Carto
 mf_init(x=sfCarLiss_paris,theme = "agolalight")
 mf_map(x = sfCarLiss_paris, 
        type = "choro",
@@ -1372,29 +1400,41 @@ mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",
 
 ```
 
-------------------------------------------------------------------------
+::::: {.textmini2}
+:arrow_right: Carte similaire à la carte des prix moyens  
+:::::
 
-### Taux de grands logements
-
-Fort logiquement, la carte des prix moyens et la carte des grands logements ont des similitudes importantes.
-
-. . .
-
-On peut alors avoir envie de lisser le prix au mètre-carré.
-
-------------------------------------------------------------------------
-
-### Prix au m²
-
-::: {.boite data-latex=""}
-Il convient de lisser séparément les prix de vente (numérateur) et le nombre de mètres-carrés (dénominateur) des logements vendus.
-
-Autrement, si on lisse le prix au m² de chaque logement vendu, on sur-pondère artificiellement les prix au m² des petits logements (car l'unité statistique devient alors le logement, et non le m² vendu).
 :::
 
+:::: 
+
+::::: {.textmini2}
+:arrow_right: Lissage du prix au mètre-carré
+::::
+
 ------------------------------------------------------------------------
 
 ### Prix au m²
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+::: {.boite data-latex=""}
+
+::::: {.textmini2}
+**Il faut lisser séparément** les prix de vente (numérateur) et le nombre de mètres-carrés (dénominateur).
+
+Si on lisse le prix au m² de chaque logement vendu, on sur-pondère artificiellement les prix au m² des petits logements (car l'unité statistique devient alors le logement, et non le m² vendu).
+:::::
+
+:::
+
+:::
+
+::: {.column width="60%"}
+
+::::: {.textmini2}
 
 ```{r lissageMoyenneM2,  results='hide'}
 #| code-fold: true
@@ -1433,59 +1473,68 @@ mf_layout(title = "Prix au m² (rayon de 800m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
 ```
+:::::
 
-------------------------------------------------------------------------
-
-## Calcul de quantiles géographiquement pondérés {background-color="powderblue"}
-
-------------------------------------------------------------------------
-
-### Lissage quantile : pourquoi ?
-
-::: incremental
--   Moins sensible aux valeurs extrêmes ;
--   Obtenir des indicateurs de dispersion lissés ;
-    -   ex : écart interquantile
 :::
 
-------------------------------------------------------------------------
+::::
 
-### Lissage quantile : comment ?
 
-::: incremental
--   Toujours avec la fonction `kernelSmoothing`
--   En ajoutant un paramètre, `vQuantiles`, qui contient la liste des quantiles souhaités
-:::
+<!-- LISSAGE QUANTILE NON EVOQUE PAR PARCIMONIE. DECOMMENTER SI BESOIN ULTERIEUR. -->
+<!-- EN ATTENTANT LAISSER EN COMMENTAIRES -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Lissage quantile : rappel
+<!-- ## Calcul de quantiles géographiquement pondérés {background-color="powderblue"} -->
 
-Contrairement au lissage classique :
+<!-- ------------------------------------------------------------------------ -->
 
-::: incremental
--   il n'est pas conservatif
--   la fonction crée :
-    -   une colonne `nbObs` indiquant le nombre **réel** (non lissé) d'observations ayant contribué au calcul du carreau.
-    -   pour chaque variable, autant de colonnes qu'il y a de quantiles souhaités
-:::
+<!-- ### Lissage quantile : pourquoi ? -->
 
-------------------------------------------------------------------------
+<!-- ::: incremental -->
+<!-- -   Moins sensible aux valeurs extrêmes ; -->
+<!-- -   Obtenir des indicateurs de dispersion lissés ; -->
+<!--     -   ex : écart interquantile -->
+<!-- ::: -->
 
-### Lissage quantile : exemple
+<!-- ------------------------------------------------------------------------ -->
 
-Nous allons calculer le 1er décile, la médiane et le 9ème décile du prix de vente des logements à Paris.
+<!-- ### Lissage quantile : comment ? -->
 
-```{r, results='hide'}
-#| code-line-numbers: "6"
+<!-- ::: incremental -->
+<!-- -   Toujours avec la fonction `kernelSmoothing` -->
+<!-- -   En ajoutant un paramètre, `vQuantiles`, qui contient la liste des quantiles souhaités -->
+<!-- ::: -->
 
-dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")]
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
-                                    sEPSG = "2154",
-                                    iCellSize = 100,
-                                    iBandwidth = 1500,
-                                    vQuantiles = c(0.1, 0.5, 0.9))
-```
+<!-- ------------------------------------------------------------------------ -->
+
+<!-- ### Lissage quantile : rappel -->
+
+<!-- Contrairement au lissage classique : -->
+
+<!-- ::: incremental -->
+<!-- -   il n'est pas conservatif -->
+<!-- -   la fonction crée : -->
+<!--     -   une colonne `nbObs` indiquant le nombre **réel** (non lissé) d'observations ayant contribué au calcul du carreau. -->
+<!--     -   pour chaque variable, autant de colonnes qu'il y a de quantiles souhaités -->
+<!-- ::: -->
+
+<!-- ------------------------------------------------------------------------ -->
+
+<!-- ### Lissage quantile : exemple -->
+
+<!-- Nous allons calculer le 1er décile, la médiane et le 9ème décile du prix de vente des logements à Paris. -->
+
+<!-- ```{r, results='hide'} -->
+<!-- #| code-line-numbers: "6" -->
+
+<!-- dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")] -->
+<!-- sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, -->
+<!--                                     sEPSG = "2154", -->
+<!--                                     iCellSize = 100, -->
+<!--                                     iBandwidth = 1500, -->
+<!--                                     vQuantiles = c(0.1, 0.5, 0.9)) -->
+<!-- ``` -->
 
 <!-- ```{r, echo=FALSE} -->
 
@@ -1499,190 +1548,221 @@ sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
 
 <!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Lissage quantile : exemple
+<!-- ### Lissage quantile : exemple -->
 
-Visualisons les première lignes de la grille lissée
+<!-- Visualisons les première lignes de la grille lissée -->
 
-```{r resLissQuantileVis, eval=TRUE}
-head(sfCarLiss)
-```
+<!-- ```{r resLissQuantileVis, eval=TRUE} -->
+<!-- head(sfCarLiss) -->
+<!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Lissage quantile : exemple
+<!-- ### Lissage quantile : exemple -->
 
-Cartographie du 1er décile de prix des ventes
+<!-- Cartographie du 1er décile de prix des ventes -->
 
-```{r resLissQuantile10, eval=TRUE}
-#| code-fold: true
-#| code-summary: code carte
-#| code-line-numbers: "5"
-sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F)
-mf_init(x=sfCarLiss_paris,theme = "agolalight")
-mf_map(x = sfCarLiss_paris,
-       type = "choro",
-       var="valeur_fonciere_01",
-       breaks = "quantile",
-       nbreaks = 5,
-       border=NA,
-       leg_val_rnd = 0,
-       add = TRUE)
-mf_map(x = contourParis,
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",
-          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
-```
+<!-- ```{r resLissQuantile10, eval=TRUE} -->
+<!-- #| code-fold: true -->
+<!-- #| code-summary: code carte -->
+<!-- #| code-line-numbers: "5" -->
+<!-- sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F) -->
+<!-- mf_init(x=sfCarLiss_paris,theme = "agolalight") -->
+<!-- mf_map(x = sfCarLiss_paris, -->
+<!--        type = "choro", -->
+<!--        var="valeur_fonciere_01", -->
+<!--        breaks = "quantile", -->
+<!--        nbreaks = 5, -->
+<!--        border=NA, -->
+<!--        leg_val_rnd = 0, -->
+<!--        add = TRUE) -->
+<!-- mf_map(x = contourParis, -->
+<!--        lwd=4, -->
+<!--        col="black",add = TRUE) -->
+<!-- mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)", -->
+<!--           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf") -->
+<!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Lissage quantile : exemple
 
-Cartographie de la médiane des prix des ventes
+<!-- ### Lissage quantile : exemple -->
 
-```{r resLissQuantile50, eval = TRUE}
-#| code-fold: true
-#| code-summary: code carte
-#| code-line-numbers: "4"
+<!-- Cartographie de la médiane des prix des ventes -->
 
-mf_init(x=sfCarLiss_paris,theme = "agolalight")
-mf_map(x = sfCarLiss_paris,
-       type = "choro",
-       var="valeur_fonciere_05",
-       breaks = "quantile",
-       nbreaks = 5,
-       border=NA,
-       leg_val_rnd = 0,
-       add = TRUE)
-mf_map(x = contourParis,
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",
-          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
-```
+<!-- ```{r resLissQuantile50, eval = TRUE} -->
+<!-- #| code-fold: true -->
+<!-- #| code-summary: code carte -->
+<!-- #| code-line-numbers: "4" -->
 
-------------------------------------------------------------------------
+<!-- mf_init(x=sfCarLiss_paris,theme = "agolalight") -->
+<!-- mf_map(x = sfCarLiss_paris, -->
+<!--        type = "choro", -->
+<!--        var="valeur_fonciere_05", -->
+<!--        breaks = "quantile", -->
+<!--        nbreaks = 5, -->
+<!--        border=NA, -->
+<!--        leg_val_rnd = 0, -->
+<!--        add = TRUE) -->
+<!-- mf_map(x = contourParis, -->
+<!--        lwd=4, -->
+<!--        col="black",add = TRUE) -->
+<!-- mf_layout(title = "Médiane des prix de vente (rayon de 1500m)", -->
+<!--           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf") -->
+<!-- ``` -->
 
-### Lissage quantile : exemple
+<!-- ------------------------------------------------------------------------ -->
 
-Cartographie du rapport interdécile des prix des ventes
+<!-- ### Lissage quantile : exemple -->
 
-```{r interdeciles, eval = TRUE}
-#| code-fold: true
-#| code-summary: code carte
-#| code-line-numbers: "1"
-sfCarLiss_paris$rapp_interdecile <- sfCarLiss_paris$valeur_fonciere_09 / sfCarLiss_paris$valeur_fonciere_01
+<!-- Cartographie du rapport interdécile des prix des ventes -->
 
-# Cartographie
-mf_init(x=sfCarLiss_paris,theme = "agolalight")
-mf_map(x = sfCarLiss_paris,
-       type = "choro",
-       var="rapp_interdecile",
-       breaks = "quantile",
-       nbreaks = 5,
-       border=NA,
-       leg_val_rnd = 0,
-       add = TRUE)
-mf_map(x = contourParis,
-       lwd=4,
-       col="black",add = TRUE)
-mf_layout(title = "Rapport interdéciles des prix de vente (rayon de 1500m)",
-          credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
-```
+<!-- ```{r interdeciles, eval = TRUE} -->
+<!-- #| code-fold: true -->
+<!-- #| code-summary: code carte -->
+<!-- #| code-line-numbers: "1" -->
+<!-- sfCarLiss_paris$rapp_interdecile <- sfCarLiss_paris$valeur_fonciere_09 / sfCarLiss_paris$valeur_fonciere_01 -->
 
-::: notes
-(attention, il est ici question des prix de vente, et non des prix au m²).
-:::
+<!-- # Cartographie -->
+<!-- mf_init(x=sfCarLiss_paris,theme = "agolalight") -->
+<!-- mf_map(x = sfCarLiss_paris, -->
+<!--        type = "choro", -->
+<!--        var="rapp_interdecile", -->
+<!--        breaks = "quantile", -->
+<!--        nbreaks = 5, -->
+<!--        border=NA, -->
+<!--        leg_val_rnd = 0, -->
+<!--        add = TRUE) -->
+<!-- mf_map(x = contourParis, -->
+<!--        lwd=4, -->
+<!--        col="black",add = TRUE) -->
+<!-- mf_layout(title = "Rapport interdéciles des prix de vente (rayon de 1500m)", -->
+<!--           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf") -->
+<!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ::: notes -->
+<!-- (attention, il est ici question des prix de vente, et non des prix au m²). -->
+<!-- ::: -->
 
-### Lissage quantile : remarque importante
+<!-- ------------------------------------------------------------------------ -->
 
-Enfin, pour que le quantile lissé ait du sens, il faut qu'un **nombre conséquent d'observations** ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé.
+<!-- ### Lissage quantile : remarque importante -->
 
-```{r verifObsQuantiles}
-summary(sfCarLiss_paris$nbObs)
-sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count()
-```
+<!-- Enfin, pour que le quantile lissé ait du sens, il faut qu'un **nombre conséquent d'observations** ait participé à sa construction. Ainsi, il est conseillé d'utiliser un rayon de lissage suffisamment élevé. -->
 
-------------------------------------------------------------------------
+<!-- ```{r verifObsQuantiles} -->
+<!-- summary(sfCarLiss_paris$nbObs) -->
+<!-- sfCarLiss_paris %>% st_drop_geometry() %>% group_by(nbObs<100) %>% count() -->
+<!-- ``` -->
 
-# Indicateurs sur zonage à façon {background-color="black"}
+<!-- L'agrégation de données carroyées n'est pas étudiée ici.
+Si modification de la présentation, décommenter les slides suivantes -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-Objectif : agréger des données sur un zonage particulier
 
-2 cas :
+# 4. Indicateurs sur zonage à façon {background-color="skyblue"}
 
-::: incremental
-1.  données ponctuelles
-2.  données carroyées
-:::
+### Agréger des données individuelles sur un zonage
 
-------------------------------------------------------------------------
+Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans le triangle d'or [^1].
 
-## Données ponctuelles {background-color="powderblue"}
+<!-- 2 cas : -->
 
-Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans le **triangle d'or**.
+<!-- ::: incremental -->
+<!-- 1.  données ponctuelles -->
+<!-- 2.  données carroyées -->
+<!-- ::: -->
 
-Pour information, ce triangle a été créé manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/).
 
-------------------------------------------------------------------------
 
-### Données ponctuelles
+:::: {.columns}
 
+::: {.column width="60%"}
+
+
+::::: {.textmini2}
 1.  Import et visualisation de la zone à façon « Triangle d'or ». Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `sf::st_read`.
 
-```{r triangleOrLoad, results='hide'}
-
-chemin_file <- paste0(url_bucket,bucket,"/r-lissage-spatial/triangle_or.kml")
+```{r triangleOrLoad, results = 'hide'}
+chemin_file <- paste0(url_bucket,bucket,
+       "/r-lissage-spatial/triangle_or.kml")
 triangleOr <- st_read(chemin_file)
 ```
 
-------------------------------------------------------------------------
+```{r triangleOr1,eval=FALSE}
+mapview(triangleOr,
+  col.regions="#ffff00")
+```
+::::: 
 
-### Données ponctuelles
+:::
 
-On visualise le triangle : 
+::: {.column width="40%"}
 
-```{r triangleOr}
-mapview(triangleOr,col.regions="#ffff00")
+
+```{r triangleOr2,echo=FALSE}
+mapview(triangleOr,
+  col.regions="#ffff00")
 ```
 
+
+:::
+
+:::: 
+
+[^1]: Ce triangle a été créé manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/).
+
 ------------------------------------------------------------------------
 
-### Données ponctuelles
+### Intersection géographique
 
-2.  Intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention au système de projection.
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+::::: {.textmini2}
+2.  Intersection entre des points (les transactions) et un polygone (le quartier). 
+::::: 
 
 ```{r dviTriangle}
-st_crs(triangleOr)[["input"]] # Système de projection de triangleOr
-triangleOr <- st_transform(triangleOr,crs = 2154) # Transformation en Lambert93
+# Attention au système de projection.
+st_crs(triangleOr)[["input"]]
+# Transformation en Lambert93
+triangleOr <- st_transform(triangleOr,
+                           crs = 2154) 
 
-# Intersection géographique avec les transactions
-transac_triangle <- sfBase %>% st_join(triangleOr[,"geometry"],left=F)
-
-head(transac_triangle,4) # Visualisation de points retenus
+# Intersection géographique
+transac_triangle <- sfBase %>%
+  st_join(triangleOr[,"geometry"],left=F)
 ```
 
-------------------------------------------------------------------------
 
-### Données ponctuelles
+:::
 
-Cartographie des points dans le triangle
+
+::: {.column width="40%"}
+
 
 ```{r dviTriangleMap}
 
-mapview(transac_triangle)+mapview(triangleOr,col.regions="#ffff00")
+mapview(transac_triangle) +
+mapview(triangleOr,
+ col.regions = "#ffff00")
 
 ```
+:::
+
+::::
+
+
 
 ------------------------------------------------------------------------
 
-### Données ponctuelles
+### Calcul des statistiques recherchées
 
 3.  Calculer du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier
 
@@ -1698,46 +1778,45 @@ mean(transac_triangle$valeur_fonciere)
 **Remarque** : On ne voit que 12 points sur la cartes, alors qu'on a trouvé 20 transactions dans le triangle : ceci s'explique car certaines transactions sont géolocalisées au même endroit (appartements situés dans un même immeuble par exemple).
 :::
 
-------------------------------------------------------------------------
 
-## Données carroyées {background-color="powderblue"}
+<!-- ## Données carroyées {background-color="powderblue"} -->
 
-Objectif : obtenir la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee.
+<!-- Objectif : obtenir la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee. -->
 
-On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire=4176305).
+<!-- On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire=4176305). -->
 
-::: {.boite data-latex=""}
-**Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées.
-:::
+<!-- ::: {.boite data-latex=""} -->
+<!-- **Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées. -->
+<!-- ::: -->
 
-------------------------------------------------------------------------
 
-### Données carroyées
 
-1.  Chargement des données carroyées de Filosofi 2015 à 200m, uniquement en région parisienne, en ne conservant que 6 variables dont le nombre de logements sociaux.
+<!-- ### Données carroyées -->
 
-```{r results='hide'}
-# Fonction permettant de faire le chargement souhaité
-st_read_maison <- function(chemin_tab){
-  requete <- "SELECT IdINSPIRE,Depcom,I_est_cr,Men, Log_soc, geom
-            FROM Filosofi2015_carreaux_200m_metropole
-            WHERE SUBSTR(Depcom, 1, 2) IN ('75','92','93','94') "
-  sf::st_read(chemin_tab, query = requete)
-}
+<!-- 1.  Chargement des données carroyées de Filosofi 2015 à 200m, uniquement en région parisienne, en ne conservant que 6 variables dont le nombre de logements sociaux. -->
 
-# Chargement des données
-chemin_file <- paste0(url_bucket, bucket, 
-                    "/r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg")
-carreaux <-  st_read_maison(chemin_file)
-```
+<!-- ```{r results='hide'} -->
+<!-- # Fonction permettant de faire le chargement souhaité -->
+<!-- st_read_maison <- function(chemin_tab){ -->
+<!--   requete <- "SELECT IdINSPIRE,Depcom,I_est_cr,Men, Log_soc, geom -->
+<!--             FROM Filosofi2015_carreaux_200m_metropole -->
+<!--             WHERE SUBSTR(Depcom, 1, 2) IN ('75','92','93','94') " -->
+<!--   sf::st_read(chemin_tab, query = requete) -->
+<!-- } -->
 
-------------------------------------------------------------------------
+<!-- # Chargement des données -->
+<!-- chemin_file <- paste0(url_bucket, bucket,  -->
+<!--                     "/r-lissage-spatial/Filosofi2015_carreaux_200m_metropole.gpkg") -->
+<!-- carreaux <-  st_read_maison(chemin_file) -->
+<!-- ``` -->
 
-### Données carroyées
+<!-- ------------------------------------------------------------------------ -->
 
-```{r }
-head(carreaux)
-```
+<!-- ### Données carroyées -->
+
+<!-- ```{r } -->
+<!-- head(carreaux) -->
+<!-- ``` -->
 
 <!-- ```{r echo=FALSE} -->
 
@@ -1749,71 +1828,76 @@ head(carreaux)
 
 <!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Données carroyées
 
-2.  Créer un disque de 1km autour du White
 
-```{r zoneAFacon1}
-white <- st_sfc(st_point(c(649218.36,6857569.14)),crs=2154)
-buffer_white <- st_buffer(white,1000) %>% st_as_sf()
-```
 
-------------------------------------------------------------------------
 
-### Données carroyées
+<!-- ### Données carroyées -->
 
-3.  Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent
+<!-- 2.  Créer un disque de 1km autour du White -->
 
-::: notes
-**Remarque :** L'ensemble de carreaux étant en général plus large que la zone, les agrégats obtenus seront des estimations des valeurs réelles, plus ou moins précises. Le problème ne se pose pas si vous travaillez directement sur des données disponibles au niveau « individu statistique » (avec des coordonnées x,y).
-:::
+<!-- ```{r zoneAFacon1} -->
+<!-- white <- st_sfc(st_point(c(649218.36,6857569.14)),crs=2154) -->
+<!-- buffer_white <- st_buffer(white,1000) %>% st_as_sf() -->
+<!-- ``` -->
 
-```{r zoneAFacon2}
-carreaux_select <- carreaux %>% st_join(buffer_white,left=F)
-```
+<!-- ------------------------------------------------------------------------ -->
 
-------------------------------------------------------------------------
+<!-- ### Données carroyées -->
 
-### Données carroyées
+<!-- 3.  Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent -->
 
-::: notes
-À noter que ces carreaux sont « penchés » : ceci est la résultante de leur reprojection en Lambert 93. En effet, ces carreaux ont été produits en projection LAEA (standard européen), ce qui leur donne cet aspect une fois reprojetés dans le standard français.
-:::
+<!-- ::: notes -->
+<!-- **Remarque :** L'ensemble de carreaux étant en général plus large que la zone, les agrégats obtenus seront des estimations des valeurs réelles, plus ou moins précises. Le problème ne se pose pas si vous travaillez directement sur des données disponibles au niveau « individu statistique » (avec des coordonnées x,y). -->
+<!-- ::: -->
 
-```{r zoneAFacon3}
-mapview(carreaux_select)+
-  mapview(buffer_white,color="#ffff00",lwd=10,alpha.regions=0,legend=F)
-```
+<!-- ```{r zoneAFacon2} -->
+<!-- carreaux_select <- carreaux %>% st_join(buffer_white,left=F) -->
+<!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Données carroyées
+<!-- ### Données carroyées -->
 
-4.  Calculer l'indicateur souhaité sur la zone par somme des données par carreau.
+<!-- ::: notes -->
+<!-- À noter que ces carreaux sont « penchés » : ceci est la résultante de leur reprojection en Lambert 93. En effet, ces carreaux ont été produits en projection LAEA (standard européen), ce qui leur donne cet aspect une fois reprojetés dans le standard français. -->
+<!-- ::: -->
 
-```{r resZoneAFacon}
-tx_logSoc_white <- sum(carreaux_select$Log_soc)/sum(carreaux_select$Men)
-cat("On compte ",
-    round(tx_logSoc_white*100),
-    "% de logements sociaux dans un rayon de 1km autour du white")
-```
+<!-- ```{r zoneAFacon3} -->
+<!-- mapview(carreaux_select)+ -->
+<!--   mapview(buffer_white,color="#ffff00",lwd=10,alpha.regions=0,legend=F) -->
+<!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-# Conclusion
+<!-- ### Données carroyées -->
+
+<!-- 4.  Calculer l'indicateur souhaité sur la zone par somme des données par carreau. -->
+
+<!-- ```{r resZoneAFacon} -->
+<!-- tx_logSoc_white <- sum(carreaux_select$Log_soc)/sum(carreaux_select$Men) -->
+<!-- cat("On compte ", -->
+<!--     round(tx_logSoc_white*100), -->
+<!--     "% de logements sociaux dans un rayon de 1km autour du white") -->
+<!-- ``` -->
+
+# 5. Conclusion {background-color="skyblue"}
 
 Vous êtes désormais capables de carroyer et lisser toutes les données que vous aurez à votre disposition !
 
-## Autre logiciels
+### Autres logiciels
 
 -   **Python** : library[`BTBpy`](https://github.com/InseeFrLab/btbpy)
 -   **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est). Tutoriel à destinations des agents de l'Insee disponible sur l'interface AUS (V:/PSAR-AU/Formation Comment utiliser les outils AU/2019/Séquence 6 - Outils/Formation_AU_Sequence_6\_TP_partie_1.odt)
 -   **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue à ce jour)
 
-## Références :
+### Références
 
 -   [Manuel d'analyse spatiale](https://www.insee.fr/fr/information/3635442) de l'Insee
 -   [Introduction à la géomatique pour le statisticien](https://www.insee.fr/fr/statistiques/6049652), Document de travail, Insee
 -   Github du package [BTB](https://github.com/InseeFr/btb)
+
+
+

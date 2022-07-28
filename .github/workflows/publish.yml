@@ -36,23 +36,20 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
           
-      - name: Render and Publish Quarto
-        uses: quarto-dev/quarto-actions/publish@v2
+      - name: Render Quarto
+        uses: quarto-dev/quarto-actions/render@v2
         with:
-          target: gh-pages
-          path: tutorials
+          path: tutorials/tuto_presentation.qmd
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Render Rmd
         run: |
-          #RMD_PATH=($(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '[.]Rmd$'))
-          #Rscript -e 'for (f in commandArgs(TRUE)) if (file.exists(f)) rmarkdown::render(f)' ${RMD_PATH[*]}
           Rscript -e "rmarkdown::render('tutorials/index.Rmd')"
           Rscript -e "rmarkdown::render('tutorials/tuto.Rmd')"
           Rscript -e "rmarkdown::render('tutorials/exo.Rmd')"
 
-      - name: Publish Rmd
+      - name: Publish html
         run: |
           mkdir build
           cp -R tutorials/* build

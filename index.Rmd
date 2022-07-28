@@ -1,0 +1,123 @@
+---
+title: "Formation au carroyage et lissage spatial sur R"
+author: "Kim Antunez et Julien Pramil"
+date: "Dernière modification : 11 mars 2022"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+---
+
+
+```{r setup, include=FALSE}
+
+# path_proj <- "V:/PSAR-AU/Formation Comment utiliser les outils AU/2022/Séquence 6 - Outils [JP et KA]/tplissage_poc"
+# path_lib <- paste0(path_proj,"/packages")
+
+knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir = path_proj)
+
+```
+
+```{css, echo=FALSE}
+header {
+    background: #999 url("https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png") 0 0 repeat-x;
+    background-color: rgb(255, 255, 255);
+    background-image: url("https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png");
+    height: 325px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    border-bottom: solid 0px #275da1;
+}
+
+header .inner{
+  position: relative;
+  max-width: 600px;
+  font-size: 1.1em;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.8);
+
+}
+
+header .inner .title {
+    color: #000000;
+}
+
+
+header .inner .author, header .inner .date {
+    font-weight: 500;
+    color: #000000;
+}
+
+#main-content h2::before {
+   content: "";
+}
+#main-content h1::before {
+   content: "";
+}
+
+
+```
+
+
+</br> 
+
+# Bienvenue dans cet espace de formation !
+
+En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
+
+Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
+
+À partir de données ponctuelles, nous allons apprendre en utilisant le langage R :
+
+ - À carroyer les informations.
+ - À réaliser des lissages de densité, des lissages de moyennes, des lissages de taux et des lissages quantiles.
+ - À calculer un indicateur sur une zone à façon à partir des données carroyées de l'Insee.
+
+## Liens utiles
+
+- Code de la formation : https://github.com/InseeFrLab/formation-r-lissage-spatial
+
+- Site web des supports de formation : https://inseefrlab.github.io/formation-r-lissage-spatial
+  * [Tutoriel](tuto.html)
+  * [Diaporama](tuto_presentation.html)
+  * [Exercices](exo.html)
+
+</br>
+</br>
+</br>
+
+**Pour réaliser les exercices depuis la plateforme SSPCloud du Service Statistique Public** :
+
+  * Aller sur le SSPCloud : https://datalab.sspcloud.fr/  ;
+  * Se connecter avec son adresse mail insee et son mot de passe ;
+  * Cliquer sur **Trainings** en haut à droite de la page d'accueil ;
+  * Trouver la formation **Carroyage et lissage spatial sur R** dans la partie **Tutoriels de data science** et cliquer sur **ouvrir** ;
+  
+Les différentes parties de la présentation sont accessibles via le bouton **Lire**.
+Pour réaliser l'exercice, vous pouvez ouvrir l'environnement RStudio préconfiguré en cliquant sur **Lancer**.
+
+![](../img/sspcloud_lissage.png)
+
+
+  * Attendre le chargement
+  * Cliquer sur «\ **First, copy the service**\ »
+  
+![](../img/lancements_ervice1.png)
+
+  * Cliquer sur «\ **Open the service**\ »
+
+  * Cliquer sur «\ **Copy the password**\ »
+  
+![](../img/lancements_service2.png)
+  
+  
+  * Authentifiez-vous avec :
+      * l'identifiant : « **rstudio** »
+      * le mdp copié précédemment à l'aide d'un CTRL+V
+      * Puis Sign in !
+
+![](../img/lancements_service3.png)
+      
+Et voilà, votre session RStudio préconfigurée est prête ! 
+
+Vous pouvez maintenant écrire du code R en ouvrant un nouveau script vierge (CTRL+MAJ+N).

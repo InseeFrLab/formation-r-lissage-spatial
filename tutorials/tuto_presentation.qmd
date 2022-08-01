@@ -981,8 +981,8 @@ mf_layout(title = "Lissage avec rayon de 1000m, sans grille",
 ::: {.column width="40%"}
 
 
-- :x: **Trop petits carreaux = effet granuleux** : arètes des carreaux visibles 
-- :x: **Temps de calcul important**
+- :x: **Trop gros carreaux = effet granuleux** : arètes des carreaux visibles 
+- :x: **Trop petits carreaux = Temps de calcul important**
 
 :::
 

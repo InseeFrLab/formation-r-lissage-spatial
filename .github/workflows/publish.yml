@@ -2,13 +2,16 @@
 
 on:
   push:
-    branches: main
+    branches: 
+      - main
+    paths:
+      - tutorials/*
 
 name: Quarto and Rmd Publish
 
 jobs:
   build-deploy:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -19,9 +22,6 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v1
       - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-renv@v1
-
-
-
 
       - name: Install R dependencies
         run: |

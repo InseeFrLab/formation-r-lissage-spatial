@@ -2,9 +2,9 @@
 
 # Clone training repo
 REPO_URL=https://github.com/InseeFrLab/formation-r-lissage-spatial
-CLONE_DIR=/home/rstudio/formation
+CLONE_DIR=/home/onyxia/formation
 git clone --depth 1 $REPO_URL $CLONE_DIR
-chown -R rstudio:users $CLONE_DIR
+chown -R onyxia:users $CLONE_DIR
 cd $CLONE_DIR
 
 # Copy training data
@@ -20,4 +20,4 @@ setHook('rstudio.sessionInit', function(newSession) {
         rstudioapi::openProject('$CLONE_DIR')
         }
         }, action = 'append')
-        " >> /home/rstudio/.Rprofile
+        " >> /home/onyxia/.Rprofile

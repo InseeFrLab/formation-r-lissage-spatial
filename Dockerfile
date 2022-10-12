@@ -1,4 +1,4 @@
-FROM inseefrlab/rstudio:r4.1.2-spark3.2.0
+FROM inseefrlab/rstudio:ds-r4.2.3-2022.10.07
 
 # Install additional R packages
 RUN Rscript -e 'update.packages(ask = "no")' \

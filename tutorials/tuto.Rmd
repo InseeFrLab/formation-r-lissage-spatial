@@ -48,7 +48,7 @@ set.seed(2)
 
 En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
 
-Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
+Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
 
 À partir de données ponctuelles, nous allons apprendre en utilisant le langage R :
 
@@ -113,7 +113,7 @@ Cinq librairies sont nécessaires pour ce TP.
 # Charger les librairies nécessaires
 
 ## Liste des librairies utilisées
-packages <-  c("dplyr","sf","btb","mapsf","leaflet","mapview")
+packages <-  c("devtools","dplyr","sf","mapsf","leaflet","mapview")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -125,6 +125,11 @@ package.check <- lapply(
     }
   }
 )
+
+# Installation de BTB v2 (sur github)
+
+devtools::install_github("jpramil/btb")
+library(btb)
 ```
 
 
@@ -408,16 +413,11 @@ Avant de lisser les données ponctuelles, on peut souhaiter représenter ces don
 
 <!-- Le code ci-dessous procède de la sorte :  -->
 
-1. Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient (le territoire est découpé en carreaux de 200 mètres à partir de l'origine du référentiel)
+1. Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient (le territoire est découpé en carreaux de 200 mètres à partir de l'origine du référentiel). La fonction `btb_add_centroids` est faite pour cela.
 
 ```{r carroyage1}
 iCellSize = 200 # Carreaux de 200m
-points_carroyage <- dfBase_filtre # On repart de la base filtrée selon la première méthode
-points_carroyage$x_centroide = points_carroyage$x -
-  (points_carroyage$x %% iCellSize) + (iCellSize / 2)
-points_carroyage$y_centroide = points_carroyage$y -
-  (points_carroyage$y %% iCellSize) + (iCellSize / 2)
-
+points_carroyage <- btb::btb_add_centroids(pts = dfBase_filtre,iCellSize = iCellSize) 
 head(points_carroyage)
 
 ```
@@ -426,20 +426,19 @@ head(points_carroyage)
 
 ```{r carroyage2}
 points_carroyage <- points_carroyage %>% 
-  group_by(x=x_centroide,y=y_centroide) %>% 
+  group_by(x_centro,y_centro) %>% 
   count(name = "nbVentes")
 ```
 
-**Remarque :** Ces deux premières étapes ne sont pas intégrées dans des fonctions du package `btb`. Il faut donc s'inspirer du code ci-dessus pour reproduire le même type de carroyage. Il est envisagé qu'une future version du package `btb` simplifie le code permettant de réaliser un carroyage. 
 
-3. Passer d'une table de centroïdes à une table de carreaux vectoriels grâce à la fonction `dfToGrid` du package `btb` qui attend comme paramètres obligatoires :
+3. Passer d'une table de centroïdes à une table de carreaux vectoriels grâce à la fonction `btb_ptsToGrid` du package `btb` qui attend comme paramètres :
 
-  - `df` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille ;
-  - `sEPSG` : une chaîne de caractères indiquant le code epsg du système de projection utilisé ;
+  - `pts` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille ;
+  - `sEPSG` : le code epsg du système de projection utilisé ;
   - `iCellSize` : la taille des carreaux (longueur du côté, en mètres).
 
 ```{r carroyage3}
-carreaux <- btb::dfToGrid(df = points_carroyage, sEPSG = "2154", iCellSize = iCellSize)
+carreaux <- btb::btb_ptsToGrid(pts = points_carroyage, sEPSG = 2154, iCellSize = iCellSize)
 ```
 
 4. Se restreindre au champ des carreaux intersectant Paris
@@ -484,7 +483,7 @@ Pour ce premier lissage, nous choisissons des carreaux de 200 mètres et un rayo
 
 Toujours pour éviter les effets de bord, le lissage sera effectué sur une zone plus large que la zone d'intérêt (utilisation d'un buffer), via la base de données `dfBase_filtre` construite précédemment.
 
-Nous allons préalablement créer une variable `nbObsLisse` qui vaudra `1` pour chaque observation (chaque logement vendu en 2021) et qui sera lissée avec la fonction `kernelSmoothing` du package `btb`.
+Nous allons préalablement créer une variable `nbObsLisse` qui vaudra `1` pour chaque observation (chaque logement vendu en 2021) et qui sera lissée avec la fonction `btb_smooth` du package `btb`.
 
 ```{r varComptage}
 dfBase_filtre$nbObsLisse <- 1
@@ -493,11 +492,11 @@ dfBase_filtre$nbObsLisse <- 1
 head(dfBase_filtre)
 ```
 
-La fonction de lissage `btb::kernelSmoothing` intègre automatiquement l'étape de génération de la grille de carreaux. Puis, chaque carreau est affecté de la densité lissée en son centroïde. 
+La fonction de lissage `btb::btb_smooth` intègre automatiquement l'étape de génération de la grille de carreaux. Puis, chaque carreau est affecté de la densité lissée en son centroïde. 
 
 Cette fonction nécessite l'utilisation de quatre paramètres :
 
-  * `dfObservations` : le tableau des données à lisser. Il doit nécessairement contenir une colonne `x`, une colonne `y`, et 1 à n colonnes numériques (variables à lisser) ;
+  * `pts` : le tableau des données à lisser. Il doit nécessairement contenir une colonne `x`, une colonne `y`, et 1 à n colonnes numériques (variables à lisser) ;
   * `sEPSG` : chaine de caractères indiquant le code epsg du système de projection utilisé ;
   * `iCellSize` : un entier indiquant la taille des carreaux ;
   * `iBandwidth` : un entier indiquant le rayon de lissage.
@@ -507,8 +506,8 @@ Cette fonction nécessite l'utilisation de quatre paramètres :
 ```{r lissAuto400,  results='hide'}
 # Lisser
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
-                                    sEPSG = "2154",
+sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
+                                    sEPSG = 2154,
                                     iCellSize = 200, 
                                     iBandwidth = 400)
 ```
@@ -536,7 +535,7 @@ mf_map(x = st_cast(sfCarrLiss[,c("geometry")],"LINESTRING"),
 mf_map(x = contourParis, 
        lwd=8,
        col="wheat",add = TRUE)
-mf_layout(title = "KernelSmoothing génère une grille carroyée",
+mf_layout(title = "btb_smooth génère une grille carroyée",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
 
@@ -599,8 +598,8 @@ Il n'est pas possible de connaître *a priori* la taille optimale du rayon de li
 
 ```{r lissage600, results='hide', echo = FALSE}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
-                                    sEPSG = "2154",
+sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
+                                    sEPSG = 2154,
                                     iCellSize = 200, 
                                     iBandwidth = 600)
 ```
@@ -627,8 +626,8 @@ mf_layout(title = "Lissage avec rayon de 600m",
 
 ```{r lissage1000, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
-                                    sEPSG = "2154",
+sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
+                                    sEPSG = 2154,
                                     iCellSize = 200, 
                                     iBandwidth = 1000)
 ```
@@ -681,8 +680,8 @@ Pour éviter l'aspect «\ granuleux\ », on pourrait aussi réduire la taille de
 
 ```{r lissPetitscarr, results='hide', echo=FALSE}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-sfCarrLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
-                                    sEPSG = "2154",
+sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
+                                    sEPSG = 2154,
                                     iCellSize = 50, 
                                     iBandwidth = 1000)
 ```
@@ -721,8 +720,8 @@ Dans les deux cartes ci-dessous, le rayon de lissage (2\ 000 mètres) et les bor
 
 ```{r lissEffetBord1, results='hide'}
 dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
-                                    sEPSG = "2154",
+sfCarLiss <- btb::btb_smooth(pts = dataLissage, 
+                                    sEPSG = 2154,
                                     iCellSize = 200, 
                                     iBandwidth = 2000)
 sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F)
@@ -750,16 +749,11 @@ mf_layout(title = "Sans effets de bord, avec R=2000m",
 
 ```{r resEffetBord1, echo=TRUE, results='hide'}
 # Lissage sans gestion des effets de bord (intramuros uniquement)
-sfBase_intramuros <- sfBase %>% st_join(paris_sf,left=F)
-dfBase_intramuros <- sfBase_intramuros %>% 
-  mutate(x=st_coordinates(geometry)[,1],
-         y=st_coordinates(geometry)[,2],
-         nbObsLisse=1) %>% 
-  st_drop_geometry() %>% 
-  select(nbObsLisse,x,y)
+sfBase_intramuros <- sfBase %>% st_join(paris_sf,left=F) %>% 
+  mutate(nbObsLisse=1L) %>% 
+  select(nbObsLisse,geometry)
 
-sfCarLiss_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuros, 
-                                    sEPSG = "2154",
+sfCarLiss_intramuros <- btb::btb_smooth(pts = sfBase_intramuros, 
                                     iCellSize = 200, 
                                     iBandwidth = 2000)
 
@@ -788,7 +782,7 @@ Les effets de bord se matérialisent à la périphérie de Paris, où les densit
 
 ### Petit point sur les grilles automatiques de `btb` {#sec:grilleautom}
 
-La grille produite automatiquement par `btb::kernelSmoothing` dépasse automatiquement les limites de la zone d'étude choisie. 
+La grille produite automatiquement par `btb::btb_smooth` dépasse automatiquement les limites de la zone d'étude choisie. 
 
 Prenons l'exemple précédent du lissage (rayon 2000 m, pas 200 m) réalisé uniquement sur les ventes à l'intérieur de Paris intramuros.
 
@@ -810,8 +804,7 @@ Il est possible de modifier la règle de création de cette grille automatique e
 On peut aussi vouloir une grille uniquement constituée des carreaux contenant au moins une vente (`iNeighbor=0`), mais attention à l'effet «\ gruyère\ » :
 
 ```{r echo=FALSE,  results='hide'}
-sfCarLiss_intramuros <- btb::kernelSmoothing(dfObservations = dfBase_intramuros, 
-                                    sEPSG = "2154",
+sfCarLiss_intramuros <- btb::btb_smooth(pts = sfBase_intramuros, 
                                     iCellSize = 200, 
                                     iBandwidth = 2000,
                                     iNeighbor = 0)
@@ -822,7 +815,7 @@ mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),lwd=2,layer.name="Gr
   mapview(contourParis,color="red",lwd=10) 
 ```
 
-De même, on peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné. Dans ce cas, il convient de la confectionner soi-même et de la renseigner dans le paramètre `dfCentroids` de la fonction `kernelSmoothing`. Par exemple, en faisant un lissage sur une ville cotière, on peut vouloir une grille qui ne déborde pas sur la mer tout en ne souhaitant pas de l'effet «\ gruyère\ » du paramétrage `iNeighbor=0`.
+De même, on peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné. Dans ce cas, il convient de la confectionner soi-même et de la renseigner dans le paramètre `dfCentroids` de la fonction `btb_smooth`. Par exemple, en faisant un lissage sur une ville cotière, on peut vouloir une grille qui ne déborde pas sur la mer tout en ne souhaitant pas de l'effet «\ gruyère\ » du paramétrage `iNeighbor=0`.
 
 ## Calcul de moyenne
 
@@ -847,8 +840,8 @@ Dans l'exemple ci-dessous, on prend un rayon de lissage de 800m et un pas de 100
 dataLissage <- dfBase_filtre[,c("nbObsLisse","valeur_fonciere","x","y")] 
 
 # Lissage
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
-                                    sEPSG = "2154",
+sfCarLiss <- btb::btb_smooth(pts = dataLissage, 
+                                    sEPSG = 2154,
                                     iCellSize = 100, 
                                     iBandwidth = 800)
 sfCarLiss
@@ -896,8 +889,8 @@ dfBase_filtre$quatrePieces <- ifelse(
 ```{r lissageTaux,  results='hide'}
 # Lissage
 dataLissage <- dfBase_filtre[,c("nbObsLisse","quatrePieces","x","y")]
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage, 
-                                    sEPSG = "2154",
+sfCarLiss <- btb::btb_smooth(pts = dataLissage, 
+                                    sEPSG = 2154,
                                     iCellSize = 100, 
                                     iBandwidth = 800)
 ```
@@ -938,8 +931,8 @@ Pour ce faire, n'oubliez pas qu'il convient de lisser séparément les prix de v
 ```{r lissageMoyenneM2,  results='hide'}
 dataLissage <- dfBase_filtre[,c("surface_reelle_bati","valeur_fonciere","x","y")]
 
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
-                                    sEPSG = "2154",
+sfCarLiss <- btb::btb_smooth(pts = dataLissage,
+                                    sEPSG = 2154,
                                     iCellSize = 100,
                                     iBandwidth = 800)
 ```
@@ -972,7 +965,7 @@ mf_layout(title = "Prix au m² (rayon de 800m)",
 
 Le lissage quantile (médiane, déciles...) permet d’avoir des indicateurs moins sensibles aux valeurs extrêmes et d’enrichir l'analyse avec des indicateurs de dispersion (comme par exemple l’écart interquantile).
 
-Ce lissage se fait toujours avec la fonction `kernelSmoothing` mais il faut ajouter un paramètre, `vQuantiles`, qui contient la liste des quantiles souhaités.
+Ce lissage se fait toujours avec la fonction `btb_smooth` mais il faut ajouter un paramètre, `vQuantiles`, qui contient la liste des quantiles souhaités.
 
 **Remarque :** Le calcul de quantiles géographiquement pondérés présente certaines différences par rapport au lissage classique vu jusqu'à présent :
 
@@ -988,8 +981,8 @@ dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")]
 ```
 
 ```{r eval=TRUE}
-sfCarLiss <- btb::kernelSmoothing(dfObservations = dataLissage,
-                                    sEPSG = "2154",
+sfCarLiss <- btb::btb_smooth(pts = dataLissage,
+                                    sEPSG = 2154,
                                     iCellSize = 100,
                                     iBandwidth = 1500,
                                     vQuantiles = c(0.1, 0.5, 0.9))

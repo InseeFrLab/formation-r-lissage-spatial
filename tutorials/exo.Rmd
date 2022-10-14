@@ -96,7 +96,7 @@ Avant de débuter les exercices, on installe tous les packages nécessaires :
 
 ```{r installPackages, echo=TRUE}
 ## Liste des librairies utilisées
-packages <-  c("dplyr","sf","btb","mapsf","mapview","aws.s3")
+packages <-  c("dplyr","sf","mapsf","mapview","aws.s3")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -108,6 +108,10 @@ package.check <- lapply(
     }
   }
 )
+
+# Utilisation de BTB v 0.2.0
+devtools::install_github("jpramil/btb")
+library(btb)
 
 ```
 
@@ -280,14 +284,16 @@ Elle permet néanmoins de s'approprier un peu plus la structure spatiale des don
 
 ```{block, box.title = "Exercice 4", box.body = list(fill = "white"), box.icon = "fa-star"}
 1. Créer une constante `iCellSize <- 1000` correspondant à la taille des carreaux souhaités
-2. Créer la table `centroides` contenant les centroïdes `x_centroide` et `y_centroide` des carreaux de 1000m à partir de la table `parkings`.
+2. Créer la table `centroides` contenant les centroïdes `x_centro` et `y_centro` des carreaux de 1000m à partir de la table `parkings`.
 3. Comptabiliser le nombre de parkings contenus dans chaque carreau et créer une nouvelle variable `nbParkings`.
 
 
 ```
 
 ```{block, opts.label = "clues"}
-2. Les variables `x_centroide` et `y_centroide` correspondant respectivement aux variables `x` et `y` auxquelles : 
+2. Utiliser la fonction btb_add_centroids
+
+Pour information, les variables `x_centro` et `y_centro` correspondant respectivement aux variables `x` et `y` auxquelles : 
   - On retire le reste de leurs divisions euclidiennes modulo 1000 pour déterminer le point en bas à gauche du carreau de 1km.
   - Puis on ajoute 1000/2 pour tomber sur le centre du carreau
 ```
@@ -303,12 +309,11 @@ iCellSize = 1000
 
 # 2. Centroïdes
 centroides <- parkings
-centroides$x_centroide = centroides$x - (centroides$x %% iCellSize) + (iCellSize / 2)
-centroides$y_centroide = centroides$y - (centroides$y %% iCellSize) + (iCellSize / 2)
+centroides <- btb::btb_add_centroids(pts = centroides,iCellSize = iCellSize)
 
 # 3. Compter le nombre de parkings par carreau
 centroides <- centroides %>% 
-  group_by(x=x_centroide,y=y_centroide) %>% 
+  group_by(x_centro,y_centro) %>% 
   count(name = "nbParkings")
 
 centroides
@@ -321,7 +326,7 @@ centroides
 ```
 
 ```{block, opts.label = "clues"}
-1. La fonction `btb::dfToGrid` permet de créer la grille de carreaux.
+1. La fonction `btb::btb_ptsToGrid` permet de créer la grille de carreaux.
 ```
 
 ```{block, opts.label = "clues"}
@@ -338,7 +343,7 @@ centroides
 
 ```{r exo5solu, echo=TRUE, solution=TRUE}
 # 1. Générer la grille
-sfcarreaux <- btb::dfToGrid(df = centroides, sEPSG = "2154",
+sfcarreaux <- btb::btb_ptsToGrid(pts = centroides, sEPSG = "2154",
                             iCellSize = iCellSize)
 
 # 2. Restriction du champ : on ne retient que les carreaux intersectant Bordeaux-centre
@@ -406,7 +411,7 @@ parkingsBuff
 ```
 
 ```{block, opts.label = "clues"}
-2. Utiliser bien sûr la fonction `btb::kernelSmoothing` !
+2. Utiliser bien sûr la fonction `btb::btb_smooth` !
 ```
 
 
@@ -419,7 +424,7 @@ parkingsBuff$nbObsLisse <- 1L
 rayon <- 1700 # Rayon de lissage
 tcar <-  50 # Taille des carreaux de la grille
 parkingsLissage <- parkingsBuff[,c("nbObsLisse","x","y")]
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
@@ -477,7 +482,7 @@ Refaire le lissage avec un rayon de 600 mètres, puis avec un rayon de 3000 mèt
 ```{r exo8solu,echo=TRUE, solution=TRUE}
 lissage_maison <- function(rayon){
 
-       sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+       sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                      sEPSG = "2154",
                                      iCellSize = tcar, 
                                      iBandwidth = rayon)
@@ -516,7 +521,7 @@ Lisser le nombre de places de stationnement (variable `np_global`), et non plus 
 ```{r exo9solu,echo=TRUE, solution=TRUE, results="hide"}
 rayon <- 1700
 parkingsLissage <- parkingsBuff[,c("np_global","x","y")]
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
@@ -543,7 +548,7 @@ Lisser le nombre de places de stationnement pour les personnes à mobilité réd
 ```{r exo10solu,echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("np_pmr","x","y")]
 
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
@@ -572,13 +577,13 @@ Lisser le nombre moyen de places de stationnement par parking.
 ```
 
 ```{block, opts.label = "clues"}
-Ne jamais lisser directement le ratio ! On lisse le numérateur et le dénominateur séparément. Puis, on fait le ratio sur les carreaux générés par `kernelSmoothing`.
+Ne jamais lisser directement le ratio ! On lisse le numérateur et le dénominateur séparément. Puis, on fait le ratio sur les carreaux générés par `btb_smooth`.
 ```
 
 ```{r exo11solu,echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("nbObsLisse","np_global","x","y")]
 
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
@@ -601,7 +606,7 @@ Lisser le taux de places de stationnement pour personnes à mobilité réduite (
 ```{r exo12solu,echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("np_global","np_pmr","x","y")]
 
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
@@ -628,7 +633,7 @@ Lisser le prix moyen d'une heure de stationnement par parking (sans pondérer pa
 
 ```{r exo13solu, echo=TRUE, solution=TRUE, results="hide"}
 parkingsLissage <- parkingsBuff[,c("nbObsLisse","th_heur","x","y")]
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
@@ -667,7 +672,7 @@ parkingsBuff <- parkingsBuff %>% mutate(prix_x_place=np_global*th_heur)
 
 parkingsLissage <- parkingsBuff[,c("np_global","prix_x_place","x","y")]
 
-sfcarLisse <- btb::kernelSmoothing(dfObservations = parkingsLissage, 
+sfcarLisse <- btb::btb_smooth(pts = parkingsLissage, 
                                     sEPSG = "2154",
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)

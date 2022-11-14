@@ -2,7 +2,7 @@
 title: "<center>Formation au carroyage et lissage spatial sur R </br></br>TUTORIEL</br></br><img src='https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png' width='20%'></center>"
 pagetitle: "Tutoriel - Formation au carroyage et lissage spatial sur R"
 author: "Kim Antunez et Julien Pramil"
-date: "Dernière mise à jour : 11 mars 2022"
+date: "Dernière mise à jour : 01 décembre 2022"
 output: 
   rmdformats::robobook:
     highlight: kate
@@ -113,7 +113,7 @@ Cinq librairies sont nécessaires pour ce TP.
 # Charger les librairies nécessaires
 
 ## Liste des librairies utilisées
-packages <-  c("devtools","dplyr","sf","mapsf","leaflet","mapview")
+packages <-  c("devtools","dplyr","sf","mapsf","leaflet","mapview","btb")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -125,11 +125,6 @@ package.check <- lapply(
     }
   }
 )
-
-# Installation de BTB v2 (sur github)
-
-devtools::install_github("jpramil/btb")
-library(btb)
 ```
 
 
@@ -438,7 +433,8 @@ points_carroyage <- points_carroyage %>%
   - `iCellSize` : la taille des carreaux (longueur du côté, en mètres).
 
 ```{r carroyage3}
-carreaux <- btb::btb_ptsToGrid(pts = points_carroyage, sEPSG = 2154, iCellSize = iCellSize)
+carreaux <- btb::btb_ptsToGrid(pts = points_carroyage,
+                               sEPSG = 2154, iCellSize = iCellSize)
 ```
 
 4. Se restreindre au champ des carreaux intersectant Paris
@@ -789,7 +785,7 @@ Prenons l'exemple précédent du lissage (rayon 2000 m, pas 200 m) réalisé uni
 La grille obtenue dépasse Paris intramuros et contient :
 
 - l'ensemble des carreaux contenant au moins une vente...
-- ... mais aussi les 4 carreaux limitrophes de ces derniers (règle automatique^[cf. séquence 5 de la formation «\ Comment utiliser les outils de l’analyse urbaine\ »]) 
+- ... mais aussi les 4 carreaux limitrophes de ces derniers (règle automatique^[cf. séquence 5 de la formation «\ Comment utiliser les outils de l’analyse urbaine ?\ »]) 
 
 ```{r grilleAuto}
 mapview(sfCarLiss_intramuros %>%
@@ -881,7 +877,8 @@ Attention cependant aux éventuelles valeurs atypiques (ventes extrêmement chè
 Nous nous intéressons ici à la proportion de ventes portant sur des grands logements (comportant plus de 4 pièces principales). 
 
 ```{r varQuatrePieces}
-# Créer une indicatrice renseignant si le logement comporte plus de 4 pièces principales
+# Créer une indicatrice renseignant si le logement comporte
+# plus de 4 pièces principales
 dfBase_filtre$quatrePieces <- ifelse(
   dfBase_filtre$nombre_pieces_principales >= 4, 1, 0)
 ```
@@ -1216,6 +1213,6 @@ Grâce à différentes extensions, le package `btb` peut être utilisé avec d'a
    * **Python** : library[ `BTBpy`](https://github.com/InseeFrLab/btbpy)
    
    
-   * **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est). Tutoriel à destinations des agents de l'Insee disponible sur l'interface AUS (V:/PSAR-AU/Formation Comment utiliser les outils AU/2019/Séquence 6 - Outils/Formation_AU_Sequence_6_TP_partie_1.odt)
+   * **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est).
    
    * **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue à ce jour)

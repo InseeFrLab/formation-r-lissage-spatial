@@ -1,7 +1,7 @@
 ---
 title: "Formation au carroyage et lissage spatial sur R </br><center><img src='images/hexagon-01.png' width='20%'></center>"
 author: "Kim ANTUNEZ - Julien PRAMIL"
-date: "Dernière modification : 26 juillet 2022"
+date: "Dernière modification : 01 décembre 2023"
 format:
   revealjs:
     transition: slide
@@ -140,7 +140,7 @@ Cinq librairies sont nécessaires pour ce TP.
 ```{r message=FALSE, warning=FALSE}
 
 ## Liste des librairies utilisées
-packages <-  c("dplyr","sf","mapsf","leaflet","mapview")
+packages <-  c("dplyr","sf","mapsf","leaflet","mapview","btb")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -152,12 +152,6 @@ package.check <- lapply(
     }
   }
 )
-
-# Utilisation de BTB v 0.2.0
-devtools::install_github("jpramil/btb")
-library(btb)
-
-
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -452,7 +446,7 @@ Filtrage des coordonnées sont comprises à l'intérieur du rectangle jaune.
 
 ------------------------------------------------------------------------
 
-### **Méthode 1** : sélection **non-géométrique** [5/5]
+### **Méthode 1** : sélection **non-géométrique** [4/4]
 
 Filtrer (via les x,y) les logements du rectangle jaune
 
@@ -552,7 +546,7 @@ mapview(paris_sf ,col.regions= "#26cce7")+
 
 ------------------------------------------------------------------------
 
-### Les étapes du carroyage [1/8]
+### Les étapes du carroyage [1/7]
 
 Avant de lisser les données ponctuelles, on peut souhaiter représenter ces données sous **forme carroyée** afin de se les approprier. 
 
@@ -560,7 +554,7 @@ Avant de lisser les données ponctuelles, on peut souhaiter représenter ces don
 
 ------------------------------------------------------------------------
 
-### Les étapes du carroyage [2/8]
+### Les étapes du carroyage [2/7]
 
 ::::: {.textmini2}
 1.  Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient (`btb_add_centroids`).
@@ -572,7 +566,8 @@ Avant de lisser les données ponctuelles, on peut souhaiter représenter ces don
 ```{r carroyage1}
 iCellSize = 200 # Carreaux de 200m
 # On repart de la base filtrée selon la première méthode
-points_carroyage <- btb::btb_add_centroids(pts = dfBase_filtre,iCellSize = iCellSize) 
+points_carroyage <- btb::btb_add_centroids(pts = dfBase_filtre,
+                                        iCellSize = iCellSize) 
 
 ```
 
@@ -581,7 +576,7 @@ head(points_carroyage,1)
 ```
 ------------------------------------------------------------------------
 
-### Les étapes du carroyage [3/8]
+### Les étapes du carroyage [3/7]
 
 2.  Agréger les données sur chaque centroïde de la grille. En d'autres termes, compter le nombre de ventes par carreau
 
@@ -594,18 +589,8 @@ head(points_centroides,3)
 
 ------------------------------------------------------------------------
 
-### Les étapes du carroyage [4/8]
 
-**Remarque**
-
-:pensive: Ces deux premières étapes ne sont pas intégrées dans des fonctions du package `btb`. Il faut donc s'inspirer du code ci-dessus pour reproduire le même type de carroyage.
-
-:smiley_cat: Nous envisageons d'intégrer prochainement une fonctionnalité au package `btb` qui simplifierait le code permettant de réaliser un carroyage.
-
-
-------------------------------------------------------------------------
-
-### Les étapes du carroyage [5/8]
+### Les étapes du carroyage [4/7]
 
 3.  Passer d'une table de centroïdes à une table de carreaux vectoriels via  `btb::btb_ptsToGrid`.
 
@@ -625,7 +610,7 @@ carreaux <- btb::btb_ptsToGrid(pts = points_centroides,
 
 ------------------------------------------------------------------------
 
-### Les étapes du carroyage [6/8]
+### Les étapes du carroyage [5/7]
 
 4.  Se restreindre au champ des carreaux intersectant Paris
 
@@ -635,7 +620,7 @@ carreaux <- carreaux %>% st_join(paris_sf,left=F)
 
 ------------------------------------------------------------------------
 
-### Les étapes du carroyage [7/8]
+### Les étapes du carroyage [6/7]
 
 On obtient le carroyage des ventes dans Paris intramuros
 
@@ -663,7 +648,7 @@ mf_layout(title = "Carroyage du nombre de ventes",
 
 ------------------------------------------------------------------------
 
-### Les étapes du carroyage [8/8]
+### Les étapes du carroyage [7/7]
 
 **Remarque :**
 
@@ -1893,7 +1878,7 @@ Vous êtes désormais capables de carroyer et lisser toutes les données que vou
 ### Autres logiciels
 
 -   **Python** : library[`BTBpy`](https://github.com/InseeFrLab/btbpy)
--   **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est). Tutoriel à destinations des agents de l'Insee disponible sur l'interface AUS (V:/PSAR-AU/Formation Comment utiliser les outils AU/2019/Séquence 6 - Outils/Formation_AU_Sequence_6\_TP_partie_1.odt)
+-   **Qgis** grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est).
 -   **ALICE**, application intranet Insee développée par le PSAR Analyse urbaine (non maintenue à ce jour)
 
 ### Références

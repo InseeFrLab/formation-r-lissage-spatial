@@ -1,7 +1,7 @@
 ---
 title: "Formation au carroyage et lissage spatial sur R"
 author: "Kim Antunez et Julien Pramil"
-date: "Dernière modification : 11 mars 2022"
+date: "Dernière modification : 01 décembre 2023"
 output:
   prettydoc::html_pretty:
     theme: architect
@@ -65,7 +65,7 @@ header .inner .author, header .inner .date {
 
 En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
 
-Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
+Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
 
 À partir de données ponctuelles, nous allons apprendre en utilisant le langage R :
 

@@ -2,7 +2,7 @@
 
 En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
 
-Sa principale fonction, `kernelSmoothing`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
+Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
 
 À partir de données ponctuelles, nous allons apprendre en utilisant le langage R :
 

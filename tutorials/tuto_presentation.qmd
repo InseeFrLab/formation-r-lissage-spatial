@@ -1,5 +1,9 @@
 ---
-title: "Formation au carroyage et lissage spatial sur R </br><center><img src='images/hexagon-01.png' width='20%'></center>"
+title: "Formation au carroyage et lissage spatial sur R
+title-slide-attributes:
+    data-background-image: /images/hexagon-01.png
+    data-background-size: contain
+    data-background-opacity: "0.5"
 author: "Kim ANTUNEZ - Julien PRAMIL"
 date: "Dernière modification : 01 décembre 2023"
 format:
@@ -1334,7 +1338,7 @@ mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",
 
 ::: {.column width="40%"}
 
-Proportion de ventes portant comportant **plus de 4 pièces principales** ?
+Proportion de ventes comportant **plus de 4 pièces principales** ?
 
 ::::: {.textmini2}
 - indicatrice quatrePieces

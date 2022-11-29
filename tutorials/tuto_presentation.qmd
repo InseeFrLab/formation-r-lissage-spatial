@@ -6,7 +6,7 @@ format:
   revealjs:
     transition: slide
     theme: [simple, customslides.css]
-    css: [customslides.css]
+    # css: [customslides.css]
     footer: "[inseefrlab.github.io/formation-r-lissage-spatial](https://inseefrlab.github.io/formation-r-lissage-spatial)&nbsp;&nbsp;&nbsp;"
     number-sections: false
     background-transition: zoom

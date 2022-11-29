@@ -3,7 +3,7 @@ title: "Formation au carroyage et lissage spatial sur R
 title-slide-attributes:
     data-background-image: /images/hexagon-01.png
     data-background-size: contain
-    data-background-opacity: "0.5"
+    data-background-opacity: 0.5
 author: "Kim ANTUNEZ - Julien PRAMIL"
 date: "Dernière modification : 01 décembre 2023"
 format:

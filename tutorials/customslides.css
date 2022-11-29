@@ -1,3 +1,13 @@
+#title-slide .author {
+  font-size: 40px!important;
+}
+#title-slide .author:after {
+  content: url('images/hexagon-01.png') ;
+  display: block;
+}
+
+
+
 /*-- scss:defaults --*/
 
 /*$body-bg: #b7b09c;

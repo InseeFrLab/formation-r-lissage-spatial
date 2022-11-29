@@ -1,15 +1,12 @@
 ---
-title: "Formation au carroyage et lissage spatial sur R
-title-slide-attributes:
-    data-background-image: /images/hexagon-01.png
-    data-background-size: contain
-    data-background-opacity: 0.5
+title: "Formation au carroyage et lissage spatial sur R"
 author: "Kim ANTUNEZ - Julien PRAMIL"
 date: "Dernière modification : 01 décembre 2023"
 format:
   revealjs:
     transition: slide
     theme: [simple, customslides.css]
+    css: [customslides.css]
     footer: "[inseefrlab.github.io/formation-r-lissage-spatial](https://inseefrlab.github.io/formation-r-lissage-spatial)&nbsp;&nbsp;&nbsp;"
     number-sections: false
     background-transition: zoom

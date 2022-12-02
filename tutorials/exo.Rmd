@@ -523,7 +523,7 @@ sfcarLisse <- btb::btb_smooth(pts = parkingsLissage,
                                     iCellSize = tcar, 
                                     iBandwidth = rayon)
 
-# Filtrage des carreaux lissés dans Paris
+# Filtrage des carreaux lissés dans Bordeaux centre
 sfcarLisse <- sfcarLisse %>% 
   st_join(centreBdx,left = F) %>% 
   mutate(np_global=np_global*(1000/tcar)^2)
@@ -551,7 +551,7 @@ sfcarLisse <- btb::btb_smooth(pts = parkingsLissage,
                                     iBandwidth = rayon)
 
 
-# Filtrage des carreaux lissés dans Paris
+# Filtrage des carreaux lissés dans Bordeaux centre
 sfcarLisse <- sfcarLisse %>% 
   st_join(centreBdx,left = F)%>% 
   mutate(np_pmr=np_pmr*(1000/tcar)^2)

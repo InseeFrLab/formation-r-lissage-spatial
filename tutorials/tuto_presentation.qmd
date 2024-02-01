@@ -138,10 +138,10 @@ Cinq librairies sont nécessaires pour ce TP.
 
 **Charger les librairies nécessaires**
 
-```{r message=FALSE, warning=FALSE}
+```{r message = FALSE, warning = FALSE}
 
 ## Liste des librairies utilisées
-packages <-  c("dplyr","sf","mapsf","leaflet","mapview","btb")
+packages <-  c("dplyr", "sf", "mapsf", "leaflet", "mapview", "btb")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -155,7 +155,7 @@ package.check <- lapply(
 )
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 mapviewOptions(leafletWidth = "100%")
 ```
 
@@ -166,10 +166,10 @@ Sur le **SSPCloud** :
 -   Utiliser le package `aws.s3` pour charger les données stockées dans `Minio` ;
 -   Plus rapide qu'un chargement classique.
 
-```{r message=FALSE, warning=FALSE}
+```{r message = FALSE, warning = FALSE}
 
 if (!require("aws.s3", character.only = TRUE)) {
-      install.packages("aws.s3",repos = "https://cloud.R-project.org",
+      install.packages("aws.s3", repos = "https://cloud.R-project.org",
                        dependencies = TRUE, quiet = TRUE)
       library("aws.s3", character.only = TRUE)
     }
@@ -246,8 +246,7 @@ dfBase <-
   aws.s3::s3read_using(
     FUN = base::readRDS,
     object = object,
-    bucket = bucket
-    ,
+    bucket = bucket,
     opts = list("region" = "")
   )
 ```
@@ -259,7 +258,7 @@ dfBase <-
 Téléchargement via URL :
 
 ```{r chargeBase}
-url_file <- url(paste0(url_bucket,bucket,"/",object))
+url_file <- url(paste0(url_bucket, bucket, "/", object))
 dfBase <- readRDS(url_file)
 ```
 
@@ -284,7 +283,7 @@ dim(dfBase)
 ```{r chargeContour}
 # Récupération du fond de carte grâce à sf::st_read
 chemin_file <- paste0(url_bucket,
-                      bucket,"/r-lissage-spatial/depCouronne.gpkg")
+                      bucket, "/r-lissage-spatial/depCouronne.gpkg")
 depCouronne_sf <- sf::st_read(chemin_file)
 ```
 
@@ -305,7 +304,7 @@ plot(depCouronne_sf$geom)
 
 ```{r}
 #On renomme la variable  `geom`  en `geometry`
-depCouronne_sf <- depCouronne_sf %>% rename(geometry=geom)
+depCouronne_sf <- depCouronne_sf %>% rename(geometry = geom)
 ```
 
 ------------------------------------------------------------------------
@@ -314,7 +313,7 @@ depCouronne_sf <- depCouronne_sf %>% rename(geometry=geom)
 
 ```{r}
 # Sélection de Paris
-paris_sf <- depCouronne_sf[depCouronne_sf$code=="75",]
+paris_sf <- depCouronne_sf[depCouronne_sf$code == "75", ]
 head(paris_sf)
 plot(paris_sf$geometry)
 ```
@@ -381,7 +380,7 @@ L'idée est de pouvoir réduire la quantité de ventes à considérer avant le l
 ```{r}
 # Couche "territoire" : sélection des variables et renommage
 paris_sf$nom <- "territoire"
-paris_sf <- paris_sf[,c("nom","geometry")]
+paris_sf <- paris_sf[, c("nom", "geometry")]
 ```
 
 -   Création d'une bbox autour du territoire...
@@ -396,10 +395,10 @@ bbox
 ```{r}
 marge <- 2000
 bufferBbox <- bbox
-bufferBbox[["xmin"]] <- bufferBbox[["xmin"]]-marge
-bufferBbox[["xmax"]] <- bufferBbox[["xmax"]]+marge
-bufferBbox[["ymin"]] <- bufferBbox[["ymin"]]-marge
-bufferBbox[["ymax"]] <- bufferBbox[["ymax"]]+marge
+bufferBbox[["xmin"]] <- bufferBbox[["xmin"]] - marge
+bufferBbox[["xmax"]] <- bufferBbox[["xmax"]] + marge
+bufferBbox[["ymin"]] <- bufferBbox[["ymin"]] - marge
+bufferBbox[["ymax"]] <- bufferBbox[["ymax"]] + marge
 ```
 
 ------------------------------------------------------------------------
@@ -411,10 +410,10 @@ bufferBbox[["ymax"]] <- bufferBbox[["ymax"]]+marge
 #| code-summary: code du schema explicatif des zones sélectionnées
 
 # Petit rectangle vectoriel
-bbox_sf = st_sf(nom="bbox", geometry = st_as_sfc(bbox), crs = 2154)
+bbox_sf = st_sf(nom = "bbox", geometry = st_as_sfc(bbox), crs = 2154)
 
 # Grand rectangle vectoriel
-bufferBbox_sf = st_sf(nom="buffer_bbox", geometry = st_as_sfc(bufferBbox), crs = 2154)
+bufferBbox_sf = st_sf(nom = "buffer_bbox", geometry = st_as_sfc(bufferBbox), crs = 2154)
 
 # Options globales pour les cartes avec mapview
 mapviewOptions(
@@ -426,9 +425,9 @@ mapviewOptions(
   )
 )
 # Cartographie pédagogique avec mapview
-m <- mapview(paris_sf ,col.regions= "#26cce7")+
-  mapview(bufferBbox_sf %>% st_cast("MULTILINESTRING"),color="#FFC300",lwd=6)+
-  mapview(bbox_sf %>% st_cast("MULTILINESTRING"),color="#229954",lwd=6)
+m <- mapview(paris_sf, col.regions = "#26cce7")+
+  mapview(bufferBbox_sf %>% st_cast("MULTILINESTRING"), color = "#FFC300", lwd = 6) +
+  mapview(bbox_sf %>% st_cast("MULTILINESTRING"), color = "#229954", lwd = 6)
 
 m
 
@@ -513,8 +512,8 @@ buffer_sf <- st_buffer(paris_sf, dist = 2000)
 3.  On repère les observations comprises dans cette zone tampon par intersection géographique.
 
 ```{r selectDonnee2c}
-sfBase_filtre <- st_join(sfBase,buffer_sf,left=F)
-head(sfBase_filtre,2)
+sfBase_filtre <- st_join(sfBase, buffer_sf, left = F)
+head(sfBase_filtre, 2)
 ```
 
 ------------------------------------------------------------------------
@@ -534,13 +533,13 @@ Zone, buffer et 2000 points tirés aléatoirement dedans.
 buffer_sf$nom <- "buffer"
 
 # Échantillon de 2000 observations dans le buffer
-sfBase_sample <- sfBase_filtre[sample(1:nrow(sfBase_filtre),2000) ,]
+sfBase_sample <- sfBase_filtre[sample(1:nrow(sfBase_filtre), 2000), ]
 
 # Cartographie pédagogique avec mapview
-mapview(paris_sf ,col.regions= "#26cce7")+
-  mapview(buffer_sf %>% st_cast("MULTILINESTRING"),color="#FFC300",lwd=6)+
-  mapview(sfBase_sample,#col.regions = "black",alpha.regions=0.5,
-          alpha=0,cex=2)
+mapview(paris_sf, col.regions = "#26cce7") +
+  mapview(buffer_sf %>% st_cast("MULTILINESTRING"), color = "#FFC300", lwd = 6) +
+  mapview(sfBase_sample, #col.regions = "black",alpha.regions=0.5,
+          alpha = 0, cex = 2)
 ```
 
 ## 2.4 Carroyage de données {background-color="powderblue"}
@@ -583,9 +582,9 @@ head(points_carroyage,1)
 
 ```{r carroyage2}
 points_centroides <- points_carroyage %>%
-  group_by(x_centro,y_centro) %>% 
+  group_by(x_centro, y_centro) %>% 
   count(name = "nbVentes")
-head(points_centroides,3)
+head(points_centroides, 3)
 ```
 
 ------------------------------------------------------------------------
@@ -616,7 +615,7 @@ carreaux <- btb::btb_ptsToGrid(pts = points_centroides,
 4.  Se restreindre au champ des carreaux intersectant Paris
 
 ```{r carroyage4}
-carreaux <- carreaux %>% st_join(paris_sf,left=F)
+carreaux <- carreaux %>% st_join(paris_sf,left = F)
 ```
 
 ------------------------------------------------------------------------
@@ -629,20 +628,20 @@ On obtient le carroyage des ventes dans Paris intramuros
 #| code-fold: true
 #| code-summary: code du production de la carte
 
-contourParis <- st_cast(paris_sf[,c("geometry")],"MULTILINESTRING")
+contourParis <- st_cast(paris_sf[, c("geometry")], "MULTILINESTRING")
 
-mf_init(x=carreaux,theme = "agolalight")
+mf_init(x = carreaux)
 mf_map(x = carreaux,
        type = "choro",
-       var="nbVentes",
+       var = "nbVentes",
        breaks = "quantile",
        nbreaks = 5,
-       lwd=1,
+       lwd = 1,
        leg_val_rnd = 1,
        add = TRUE)
 mf_map(x = contourParis,
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Carroyage du nombre de ventes",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -685,7 +684,7 @@ Toujours pour éviter les effets de bord :
 
 ```{r varComptage}
 dfBase_filtre$nbObsLisse <- 1
-head(dfBase_filtre,2)
+head(dfBase_filtre, 2)
 ```
 
 :arrow_right:   On lissera ensuite la variable `nbObsLisse` avec la fonction `btb::btb_smooth`
@@ -704,11 +703,11 @@ head(dfBase_filtre,2)
 :::::
 
 ```{r lissAuto400,  results='hide'}
-dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
+dataLissage <- dfBase_filtre[,c("nbObsLisse", "x", "y")]
 sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = 200, 
-                                    iBandwidth = 400)
+                              sEPSG = "2154",
+                              iCellSize = 200, 
+                              iBandwidth = 400)
 ```
 
 ------------------------------------------------------------------------
@@ -729,12 +728,12 @@ nrow(sfCarrLiss)
 #| code-fold: true
 #| code-summary: code
 
-mf_init(x=paris_sf,theme = "agolalight")
-mf_map(x = st_cast(sfCarrLiss[,c("geometry")],"LINESTRING"), 
-       lwd=1,add=T)
+mf_init(x=paris_sf)
+mf_map(x = st_cast(sfCarrLiss[, c("geometry")], "LINESTRING"), 
+       lwd = 1, add = T)
 mf_map(x = contourParis, 
-       lwd=8,
-       col="wheat",add = TRUE)
+       lwd = 8,
+       col = "wheat", add = TRUE)
 mf_layout(title = "btb_smooth génère une grille carroyée",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -804,20 +803,20 @@ sfCarrLiss <- sfCarrLiss[sfCarrLiss$nbObsLisse >= 11, ]
 
 
 # Filtrage des carreaux lissés intersectant la ville de Paris
-sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[, "geometry"], left = F)
 
 # Carte lissée
-mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_init(x = sfCarrLiss_paris)
 mf_map(x = sfCarrLiss_paris, 
        type = "choro",
-       var="nbObsLisse",
+       var ="nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
-       lwd=1,
+       lwd = 1,
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 400m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -865,13 +864,13 @@ Taille optimale du rayon de lissage ?
 ```{r lissage600, results='hide'}
 #| code-fold: true
 #| code-summary: code lissage
-dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
+dataLissage <- dfBase_filtre[, c("nbObsLisse", "x", "y")]
 sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = 200, 
-                                    iBandwidth = 600)
+                              sEPSG = "2154",
+                              iCellSize = 200, 
+                              iBandwidth = 600)
 # Filtrage des carreaux lissés dans Paris
-sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[, "geometry"], left = F)
 
 ```
 
@@ -879,19 +878,18 @@ sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
 #| code-fold: true
 #| code-summary: code carto
 
-
 # Carte lissée
-mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_init(x = sfCarrLiss_paris)
 mf_map(x = sfCarrLiss_paris, 
        type = "choro",
-       var="nbObsLisse",
+       var = "nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
-       lwd=1,
+       lwd = 1,
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 600m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -903,13 +901,13 @@ mf_layout(title = "Lissage avec rayon de 600m",
 ```{r lissage1000, results='hide'}
 #| code-fold: true
 #| code-summary: code lissage
-dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
+dataLissage <- dfBase_filtre[, c("nbObsLisse", "x", "y")]
 sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = 200, 
-                                    iBandwidth = 1000)
+                              sEPSG = "2154",
+                              iCellSize = 200, 
+                              iBandwidth = 1000)
 # Filtrage des carreaux lissés dans Paris
-sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[, "geometry"], left = F)
 ```
 
 ```{r resLissage1000}
@@ -917,17 +915,17 @@ sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
 #| code-summary: code carto
 
 # Carte lissée
-mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_init(x = sfCarrLiss_paris)
 mf_map(x = sfCarrLiss_paris, 
        type = "choro",
-       var="nbObsLisse",
+       var = "nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
-       lwd=1,
+       lwd = 1,
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 1000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -944,18 +942,18 @@ mf_layout(title = "Lissage avec rayon de 1000m",
 #| code-summary: code carto
 #| code-line-numbers: 7-8
 
-mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_init(x = sfCarrLiss_paris)
 mf_map(x = sfCarrLiss_paris, 
        type = "choro",
-       var="nbObsLisse",
+       var = "nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
        border = NA, # C'est ici que ça se passe
        # lwd=1,
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 1000m, sans grille",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -982,30 +980,30 @@ mf_layout(title = "Lissage avec rayon de 1000m, sans grille",
 #| code-fold: true
 #| code-summary: code lissage
 #| code-line-numbers: 4-5
-dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
+dataLissage <- dfBase_filtre[, c("nbObsLisse", "x", "y")]
 sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = 50, 
-                                    iBandwidth = 1000)
+                              sEPSG = "2154",
+                              iCellSize = 50, 
+                              iBandwidth = 1000)
 # Filtrage des carreaux lissés dans Paris
-sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[,"geometry"],left=F)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[, "geometry"], left = F)
 ```
 
 ```{r reslissPetitscarr}
 #| code-fold: true
 #| code-summary: code carto
 
-mf_init(x=sfCarrLiss_paris,theme = "agolalight")
+mf_init(x=sfCarrLiss_paris)
 mf_map(x = sfCarrLiss_paris, 
        type = "choro",
-       var="nbObsLisse",
+       var = "nbObsLisse",
        breaks = "quantile",
        nbreaks = 5,
        border = NA,
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Lissage avec pas de 50m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
@@ -1030,29 +1028,29 @@ mf_layout(title = "Lissage avec pas de 50m",
 ```{r lissEffetBord1, results='hide'}
 #| code-fold: true
 #| code-summary: code lissage
-dataLissage <- dfBase_filtre[,c("nbObsLisse","x","y")]
+dataLissage <- dfBase_filtre[,c("nbObsLisse", "x", "y")]
 sfCarLiss <- btb::btb_smooth(pts = dataLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = 200, 
-                                    iBandwidth = 2000)
-sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left = F)
+                             sEPSG = "2154",
+                             iCellSize = 200, 
+                             iBandwidth = 2000)
+sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = F)
 ```
 
 ```{r lissEffetBord2}
 #| code-fold: true
 #| code-summary: code carte
-mf_init(x=sfCarLiss_paris,theme = "agolalight")
+mf_init(x=sfCarLiss_paris)
 mf_map(x = sfCarLiss_paris, 
        type = "choro",
-       var="nbObsLisse",
-       breaks = c(0,3,5,7,9,17),
+       var = "nbObsLisse",
+       breaks = c(0, 3, 5, 7, 9, 17),
        # nbreaks = 5,
        border = NA,
        leg_val_rnd = 1,
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Sans effets de bord, avec R=2000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -1069,37 +1067,37 @@ mf_layout(title = "Sans effets de bord, avec R=2000m",
 #| code-fold: true
 #| code-summary: code lissage
 #| code-line-numbers: 1-9
-sfBase_intramuros <- sfBase %>% st_join(paris_sf,left=F)
+sfBase_intramuros <- sfBase %>% st_join(paris_sf, left = F)
 dfBase_intramuros <- sfBase_intramuros %>% 
-  mutate(x=st_coordinates(geometry)[,1],
-         y=st_coordinates(geometry)[,2],
-         nbObsLisse=1) %>% 
+  mutate(x = st_coordinates(geometry)[, 1],
+         y = st_coordinates(geometry)[, 2],
+         nbObsLisse =1) %>% 
   st_drop_geometry() %>% 
-  select(nbObsLisse,x,y)
+  select(nbObsLisse, x, y)
 
 sfCarLiss_intramuros <- btb::btb_smooth(pts = dfBase_intramuros, 
                                     sEPSG = "2154",
                                     iCellSize = 200, 
                                     iBandwidth = 2000)
 sfCarLiss_intramuros_paris <- sfCarLiss_intramuros %>%
-  st_join(paris_sf,left = F)
+  st_join(paris_sf, left = F)
 ```
 
 ```{r resEffetBord2, eval=TRUE}
 #| code-fold: true
 #| code-summary: code carte
-mf_init(x=sfCarLiss_intramuros_paris,theme = "agolalight")
+mf_init(x = sfCarLiss_intramuros_paris)
 mf_map(x = sfCarLiss_intramuros_paris, 
        type = "choro",
-       var="nbObsLisse",
-       breaks = c(0,3,5,7,9,17),
+       var = "nbObsLisse",
+       breaks = c(0, 3, 5, 7, 9, 17),
        # nbreaks = 5,
        border = NA,
        leg_val_rnd = 1, 
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Avec effets de bord, avec R=2000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -1143,8 +1141,8 @@ La grille **par défaut** produite par `btb::btb_smooth` dépasse les limites de
 #| code-summary: code carte
 mapview(sfCarLiss_intramuros %>%
           st_cast("MULTILINESTRING"), lwd = 2,
-        layer.name="Grille automatique") +
-  mapview(contourParis,color="red",lwd=10) 
+        layer.name ="Grille automatique") +
+  mapview(contourParis, color = "red", lwd = 10) 
 ```
 
 :::
@@ -1174,7 +1172,7 @@ Modification possible de cette règle avec le paramètre `iNeighbor` :
 
 ::::: {.textmini2}
 
-```{r, include=FALSE}
+```{r, include = FALSE}
 sfCarLiss_intramuros <- btb::btb_smooth(
   pts = dfBase_intramuros, 
   sEPSG = "2154",
@@ -1183,7 +1181,7 @@ sfCarLiss_intramuros <- btb::btb_smooth(
   iNeighbor = 0)
 ```
 
-```{r, eval=FALSE}
+```{r, eval= FALSE}
 #| code-fold: true
 #| code-summary: code lissage
 #| code-line-numbers: "6"
@@ -1201,8 +1199,8 @@ sfCarLiss_intramuros <- btb::btb_smooth(
 #| code-fold: true
 #| code-summary: code carte
 mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"),
-        lwd=2,layer.name="Grille iNeighbor = 0") +
-  mapview(contourParis,color="red",lwd=10) 
+        lwd = 2, layer.name = "Grille iNeighbor = 0") +
+  mapview(contourParis, color = "red", lwd = 10) 
 ```
 
 :::::
@@ -1280,13 +1278,13 @@ le lissage en moyenne est potentiellement sensible aux **valeurs atypiques** (co
 #| code-summary: code lissage
 #| code-line-numbers: "1"
 
-dataLissage <- dfBase_filtre[,c("nbObsLisse","valeur_fonciere","x","y")] 
+dataLissage <- dfBase_filtre[, c("nbObsLisse", "valeur_fonciere", "x", "y")] 
 
 # Lissage
 sfCarLiss <- btb::btb_smooth(pts = dataLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = 100, 
-                                    iBandwidth = 800)
+                             sEPSG = "2154",
+                             iCellSize = 100, 
+                             iBandwidth = 800)
 sfCarLiss
 ```
 
@@ -1299,19 +1297,19 @@ sfCarLiss
 sfCarLiss$prixMoyen <- sfCarLiss$valeur_fonciere / sfCarLiss$nbObsLisse
 
 # Cartographie
-sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
-mf_init(x=sfCarLiss_paris,theme = "agolalight")
+sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = F)
+mf_init(x = sfCarLiss_paris)
 mf_map(x = sfCarLiss_paris, 
        type = "choro",
-       var="prixMoyen",
+       var = "prixMoyen",
        breaks = "quantile",
        nbreaks = 5,
-       border=NA,
+       border = NA,
        leg_val_rnd = 1, 
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
@@ -1319,8 +1317,6 @@ mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",
 :::
 
 :::: 
-
-
 
 
 
@@ -1360,30 +1356,30 @@ dfBase_filtre$quatrePieces <- ifelse(
   dfBase_filtre$nombre_pieces_principales >= 4, 1, 0)
 
 # Lissage des variables `quatrePieces` et `nbObsLisse`
-dataLissage <- dfBase_filtre[,c("nbObsLisse","quatrePieces","x","y")]
+dataLissage <- dfBase_filtre[,c("nbObsLisse", "quatrePieces", "x", "y")]
 sfCarLiss <- btb::btb_smooth(pts = dataLissage, 
-                                    sEPSG = "2154",
-                                    iCellSize = 100, 
-                                    iBandwidth = 800)
+                             sEPSG = "2154",
+                             iCellSize = 100, 
+                             iBandwidth = 800)
 # Calculer le taux
 sfCarLiss$txQuatrePieces <- sfCarLiss$quatrePieces / sfCarLiss$nbObsLisse
 
 # Intersection géographique avec Paris
-sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf,left=F)
+sfCarLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = F)
 
 # Carto
-mf_init(x=sfCarLiss_paris,theme = "agolalight")
+mf_init(x = sfCarLiss_paris)
 mf_map(x = sfCarLiss_paris, 
        type = "choro",
-       var="txQuatrePieces",
+       var = "txQuatrePieces",
        breaks = "quantile",
        nbreaks = 5,
-       border=NA,
+       border = NA,
        leg_val_rnd = 1, 
        add = TRUE)
 mf_map(x = contourParis, 
-       lwd=4,
-       col="black",add = TRUE)
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
@@ -1429,12 +1425,12 @@ Si on lisse le prix au m² de chaque logement vendu, on sur-pondère artificiell
 #| code-fold: true
 #| code-summary: code lissage
 #| code-line-numbers: "1,8"
-dataLissage <- dfBase_filtre[,c("surface_reelle_bati","valeur_fonciere","x","y")]
+dataLissage <- dfBase_filtre[, c("surface_reelle_bati", "valeur_fonciere", "x", "y")]
 
 sfCarLiss <- btb::btb_smooth(pts = dataLissage,
-                                    sEPSG = "2154",
-                                    iCellSize = 100,
-                                    iBandwidth = 800)
+                             sEPSG = "2154",
+                             iCellSize = 100,
+                             iBandwidth = 800)
 # Calculer le prix au m²
 sfCarLiss$prixM2 <- sfCarLiss$valeur_fonciere / sfCarLiss$surface_reelle_bati
 ```
@@ -1444,20 +1440,20 @@ sfCarLiss$prixM2 <- sfCarLiss$valeur_fonciere / sfCarLiss$surface_reelle_bati
 #| code-summary: code carte
 #| code-line-numbers: "6"
 
-sfCarLiss_paris <- sfCarLiss[unlist(st_intersects(paris_sf,sfCarLiss)),]
+sfCarLiss_paris <- sfCarLiss[unlist(st_intersects(paris_sf, sfCarLiss)), ]
 
-mf_init(x = sfCarLiss_paris,theme = "agolalight")
+mf_init(x = sfCarLiss_paris)
 mf_map(x = sfCarLiss_paris,
        type = "choro",
-       var="prixM2",
+       var = "prixM2",
        breaks = "quantile",
        nbreaks = 5,
-       border=NA,
+       border = NA,
        leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = st_cast(paris_sf[,c("geometry")],"MULTILINESTRING"),
-       lwd=4,
-       col="black",add = TRUE)
+mf_map(x = st_cast(paris_sf[, c("geometry")], "MULTILINESTRING"),
+       lwd = 4,
+       col = "black", add = TRUE)
 mf_layout(title = "Prix au m² (rayon de 800m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
@@ -1517,7 +1513,7 @@ mf_layout(title = "Prix au m² (rayon de 800m)",
 <!-- ```{r, results='hide'} -->
 <!-- #| code-line-numbers: "6" -->
 
-<!-- dataLissage <- dfBase_filtre[,c("valeur_fonciere","x","y")] -->
+<!-- dataLissage <- dfBase_filtre[,c("valeur_fonciere", "x", "y")] -->
 <!-- sfCarLiss <- btb::btb_smooth(pts = dataLissage, -->
 <!--                                     sEPSG = "2154", -->
 <!--                                     iCellSize = 100, -->
@@ -1525,13 +1521,13 @@ mf_layout(title = "Prix au m² (rayon de 800m)",
 <!--                                     vQuantiles = c(0.1, 0.5, 0.9)) -->
 <!-- ``` -->
 
-<!-- ```{r, echo=FALSE} -->
+<!-- ```{r, echo = FALSE} -->
 
-<!-- #saveRDS(sfCarLiss,"sfCarLiss_quantiles.RDS") -->
+<!-- #saveRDS(sfCarLiss, "sfCarLiss_quantiles.RDS") -->
 
 <!-- object <- "r-lissage-spatial/sfCarLiss_quantiles.RDS" -->
 
-<!-- url_file <- url(paste0(url_bucket,bucket,"/",object)) -->
+<!-- url_file <- url(paste0(url_bucket,bucket, "/", object)) -->
 
 <!-- sfCarLiss <- readRDS(url_file) -->
 
@@ -1676,14 +1672,13 @@ Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans
 1.  Import et visualisation de la zone à façon « Triangle d'or ». Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `sf::st_read`.
 
 ```{r triangleOrLoad, results = 'hide'}
-chemin_file <- paste0(url_bucket,bucket,
+chemin_file <- paste0(url_bucket, bucket,
        "/r-lissage-spatial/triangle_or.kml")
 triangleOr <- st_read(chemin_file)
 ```
 
-```{r triangleOr1,eval=FALSE}
-mapview(triangleOr,
-  col.regions="#ffff00")
+```{r triangleOr1, eval = FALSE}
+mapview(triangleOr, col.regions = "#ffff00")
 ```
 ::::: 
 
@@ -1692,9 +1687,8 @@ mapview(triangleOr,
 ::: {.column width="40%"}
 
 
-```{r triangleOr2,echo=FALSE}
-mapview(triangleOr,
-  col.regions="#ffff00")
+```{r triangleOr2, echo = FALSE}
+mapview(triangleOr, col.regions = "#ffff00")
 ```
 
 
@@ -1721,12 +1715,11 @@ mapview(triangleOr,
 # Attention au système de projection.
 st_crs(triangleOr)[["input"]]
 # Transformation en Lambert93
-triangleOr <- st_transform(triangleOr,
-                           crs = 2154) 
+triangleOr <- st_transform(triangleOr, crs = 2154) 
 
 # Intersection géographique
 transac_triangle <- sfBase %>%
-  st_join(triangleOr[,"geometry"],left=F)
+  st_join(triangleOr[, "geometry"], left = F)
 ```
 
 
@@ -1739,8 +1732,7 @@ transac_triangle <- sfBase %>%
 ```{r dviTriangleMap}
 
 mapview(transac_triangle) +
-mapview(triangleOr,
- col.regions = "#ffff00")
+  mapview(triangleOr, col.regions = "#ffff00")
 
 ```
 :::
@@ -1772,7 +1764,7 @@ mean(transac_triangle$valeur_fonciere)
 
 <!-- Objectif : obtenir la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee. -->
 
-<!-- On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire=4176305). -->
+<!-- On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire =4176305). -->
 
 <!-- ::: {.boite data-latex=""} -->
 <!-- **Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées. -->
@@ -1807,9 +1799,9 @@ mean(transac_triangle$valeur_fonciere)
 <!-- head(carreaux) -->
 <!-- ``` -->
 
-<!-- ```{r echo=FALSE} -->
+<!-- ```{r echo = FALSE} -->
 
-<!-- url_file <- url(paste0(url_bucket,bucket,"/r-lissage-spatial/carreaux_idf.RDS")) -->
+<!-- url_file <- url(paste0(url_bucket,bucket, "/r-lissage-spatial/carreaux_idf.RDS")) -->
 
 <!-- carreaux <- readRDS(url_file) -->
 
@@ -1843,7 +1835,7 @@ mean(transac_triangle$valeur_fonciere)
 <!-- ::: -->
 
 <!-- ```{r zoneAFacon2} -->
-<!-- carreaux_select <- carreaux %>% st_join(buffer_white,left=F) -->
+<!-- carreaux_select <- carreaux %>% st_join(buffer_white,left= F) -->
 <!-- ``` -->
 
 <!-- ------------------------------------------------------------------------ -->
@@ -1856,7 +1848,7 @@ mean(transac_triangle$valeur_fonciere)
 
 <!-- ```{r zoneAFacon3} -->
 <!-- mapview(carreaux_select)+ -->
-<!--   mapview(buffer_white,color="#ffff00",lwd=10,alpha.regions=0,legend=F) -->
+<!--   mapview(buffer_white,color="#ffff00",lwd=10,alpha.regions=0,legend= F) -->
 <!-- ``` -->
 
 <!-- ------------------------------------------------------------------------ -->

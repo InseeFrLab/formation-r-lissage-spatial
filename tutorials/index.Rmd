@@ -1,7 +1,7 @@
 ---
 title: "Formation au carroyage et lissage spatial sur R"
-author: "Kim Antunez et Julien Pramil"
-date: "Dernière modification : 01 décembre 2022"
+author: "Kim Antunez et Solène Colin"
+date: "Dernière modification : mars 2024"
 output:
   prettydoc::html_pretty:
     theme: architect

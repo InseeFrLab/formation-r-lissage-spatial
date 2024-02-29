@@ -63,7 +63,7 @@ header .inner .author, header .inner .date {
 
 # Bienvenue dans cet espace de formation !
 
-En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santo et François Sémécurbe).
+En 2018, le PSAR analyse urbaine, ancêtre de la section analyse urbaine à la direction générale de l'Insee, a développé un package R, nommé `btb` (auteurs : Arlindo Dos Santos et François Sémécurbe).
 
 Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **carroyage** et un **lissage** sur des données géolocalisées avec R. 
 
@@ -85,6 +85,15 @@ Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **
 </br>
 </br>
 </br>
+
+## Crédits (Division Statistiques et Analyses Urbaines)
+
+- Cette formation s'inspire d'une formation élaborée par Arlindo Dos Santos en 2018-2019
+
+- Elle a été refondue par Julien Pramil principalement, et Kim Antunez en co-animatrice, en 2021 en y intégrant, notamment, les données en open-data DVF
+
+- Elle est animée depuis 2024 par Solène Colin avec l'appui de Kim Antunez
+
 
 **Pour réaliser les exercices depuis la plateforme SSPCloud du Service Statistique Public** :
 

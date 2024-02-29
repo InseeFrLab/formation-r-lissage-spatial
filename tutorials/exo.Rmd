@@ -114,7 +114,7 @@ package.check <- lapply(
 
 ## Chargement des données
 
-Le code ci-dessous permet d'importer les données utilisées dans ce tutoriel. Elles sont stockées sous Minio, dans le «\ bucket public\ » : **s3/projet-formation/r-lissage-spatial/**.
+Le code ci-dessous permet d'importer les données utilisées dans ce tutoriel. Elles sont stockées sous Minio, dans le «\ bucket public\ » : `s3/projet-formation/r-lissage-spatial/`.
 
 Quelques informations concernant ces jeux de données : 
 
@@ -135,6 +135,21 @@ Quelques informations concernant ces jeux de données :
 bucket <- "projet-formation"
 ```
 
+```{r echo = TRUE, message = FALSE, warning = FALSE}
+url_bucket <- "https://minio.lab.sspcloud.fr/"
+
+object <- "r-lissage-spatial/parking.RDS"
+download.file(paste0(url_bucket, bucket, "/", object), destfile = "parking.RDS")
+parkings <- readRDS("parking.RDS")
+
+object <- "r-lissage-spatial/bordeaux_centre.gpkg"
+centreBdx <- st_read(paste0(url_bucket, bucket, "/", object))
+```
+
+
+Pour information si vous voulez travailler dans le SSPCloud, l'importation peut se faire de cette manière : 
+
+
 ```{r chargDonnees, echo = TRUE, eval = FALSE}
 parkings <- 
   aws.s3::s3read_using(
@@ -154,19 +169,6 @@ centreBdx <-
     opts = list("region" = "")
   )
 
-```
-
-Pour information si vous voulez travailler en dehors du SSPCloud, l'importation peut se faire de cette manière : 
-
-```{r echo = TRUE, message = FALSE, warning = FALSE}
-url_bucket <- "https://minio.lab.sspcloud.fr/"
-
-object <- "r-lissage-spatial/parking.RDS"
-download.file(paste0(url_bucket, bucket, "/", object), destfile = "parking.RDS")
-parkings <- readRDS("parking.RDS")
-
-object <- "r-lissage-spatial/bordeaux_centre.gpkg"
-centreBdx <- st_read(paste0(url_bucket, bucket, "/", object))
 ```
 
 ## Fonction de cartographie `genercarte`
@@ -253,7 +255,7 @@ mapview(centreBdx)
 ```
 
 ```{block, opts.label = "clues"}
-2. Pour cartographier avec `mapview`, on additionne les couches vectorielles avec un `+` : `mapview(polygone)+mapview(points)`. 
+2. Pour cartographier avec `mapview`, on additionne les couches vectorielles avec un `+` : `mapview(polygone) + mapview(points)`. 
 ```
 
 ```{r exo3solu,echo = TRUE, eval = FALSE, solution = TRUE}
@@ -277,7 +279,7 @@ Dans le cas présent, le petit nombre de parkings ne rend pas indispensable cett
 Elle permet néanmoins de s'approprier un peu plus la structure spatiale des données avec le lissage. 
 
 ```{block, box.title = "Exercice 4", box.body = list(fill = "white"), box.icon = "fa-star"}
-1. Créer une constante `iCellSize <- 1000` correspondant à la taille des carreaux souhaités
+1. Créer une constante `iCellSize <- 1000` correspondant à la taille des carreaux souhaitée
 2. Créer la table `centroides` contenant les centroïdes `x_centro` et `y_centro` des carreaux de 1000m à partir de la table `parkings`.
 3. Comptabiliser le nombre de parkings contenus dans chaque carreau et créer une nouvelle variable `nbParkings`.
 
@@ -287,14 +289,14 @@ Elle permet néanmoins de s'approprier un peu plus la structure spatiale des don
 ```{block, opts.label = "clues"}
 2. Utiliser la fonction btb_add_centroids
 
-Pour information, les variables `x_centro` et `y_centro` correspondant respectivement aux variables `x` et `y` auxquelles : 
+Pour information, les variables `x_centro` et `y_centro` correspondent respectivement aux variables `x` et `y` auxquelles : 
 
   - On retire le reste de leurs divisions euclidiennes modulo 1000 pour déterminer le point en bas à gauche du carreau de 1km.
   - Puis on ajoute 1000/2 pour tomber sur le centre du carreau
 ```
 
 ```{block, opts.label = "clues"}
-3. En groupant la base de parkings sur le couple de centroides, on aboutit à la base souhaitée.
+3. En groupant la base de parkings sur le couple de centroïdes, on aboutit à la base souhaitée.
 ```
 
 
@@ -703,7 +705,7 @@ bucket <- "projet-formation"
 object = "/r-lissage-spatial/carreaux_200m_met.gpkg"
 
 st_read_maison <- function(chemin_tab){
-  requete <- "SELECT idcar_200m, lcog_geo, i_est_200, men, log_soc, geom
+  requete <- "SELECT idcar_200m, lcog_geo, ind, geom
             FROM carreaux_200m_met
             WHERE SUBSTR(lcog_geo, 1, 2) IN ('33')"
   sf::st_read(chemin_tab, query = requete)
@@ -746,7 +748,7 @@ mapview(carreaux_centreBdx, col.regions = "#ffff00")
 
 
 # 4. Combien d'habitants dans le centre de Bordeaux ?
-cat("Il y a approximativement ", sum(carreaux_centreBdx$Ind), " habitants dans le centre de Bordeaux")
+cat("Il y a approximativement ", sum(carreaux_centreBdx$ind), " habitants dans le centre de Bordeaux")
 ```
 
 

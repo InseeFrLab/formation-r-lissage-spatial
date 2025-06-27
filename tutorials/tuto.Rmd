@@ -340,16 +340,11 @@ Pour sélectionner les données individuelles d'intérêt pour le lissage, on pe
 # Repérer les coordonnées extrêmes, avec une marge (ici 2km)
 bufferBbox
 
-xMin <- bufferBbox["xmin"]
-xMax <- bufferBbox["xmax"]
-yMin <- bufferBbox["ymin"]
-yMax <- bufferBbox["ymax"]
-
 # Ne garder que les données dans le rectangle englobant, sans traitement vectoriel !
-dfBase_filtre <- dfBase[dfBase$x >= xMin &
-                          dfBase$x <= xMax &
-                          dfBase$y >= yMin &
-                          dfBase$y <= yMax, ]
+dfBase_filtre <- dfBase[dfBase$x >= bufferBbox["xmin"] &
+                          dfBase$x <= bufferBbox["xmax"] &
+                          dfBase$y >= bufferBbox["ymin"] &
+                          dfBase$y <= bufferBbox["ymax"], ]
 dim(dfBase_filtre)
 dim(dfBase)
 

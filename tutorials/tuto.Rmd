@@ -318,11 +318,12 @@ mapviewOptions(
   )
 )
 # Cartographie pédagogique avec mapview
-mapview(paris_sf, col.regions = "#26cce7")+
+map <- mapview(paris_sf, col.regions = "#26cce7")+
   mapview(bufferBbox_sf %>% st_cast("MULTILINESTRING"),
           color = "#FFC300", lwd = 6) +
   mapview(bbox_sf %>% st_cast("MULTILINESTRING"),
           color = "#229954", lwd = 6)
+print(map)
 
 ```
 
@@ -392,11 +393,12 @@ buffer_sf$nom <- "buffer"
 sfBase_sample <- sfBase_filtre[sample(1:nrow(sfBase_filtre), 2000), ]
 
 # Cartographie pédagogique avec mapview
-mapview(paris_sf, col.regions = "#26cce7")+
+map <- mapview(paris_sf, col.regions = "#26cce7")+
   mapview(buffer_sf %>% st_cast("MULTILINESTRING"),
           color = "#FFC300", lwd = 6) +
   mapview(sfBase_sample, 
           alpha = 0, cex = 2)
+print(map)
 ```
 
 

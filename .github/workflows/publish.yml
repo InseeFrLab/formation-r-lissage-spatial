@@ -23,9 +23,6 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
 #      - uses: r-lib/actions/setup-renv@v2
 
-    # - name: Check Pandoc version
-        # run: pandoc --version
-
       - name: Install R dependencies
         run: |
           Rscript -e 'install.packages(c("remotes"))'
@@ -36,12 +33,6 @@ jobs:
           Rscript -e 'install.packages(c("rmarkdown","prettydoc","rmdformats","mapview"))' #,"quarto"
           Rscript -e "remotes::install_github('koncina/unilur')"
  
-       - name: Render Rmd
-        run: |
-          Rscript -e "rmarkdown::render('tutorials/index.Rmd')"
-          Rscript -e "rmarkdown::render('tutorials/tuto.Rmd')"
-          Rscript -e "rmarkdown::render('tutorials/exo.Rmd')"
-          
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
           
@@ -51,6 +42,12 @@ jobs:
           path: tutorials/tuto_presentation.qmd
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Render Rmd
+        run: |
+          Rscript -e "rmarkdown::render('tutorials/index.Rmd')"
+          Rscript -e "rmarkdown::render('tutorials/tuto.Rmd')"
+          Rscript -e "rmarkdown::render('tutorials/exo.Rmd')"
 
       - name: Publish html
         run: |
@@ -63,3 +60,4 @@ jobs:
           build_dir: build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          

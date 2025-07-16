@@ -2,7 +2,7 @@
 title: "<center>Formation au carroyage et lissage spatial sur R </br></br>TUTORIEL</br></br><img src= 'https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png' width= '20%'></center>"
 pagetitle: "Tutoriel - Formation au carroyage et lissage spatial sur R"
 author: "Kim Antunez et Solène Colin"
-date: "Dernière mise à jour : mars 2024"
+date: "Dernière mise à jour : été 2025"
 output: 
   rmdformats::robobook:
     highlight: kate
@@ -57,7 +57,7 @@ Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **
 
 - Cette formation s'inspire d'une formation élaborée par Arlindo Dos Santos en 2018-2019
 - Elle a été refondue par Julien Pramil principalement, et Kim Antunez en co-animatrice, en 2021 en y intégrant, notamment, les données en open-data DVF
-- Elle est animée depuis 2024 par Solène Colin avec l'appui de Kim Antunez
+- Elle est animée depuis 2024 par Solène Colin
 
 
 ## Avertissements
@@ -139,7 +139,7 @@ mapviewOptions(
 
 ## Chargement de la base
 
-Pour ce TP, nous utilisons la base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) », ou DVF, qui recense l'ensemble des ventes de biens fonciers réalisées au cours des cinq dernières années, en métropole et dans les départements et territoires d'outre-mer — sauf à Mayotte et en Alsace-Moselle. Les biens concernés peuvent être bâtis (appartement et maison) ou non bâtis (parcelles et exploitations). Les données sont produites par la Direction générale des finances publiques. Elles proviennent des actes enregistrés chez les notaires et des informations contenues dans le cadastre.
+Pour ce TP, nous utilisons la base « [**D**emandes de **V**aleurs **F**oncières](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/) » (DVF), qui recense l'ensemble des ventes de biens fonciers réalisées au cours des cinq dernières années, en métropole et dans les départements et territoires d'outre-mer — sauf à Mayotte et en Alsace-Moselle. Les biens concernés peuvent être bâtis (appartement et maison) ou non bâtis (parcelles et exploitations). Les données sont produites par la Direction Générale des Finances Publiques (DGFiP). Elles proviennent des actes enregistrés chez les notaires et des informations contenues dans le cadastre.
 
 À partir de cette source, nous avons constitué une base de données qui s'intéresse uniquement au périmètre de la **petite couronne parisienne** (départements 75, 92, 93 et 94) et au **millésime 2021**.
 
@@ -156,46 +156,44 @@ La base contient les **8 variables** suivantes :
 
 Pour information, le code ayant permis de constituer la base de données est disponible sur le [répertoire github de la formation](https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R).
 
-**Remarque importante** : Cette base a été filtrée de manière à être la plus pédagogique possible pour cette formation. Elle n'est donc ni représentative de la réalité ni fidèle au champ proposé par le producteur. En somme, mieux vaut donc de pas appuyer vos investissements immobiliers sur les résultats de ce TP.
+**Remarque importante** : Cette base a été filtrée de manière à être la plus pédagogique possible pour cette formation. Elle n'est donc ni représentative de la réalité ni fidèle au champ proposé par le producteur. En somme, mieux vaut donc de pas appuyer vos investissements immobiliers sur les résultats de ce TP !
 
 Le code ci-dessous permet d'importer la première base de données `ventesImmo_couronneParis.RDS` utilisée dans ce tutoriel. Elle est stockée sous Minio, dans le "bucket public" : s3/projet-formation/r-lissage-spatial/. Nous téléchargeons cette base grâce à son URL public, puis on la charge dans R.
 
 ```{r chargeBase}
-url_bucket <- "https://minio.lab.sspcloud.fr/"
-bucket <- "projet-formation"
-object <- "r-lissage-spatial/ventesImmo_couronneParis.RDS"
+url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial"
+object <- "ventesImmo_couronneParis.RDS"
 
 # Charger la source de données (variable nommée dfBase) depuis l'URL
-url_file <- url(paste0(url_bucket, bucket, "/", object))
+url_file <- url(paste0(url_bucket, "/", object))
 dfBase <- readRDS(url_file)
 ```
 
+<!-- Pour les personnes utilisant l'environnement de développement du SSPCloud, il est possible d'utiliser le package `aws.s3` pour charger les données stockées dans le cloud `Minio` de l'Insee. Ce package permet un chargement des données plus rapide qu'un chargement classique. -->
 
-Pour les personnes utilisant l'environnement de développement du SSPCloud, il est possible d'utiliser le package `aws.s3` pour charger les données stockées dans le cloud `Minio` de l'Insee. Ce package permet un chargement des données plus rapide qu'un chargement classique.
+<!-- ```{r message = FALSE, warning= FALSE} -->
+<!-- # Chunk permettant d'utiliser les données S3. -->
 
-```{r message = FALSE, warning= FALSE}
-# Chunk permettant d'utiliser les données S3.
+<!-- if (!require("aws.s3", character.only = TRUE)) { -->
+<!--       install.packages("aws.s3",repos = "https://cloud.R-project.org", -->
+<!--                        dependencies = TRUE, quiet = TRUE) -->
+<!--       library("aws.s3", character.only = TRUE) -->
+<!--     } -->
 
-if (!require("aws.s3", character.only = TRUE)) {
-      install.packages("aws.s3",repos = "https://cloud.R-project.org",
-                       dependencies = TRUE, quiet = TRUE)
-      library("aws.s3", character.only = TRUE)
-    }
+<!-- ``` -->
 
-```
+<!-- L'équivalent du chargement des données en utilisant la library `aws.s3` (uniquement depuis une session SSPCloud) :  -->
 
-L'équivalent du chargement des données en utilisant la library `aws.s3` (uniquement depuis une session SSPCloud) : 
-
-```{r eval = FALSE}
-dfBase <-
-  aws.s3::s3read_using(
-    FUN = base::readRDS,
-    object = object,
-    bucket = bucket
-    ,
-    opts = list("region" = "")
-  )
-```
+<!-- ```{r eval = FALSE} -->
+<!-- dfBase <- -->
+<!--   aws.s3::s3read_using( -->
+<!--     FUN = base::readRDS, -->
+<!--     object = object, -->
+<!--     bucket = bucket -->
+<!--     , -->
+<!--     opts = list("region" = "") -->
+<!--   ) -->
+<!-- ``` -->
 
 On peut ensuite manipuler notre base de données chargée en mémoire.
 
@@ -204,7 +202,6 @@ On peut ensuite manipuler notre base de données chargée en mémoire.
 head(dfBase)
 dim(dfBase)
 ```
-
 
 ## Chargement des données cartographiques
 
@@ -225,7 +222,7 @@ Récupérons le contour du territoire étudié avec la fonction `st_read` du pac
 
 ```{r chargeContour}
 # Charger le fond de carte du territoire étudié
-chemin_file <- paste0(url_bucket, bucket, "/r-lissage-spatial/depCouronne.gpkg")
+chemin_file <- paste0(url_bucket, "/depCouronne.gpkg")
 depCouronne_sf <- sf::st_read(chemin_file)
 
 # Visualisons cette couche vectorielle
@@ -233,12 +230,12 @@ head(depCouronne_sf)
 plot(depCouronne_sf$geom)
 
 # On renomme la variable "geom" en "geometry" par convention
-depCouronne_sf <- depCouronne_sf %>% rename(geometry=geom)
+depCouronne_sf <- depCouronne_sf %>% rename(geometry = geom)
 ```
 
 Une fois les départements chargés, nous allons sélectionner le contour de la commune de Paris.
 
-```{r}
+```{r visu_paris}
 # Sélection de Paris
 paris_sf <- depCouronne_sf[depCouronne_sf$code == "75", ]
 
@@ -264,66 +261,9 @@ paris_sf <- sf::st_transform(paris_sf, crs = 2154)
 
 **Pour éviter les effets de bord**, il faut sélectionner des données au-delà de notre zone d'intérêt (ici Paris intramuros). Autrement, si on ne sélectionne que les ventes immobilières situées dans Paris intramuros, et qu'on lisse ce nuage de points, les zones situées à proximité du périphérique seront artificiellement peu denses en ventes immobilières. En effet, elles sont situées à proximité de zones artificiellement vides en ventes immobilières dans notre nuage de points, à savoir dans les communes limitrophes. Pourtant, dans la réalité, il y a bien des ventes réalisées à Malakoff, Vanves, Montrouge, etc. Et ces ventes influencent la densité lissée aux niveau de la Porte de Vanves. 
 
-#### Première méthode (sélection **non-géométrique** des ventes)
+#### Première méthode : sélection **non-géométrique** des ventes
 
-Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros. 
-
-L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans le rectangle. Cette méthode est très efficace d'un point de vue calculatoire, mais requiert de construire au préalable un rectangle adapté.
-
-```{r creaBbox}
-# Création d'une bbox autour du territoire
-bbox <- sf::st_bbox(paris_sf)
-bbox
-
-# Création d'un buffer de la bbox, avec une marge de 2000 mètres
-marge <- 2000
-bufferBbox <- bbox
-bufferBbox[["xmin"]] <- bufferBbox[["xmin"]] - marge
-bufferBbox[["xmax"]] <- bufferBbox[["xmax"]] + marge
-bufferBbox[["ymin"]] <- bufferBbox[["ymin"]] - marge
-bufferBbox[["ymax"]] <- bufferBbox[["ymax"]] + marge
-bufferBbox
-
-```
-
-Schéma explicatif des zones sélectionnées :
-
-```{r schemaBbox}
-# Petit rectangle vectoriel
-bbox_sf = st_sf(nom = "bbox", geometry = st_as_sfc(bbox), crs = 2154)
-
-# Grand rectangle vectoriel
-bufferBbox_sf = st_sf(nom = "buffer_bbox", geometry = st_as_sfc(bufferBbox), crs = 2154)
-
-# Cartographie pédagogique
-mf_map(bufferBbox_sf$geometry, col = "yellow")
-mf_base(bbox_sf$geometry, col = "green", add = T)
-mf_base(paris_sf, col = "blue", add = T)
-
-```
-
-Ce schéma présente : 
-
-- en bleu, le territoire d'intérêt (Paris)
-- en vert, la bbox du territoire d'intérêt (à savoir le plus petit rectangle englobant cette zone)
-- en jaune, la bbox élargie avec une marge de 2km. Autrement dit, la zone tampon autour de la bbox permettant de prendre en compte des observations au-delà de la seule zone d'intérêt, et d'ainsi éviter les effets de bord au moment du lissage.
-
-Pour sélectionner les données individuelles d'intérêt pour le lissage, on peut alors filtrer les observations dont les coordonnées sont comprises à l'intérieur du rectangle jaune. Ce filtre est très efficace computationnellement car il ne dépend que des valeurs numériques prises par les variables de longitude et de latitude et n'utilise pas les propriétés vectorielles des données qui sont des attributs plus chronophages à utiliser (cf. *infra*).
-
-
-```{r selectDonnee}
-# Ne garder que les données dans le rectangle englobant, sans traitement vectoriel !
-dfBase_filtre <- dfBase[dfBase$x >= bufferBbox["xmin"] &
-                          dfBase$x <= bufferBbox["xmax"] &
-                          dfBase$y >= bufferBbox["ymin"] &
-                          dfBase$y <= bufferBbox["ymax"], ]
-dim(dfBase_filtre)
-dim(dfBase)
-```
-
-#### Seconde méthode : la sélection **géométrique** des ventes
-
-La seconde méthode est géométrique ou vectorielle. Elle consiste à utiliser nos données individuelles comme un ensemble de points géolocalisés et procéder à des intersections géographiques.
+La première méthode est géométrique ou vectorielle. Elle consiste à utiliser nos données individuelles comme un ensemble de points géolocalisés et procéder à des intersections géographiques.
 
 Plus précisément : 
 
@@ -351,20 +291,83 @@ nrow(sfBase_filtre)
 head(sfBase_filtre)
 ```
 
-Cette méthode, bien qu'élégante, peut-être lourde d'un point de vue calculatoire. Avec des données volumineuses, il convient au minimum de faire un premier filtrage avec la précédente méthode.
+Cette méthode, bien qu'élégante, peut-être lourde d'un point de vue calculatoire. Avec des données volumineuses, il convient au minimum de faire un premier filtrage (par exemple avec la seconde méthode).
 
-Schéma, aperçu de la zone, du buffer et de 2000 points tirés aléatoirement dedans :
+Schéma explicatif des zones sélectionnées :
 
 ```{r schemaBuffer}
 # Échantillon de 2000 observations dans le buffer
-sfBase_sample <- sfBase_filtre[sample(1:nrow(sfBase_filtre), 2000), ]
+sfBase_sample <- sfBase[sample(1:nrow(sfBase), 2000), ]
 
 # Cartographie pédagogique
 mf_map(buffer_sf$geometry, col = "yellow")
 mf_base(paris_sf, col = "blue", add = T)
-mf_base(sfBase_sample$geometry, col = "green", add = T)
+mf_base(sfBase_sample$geometry, col = "red", add = T)
 ```
 
+Ce schéma présente : 
+
+- en bleu, le territoire d'intérêt (Paris)
+- en jaune, la zone tampon du territoire d'intérêt, avec une marge de 2 km
+- en rouge, 2000 points tirés au sort dans la base initiale : on enlèvera les points qui sont au-delà de la zone jaune.
+
+#### Seconde méthode sélection **non-géométrique** des ventes
+
+Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros. 
+
+L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans le rectangle. Cette méthode est très efficace d'un point de vue calculatoire, mais requiert de construire au préalable un rectangle adapté.
+
+```{r creaBbox}
+# Création d'une bbox autour du territoire
+bbox <- sf::st_bbox(paris_sf)
+bbox
+
+# Création d'un buffer de la bbox, avec une marge de 2000 mètres
+marge <- 2000
+bufferBbox <- bbox
+bufferBbox[["xmin"]] <- bufferBbox[["xmin"]] - marge
+bufferBbox[["xmax"]] <- bufferBbox[["xmax"]] + marge
+bufferBbox[["ymin"]] <- bufferBbox[["ymin"]] - marge
+bufferBbox[["ymax"]] <- bufferBbox[["ymax"]] + marge
+bufferBbox
+
+```
+
+Schéma explicatif des zones sélectionnées :
+
+```{r schemaBbox}
+# Petit rectangle vectoriel
+bbox_sf = st_sf(geometry = st_as_sfc(bbox), crs = 2154)
+
+# Grand rectangle vectoriel
+bufferBbox_sf = st_sf(geometry = st_as_sfc(bufferBbox), crs = 2154)
+
+# Cartographie pédagogique
+mf_map(bufferBbox_sf$geometry, col = "yellow")
+mf_base(bbox_sf$geometry, col = "green", add = T)
+mf_base(paris_sf, col = "blue", add = T)
+mf_base(sfBase_sample$geometry, col = "red", add = T)
+```
+
+Ce schéma présente : 
+
+- en bleu, le territoire d'intérêt (Paris)
+- en vert, la bbox du territoire d'intérêt (à savoir le plus petit rectangle englobant cette zone)
+- en jaune, la bbox élargie avec une marge de 2km. Autrement dit, la zone tampon autour de la bbox permettant de prendre en compte des observations au-delà de la seule zone d'intérêt, et d'ainsi éviter les effets de bord au moment du lissage
+- en rouge, 2000 points tirés au sort dans la base initiale : on enlèvera les points qui sont au-delà de la zone jaune.
+
+Pour sélectionner les données individuelles d'intérêt pour le lissage, on peut alors filtrer les observations dont les coordonnées sont comprises à l'intérieur du rectangle jaune. Ce filtre est très efficace computationnellement car il ne dépend que des valeurs numériques prises par les variables de longitude et de latitude et n'utilise pas les propriétés vectorielles des données qui sont des attributs plus chronophages à utiliser.
+
+
+```{r selectDonnee}
+# Ne garder que les données dans le rectangle englobant, sans traitement vectoriel !
+dfBase_filtre <- dfBase[dfBase$x >= bufferBbox["xmin"] &
+                          dfBase$x <= bufferBbox["xmax"] &
+                          dfBase$y >= bufferBbox["ymin"] &
+                          dfBase$y <= bufferBbox["ymax"], ]
+dim(dfBase_filtre)
+dim(dfBase)
+```
 
 # Carroyage de données
 
@@ -376,7 +379,7 @@ Avant de lisser les données ponctuelles, on peut souhaiter représenter ces don
 
 <!-- Le code ci-dessous procède de la sorte :  -->
 
-1. Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient (le territoire est découpé en carreaux de 200 mètres à partir de l'origine du référentiel). La fonction `btb_add_centroids` est faite pour cela.
+1. Associer chaque point (1 point = 1 vente géolocalisée) au centroïde du carreau auquel il appartient (le territoire est découpé en carreaux de 200 mètres à partir de l'origine du référentiel). La fonction `btb_add_centroids` est faite pour cela.
 
 ```{r carroyage1}
 iCellSize = 200 # Carreaux de 200m
@@ -413,18 +416,17 @@ carreaux <- carreaux %>% st_join(paris_sf, left = FALSE)
 On obtient alors ce carroyage des ventes dans Paris intramuros :
 
 ```{r carroyage5}
-contourParis <- st_cast(paris_sf[, c("geometry")], "MULTILINESTRING")
-
 mf_init(x = carreaux)
+mf_map(x = paris_sf, 
+       col = NA, 
+       lwd = 4,
+       add = TRUE)
 mf_map(x = carreaux,
        type = "choro",
        var = "nbVentes",
        breaks = "quantile",
        nbreaks = 5,
        leg_val_rnd = 1,
-       add = TRUE)
-mf_map(x = contourParis,
-       lwd = 4,
        add = TRUE)
 mf_layout(title = "Carroyage du nombre de ventes",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
@@ -496,9 +498,9 @@ Ci-dessous la grille carroyée obtenue (hors données lissées). On remarque qu'
 
 ```{r grilleCarrDefaut}
 mf_init(x = paris_sf)
-mf_map(x = st_cast(sfCarrLiss[, c("geometry")], "LINESTRING"), 
+mf_map(x = sfCarrLiss, col = NA, 
        lwd = 1, add = T)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, col = NA, 
        lwd = 8,
        col = "wheat", add = TRUE)
 mf_layout(title = "btb_smooth génère une grille carroyée",
@@ -949,10 +951,10 @@ sfCarLiss <- btb::btb_smooth(pts = dataLissage,
                                     vQuantiles = c(0.1, 0.5, 0.9))
 ```
 
-```{r, echo = FALSE}
-#saveRDS(sfCarLiss, "sfCarLiss_quantiles.RDS")
-object <- "r-lissage-spatial/sfCarLiss_quantiles.RDS"
-url_file <- url(paste0(url_bucket, bucket, "/", object))
+```{r, echo = FALSE, message = FALSE}
+# saveRDS(sfCarLiss, "sfCarLiss_quantiles.RDS")
+# chargement "à la main" pour faire tourner le support formation un peu plus vite 
+url_file <- url(paste0(url_bucket, "/sfCarLiss_quantiles.RDS"))
 sfCarLiss <- readRDS(url_file)
 sfCarLiss <- st_set_crs(sfCarLiss, 2154)
 ```
@@ -1048,7 +1050,7 @@ Nous procédons de la manière suivante :
 1. Import et visualisation de la zone à façon «\ Triangle d'or\ ». Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `sf::st_read`.
 
 ```{r triangleOr}
-chemin_file <- paste0(url_bucket, bucket, "/r-lissage-spatial/triangle_or.kml")
+chemin_file <- paste0(url_bucket, "/triangle_or.kml")
 triangleOr <- st_read(chemin_file)
 mapview(triangleOr, col.regions = "#ffff00")
 ```
@@ -1108,16 +1110,15 @@ st_read_maison <- function(chemin_tab){
 }
 
 # Chargement des données
-chemin_file <- paste0(url_bucket, bucket, 
-                    "/r-lissage-spatial/carreaux_200m_met.gpkg")
-carreaux <-  st_read_maison(chemin_file)
+chemin_file <- paste0(url_bucket, "/carreaux_200m_met.gpkg")
+carreaux <- st_read_maison(chemin_file)
 head(carreaux)
 ```
 
-```{r echo = FALSE}
+```{r echo = FALSE, message = FALSE}
 # saveRDS(carreaux, "carreaux_idf.RDS")
 # chargement "à la main" pour faire tourner le support formation un peu plus vite 
-url_file <- url(paste0(url_bucket, bucket, "/r-lissage-spatial/carreaux_idf.RDS"))
+url_file <- url(paste0(url_bucket, "/carreaux_idf.RDS"))
 carreaux <- readRDS(url_file)
 carreaux <- st_set_crs(carreaux, 2154)
 head(carreaux)

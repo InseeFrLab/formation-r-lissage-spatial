@@ -498,11 +498,11 @@ Ci-dessous la grille carroyée obtenue (hors données lissées). On remarque qu'
 
 ```{r grilleCarrDefaut}
 mf_init(x = paris_sf)
+mf_map(x = paris_sf, 
+       lwd = 8,
+       col = NA, border = "wheat", add = TRUE)
 mf_map(x = sfCarrLiss, col = NA, 
        lwd = 1, add = T)
-mf_map(x = paris_sf, col = NA, 
-       lwd = 8,
-       col = "wheat", add = TRUE)
 mf_layout(title = "btb_smooth génère une grille carroyée",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```

@@ -549,9 +549,9 @@ mf_map(x = sfCarrLiss_paris,
        nbreaks = 5,
        lwd = 1,
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 400m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -583,9 +583,9 @@ mf_map(x = sfCarrLiss_paris,
        nbreaks = 5,
        lwd = 1,
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 600m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -611,9 +611,9 @@ mf_map(x = sfCarrLiss_paris,
        nbreaks = 5,
        lwd = 1,
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 1000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -633,9 +633,9 @@ mf_map(x = sfCarrLiss_paris,
        border = NA, # C'est ici que ça se passe
        # lwd =1,
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd = 4,
-       col = "black",add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Lissage avec rayon de 1000m, sans grille",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -665,9 +665,9 @@ mf_map(x = sfCarrLiss_paris,
        nbreaks = 5,
        border = NA,
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Lissage avec pas de 50m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
@@ -702,9 +702,9 @@ mf_map(x = sfCarLiss_paris,
        border = NA,
        leg_val_rnd = 1,
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Sans effets de bord, avec R=2000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -726,7 +726,7 @@ sfCarLiss_intramuros_paris <- sfCarLiss_intramuros %>%
 ```
 
 ```{r resEffetBord2, echo = FALSE}
-mf_init(x=sfCarLiss_intramuros_paris)
+mf_init(x= sfCarLiss_intramuros_paris)
 mf_map(x = sfCarLiss_intramuros_paris, 
        type = "choro",
        var="nbObsLisse",
@@ -735,9 +735,9 @@ mf_map(x = sfCarLiss_intramuros_paris,
        border = NA,
        leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd =4,
-       col ="black",add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Avec effets de bord, avec R=2000m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -756,12 +756,9 @@ La grille obtenue dépasse Paris intramuros et contient :
 - ... mais aussi les 4 carreaux limitrophes de ces derniers (règle automatique^[cf. séquence 5 de la formation «\ Comment utiliser les outils de l’analyse urbaine ?\ »]) 
 
 ```{r grilleAuto}
-mapview(sfCarLiss_intramuros %>%
-          st_cast("MULTILINESTRING"), lwd = 2,
-        layer.name = "Grille automatique") +
-  mapview(contourParis, color = "red", lwd = 10) 
+mf_map(paris_sf, col = NA)
+mf_map(sfCarLiss_intramuros, col = NA, border = "red", add = T)
 ```
-
 
 Il est possible de modifier la règle de création de cette grille automatique en rensignant le paramètre `iNeighbor`. Par exemple, si `iNeighbor = 2`, la grille du lissage contient 2 carreaux limitrophes aux carreaux contenant au moins une vente.
 
@@ -775,8 +772,8 @@ sfCarLiss_intramuros <- btb::btb_smooth(pts = sfBase_intramuros,
 ```
 
 ```{r echo = FALSE}
-mapview(sfCarLiss_intramuros %>% st_cast("MULTILINESTRING"), lwd =2, layer.name ="Grille automatique") +
-  mapview(contourParis, color="red", lwd =10) 
+mf_map(paris_sf, col = NA)
+mf_map(sfCarLiss_intramuros, col = NA, border = "red", add = T)
 ```
 
 De même, on peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné. Dans ce cas, il convient de la confectionner soi-même et de la renseigner dans le paramètre `dfCentroids` de la fonction `btb_smooth`. Par exemple, en faisant un lissage sur une ville cotière, on peut vouloir une grille qui ne déborde pas sur la mer tout en ne souhaitant pas de l'effet «\ gruyère\ » du paramétrage `iNeighbor = 0`.
@@ -826,9 +823,9 @@ mf_map(x = sfCarLiss_paris,
        border=NA,
        leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_f, 
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
@@ -874,9 +871,9 @@ mf_map(x = sfCarLiss_paris,
        border=NA,
        leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = contourParis, 
+mf_map(x = paris_sf, 
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Logements avec 4 pièces ou plus (rayon de 800m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 
@@ -975,9 +972,9 @@ mf_map(x = sfCarLiss_paris,
        border = NA,
        leg_val_rnd = 0,
        add = TRUE)
-mf_map(x = contourParis,
+mf_map(x = paris_sf,
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Premier décile des prix de vente (rayon de 1500m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -993,9 +990,9 @@ mf_map(x = sfCarLiss_paris,
        border = NA,
        leg_val_rnd = 0,
        add = TRUE)
-mf_map(x = contourParis,
+mf_map(x = paris_sf,
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Médiane des prix de vente (rayon de 1500m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```
@@ -1016,9 +1013,9 @@ mf_map(x = sfCarLiss_paris,
        border = NA,
        leg_val_rnd = 0,
        add = TRUE)
-mf_map(x = contourParis,
+mf_map(x = paris_sf,
        lwd = 4,
-       col = "black", add = TRUE)
+       col = NA, border = "black", add = TRUE)
 mf_layout(title = "Rapport interdéciles des prix de vente (rayon de 1500m)",
           credits = "Insee-DSAU, DGFiP, Etalab, IGN, mapsf")
 ```

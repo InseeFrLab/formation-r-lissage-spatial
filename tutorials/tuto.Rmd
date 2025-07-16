@@ -823,7 +823,7 @@ mf_map(x = sfCarLiss_paris,
        border=NA,
        leg_val_rnd = 1, 
        add = TRUE)
-mf_map(x = paris_f, 
+mf_map(x = paris_sf, 
        lwd = 4,
        col = NA, border = "black", add = TRUE)
 mf_layout(title = "Lissage des prix de vente avec un rayon de 800m",

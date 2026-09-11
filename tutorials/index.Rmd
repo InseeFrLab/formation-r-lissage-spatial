@@ -1,21 +1,14 @@
 ---
 title: "Formation au carroyage et lissage spatial sur R"
 author: "Kim Antunez et Solène Colin"
-date: "Dernière modification : mars 2024"
+date: "Dernière modification : septembre 2026"
 output:
   prettydoc::html_pretty:
     theme: architect
 ---
 
-
 ```{r setup, include=FALSE}
-
-# path_proj <- "V:/PSAR-AU/Formation Comment utiliser les outils AU/2022/Séquence 6 - Outils [JP et KA]/tplissage_poc"
-# path_lib <- paste0(path_proj,"/packages")
-
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = path_proj)
-
 ```
 
 ```{css, echo=FALSE}
@@ -35,14 +28,11 @@ header .inner{
   font-size: 1.1em;
   margin: 0 auto;
   background-color: rgba(255, 255, 255, 0.8);
-
 }
 
 header .inner .title {
     color: #000000;
 }
-
-
 header .inner .author, header .inner .date {
     font-weight: 500;
     color: #000000;
@@ -55,9 +45,7 @@ header .inner .author, header .inner .date {
    content: "";
 }
 
-
 ```
-
 
 </br> 
 
@@ -84,15 +72,12 @@ Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **
 
 </br>
 </br>
-</br>
 
 ## Crédits (Division Statistiques et Analyses Urbaines)
 
 - Cette formation s'inspire d'une formation élaborée par Arlindo Dos Santos en 2018-2019
-
 - Elle a été refondue par Julien Pramil principalement, et Kim Antunez en co-animatrice, en 2021 en y intégrant, notamment, les données en open-data DVF
-
-- Elle est animée depuis 2024 par Solène Colin avec l'appui de Kim Antunez
+- Elle est animée depuis 2024 par Solène Colin avec l'appui de Kévin Milin
 
 
 **Pour réaliser les exercices depuis la plateforme SSPCloud du Service Statistique Public** :

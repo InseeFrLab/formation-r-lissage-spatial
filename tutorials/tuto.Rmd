@@ -1,7 +1,7 @@
 ---
 title: "<center>Formation au carroyage et lissage spatial sur R </br></br>TUTORIEL</br></br><img src= 'https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png' width= '20%'></center>"
 pagetitle: "Tutoriel - Formation au carroyage et lissage spatial sur R"
-author: "Kim Antunez et Solène Colin"
+author: "Kévin Milin et Solène Colin"
 date: "Dernière mise à jour : septembre 2026"
 output: 
   rmdformats::robobook:
@@ -490,7 +490,7 @@ Quelques informations préalables :
 
 ```{r resLissAuto400}
 # Filtrage des carreaux lissés intersectant la ville de Paris
-sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[, "geometry"], left = FALSE)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 # Carte lissée
 mf_map(x = sfCarrLiss_paris, 
@@ -518,7 +518,7 @@ sfCarrLiss <- btb::btb_smooth(pts = dataLissage,
                               iBandwidth = 600)
 
 # Filtrage des carreaux lissés dans Paris
-sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[, "geometry"], left = FALSE)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 mf_map(x = sfCarrLiss_paris, 
        type = "choro",
@@ -540,7 +540,7 @@ sfCarrLiss <- btb::btb_smooth(pts = dataLissage,
                               iBandwidth = 1000)
 
 # Filtrage des carreaux lissés dans Paris
-sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf[, "geometry"], left = FALSE)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 # Carte lissée
 mf_map(x = sfCarrLiss_paris, 
@@ -608,11 +608,11 @@ Dans les deux cartes ci-dessous, le rayon de lissage (2\ 000 mètres) et les bor
 
 ```{r lissEffetBord1, results = 'hide'}
 dataLissage <- dfBase_filtre[, c("nbObsLisse", "x", "y")]
-sfCarLiss <- btb::btb_smooth(pts = dataLissage, 
+sfCarrLiss <- btb::btb_smooth(pts = dataLissage, 
                              sEPSG = 2154,
                              iCellSize = 200, 
                              iBandwidth = 2000)
-sfCarrLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = FALSE)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 creation_carte(sfCarrLiss_paris, var = "nbObsLisse", 
                titre = "Sans effets de bord, avec R = 2000m")
@@ -625,14 +625,14 @@ creation_carte(sfCarrLiss_paris, var = "nbObsLisse",
 sfBase_intramuros <- sfBase %>% st_join(paris_sf, left = FALSE) %>% 
   mutate(nbObsLisse = 1L)
 
-sfCarLiss_intramuros <- btb_smooth(pts = sfBase_intramuros[, c("nbObsLisse", "geometry")], 
+sfCarrLiss_intramuros <- btb_smooth(pts = sfBase_intramuros[, c("nbObsLisse", "geometry")], 
                                    iCellSize = 200, 
                                    iBandwidth = 2000)
 
-sfCarLiss_intramuros_paris <- sfCarLiss_intramuros %>%
+sfCarrLiss_intramuros_paris <- sfCarrLiss_intramuros %>%
   st_join(paris_sf, left = FALSE)
 
-creation_carte(sfCarLiss_intramuros_paris, var = "nbObsLisse", 
+creation_carte(sfCarrLiss_intramuros_paris, var = "nbObsLisse", 
                titre = "Avec effets de bord, avec R = 2000m")
 ```
 
@@ -650,27 +650,29 @@ La grille obtenue dépasse Paris intramuros et contient :
 - ... mais aussi les 4 carreaux limitrophes de ces derniers (règle automatique^[cf. séquence "théorie du lissage" de la formation "Comment utiliser les outils de l’analyse urbaine ?"]) 
 
 ```{r grilleAuto}
+sfCarrLiss_extramuros <- btb_smooth(pts = sfBase_intramuros[, c("nbObsLisse", "geometry")], 
+                                   iCellSize = 200, 
+                                   iBandwidth = 2000)
+
 mf_map(paris_sf, lwd = 2, col = NA)
-mf_map(sfCarLiss_intramuros, col = NA, border = "red", add = T)
+mf_map(sfCarrLiss_extramuros, col = NA, border = "red", add = T)
 ```
 
 Il est possible de modifier la règle de création de cette grille automatique en rensignant le paramètre `iNeighbor`. Par exemple, si `iNeighbor = 2`, la grille du lissage contient 2 carreaux limitrophes aux carreaux contenant au moins une vente.
 
 On peut aussi vouloir une grille uniquement constituée des carreaux contenant au moins une vente (`iNeighbor = 0`), mais attention à l'effet "gruyère" :
 
-```{r echo = FALSE}
-sfCarLiss_intramuros <- btb_smooth(pts = sfBase_intramuros[, c("nbObsLisse", "geometry")], 
+```{r}
+sfCarrLiss_intramuros <- btb_smooth(pts = sfBase_intramuros[, c("nbObsLisse", "geometry")], 
                                    iCellSize = 200, 
                                    iBandwidth = 2000,
                                    iNeighbor = 0)
 
 mf_map(paris_sf, lwd = 2, col = NA)
-mf_map(sfCarLiss_intramuros, col = NA, border = "red", add = T)
+mf_map(sfCarrLiss_intramuros, col = NA, border = "red", add = T)
 ```
 
 De même, on peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné. Dans ce cas, il convient de la confectionner soi-même et de la renseigner dans le paramètre `dfCentroids` de la fonction `btb_smooth`. Par exemple, en faisant un lissage sur une ville cotière, on peut vouloir une grille qui ne déborde pas sur la mer tout en ne souhaitant pas de l'effet "gruyère" du paramétrage `iNeighbor = 0`.
-
-<!-- (cf numero) #TODO ex lissage pré post carreau -->
 
 ### Partir de données ponctuelles ou partir de données carroyées ?
 
@@ -748,18 +750,18 @@ Dans l'exemple ci-dessous, on prend un rayon de lissage de 800m et un pas de 100
 
 ```{r lissageMoyenne,  results = 'hide'}
 # Lissage des 2 variables
-sfCarLiss <- btb_smooth(pts = dfBase_filtre[, c("nbObsLisse", "valeur_fonciere", 
+sfCarrLiss <- btb_smooth(pts = dfBase_filtre[, c("nbObsLisse", "valeur_fonciere", 
                                                 "x", "y")] , 
                         sEPSG = 2154,
                         iCellSize = 100, 
                         iBandwidth = 800)
-head(sfCarLiss, 3)
+head(sfCarrLiss, 3)
 ```
 
 ```{r reslissageMoyenne}
 # Calculer le taux
-sfCarLiss$prixMoyen <- sfCarLiss$valeur_fonciere / sfCarLiss$nbObsLisse
-sfCarrLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = FALSE)
+sfCarrLiss$prixMoyen <- sfCarrLiss$valeur_fonciere / sfCarrLiss$nbObsLisse
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 creation_carte(data = sfCarrLiss_paris, var = "prixMoyen", 
                titre = "Lissage des prix de vente avec un rayon de 800m")
@@ -779,17 +781,17 @@ dfBase_filtre <- dfBase_filtre %>%
   mutate(quatrePieces = ifelse(nombre_pieces_principales >= 4, 1, 0))
 
 # Lissage des 2 variables
-sfCarLiss <- btb_smooth(pts = dfBase_filtre[, c("nbObsLisse", "quatrePieces",
+sfCarrLiss <- btb_smooth(pts = dfBase_filtre[, c("nbObsLisse", "quatrePieces",
                                                 "x", "y")], 
                         sEPSG = 2154,
                         iCellSize = 100, 
                         iBandwidth = 800)
 
 # Calcul du taux
-sfCarLiss$txQuatrePieces <- sfCarLiss$quatrePieces / sfCarLiss$nbObsLisse
+sfCarrLiss$txQuatrePieces <- sfCarrLiss$quatrePieces / sfCarrLiss$nbObsLisse
 
 # Intersection géographique avec Paris
-sfCarrLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = FALSE)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 # cartographie
 creation_carte(data = sfCarrLiss_paris, var = "txQuatrePieces",
@@ -806,17 +808,17 @@ Pour ce faire, n'oubliez pas qu'il convient de lisser séparément les prix de v
 
 ```{r reslissageMoyenneM2}
 # lissage des 2 variables
-sfCarLiss <- btb_smooth(pts = dfBase_filtre[, c("surface_reelle_bati", 
+sfCarrLiss <- btb_smooth(pts = dfBase_filtre[, c("surface_reelle_bati", 
                                                 "valeur_fonciere", "x", "y")],
                         sEPSG = 2154,
                         iCellSize = 100,
                         iBandwidth = 800)
 
 # Calcul du prix au m²
-sfCarLiss$prixM2 <- sfCarLiss$valeur_fonciere / sfCarLiss$surface_reelle_bati
+sfCarrLiss$prixM2 <- sfCarrLiss$valeur_fonciere / sfCarrLiss$surface_reelle_bati
 
 # Intersection géographique avec Paris
-sfCarrLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = FALSE)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 # Cartographie
 creation_carte(data = sfCarrLiss_paris, var = "prixM2",
@@ -840,17 +842,17 @@ Nous allons calculer le 1er décile, la médiane et le 9ème décile du prix de 
 
 ```{r resLissQuantile10}
 # calcul des déciles "locaux"
-sfCarLiss <- btb_smooth(pts = dfBase_filtre[, c("valeur_fonciere", "x", "y")],
+sfCarrLiss <- btb_smooth(pts = dfBase_filtre[, c("valeur_fonciere", "x", "y")],
                         sEPSG = 2154,
                         iCellSize = 100,
                         iBandwidth = 1500,
                         vQuantiles = c(0.1, 0.5, 0.9))
 
 # Visualiser les premières lignes des données lissées
-head(sfCarLiss, 3)
+head(sfCarrLiss, 3)
 
 # Intersection géographique avec Paris
-sfCarrLiss_paris <- sfCarLiss %>% st_join(paris_sf, left = FALSE)
+sfCarrLiss_paris <- sfCarrLiss %>% st_join(paris_sf, left = FALSE)
 
 # Cartographie 1er décile
 creation_carte(data = sfCarrLiss_paris, var = "valeur_fonciere_01", 
@@ -910,7 +912,7 @@ st_crs(triangleOr)[["input"]]
 triangleOr <- st_transform(triangleOr, crs = 2154)
 
 # Intersection géographique avec les transactions
-transac_triangle <- sfBase %>% st_join(triangleOr[, "geometry"], left = F)
+transac_triangle <- sfBase %>% st_join(triangleOr, left = F)
 
 # Visualisation de points retenus
 head(transac_triangle, 3)
@@ -950,7 +952,7 @@ st_read_maison <- function(chemin_tab){
 }
 
 # Chargement des données
-chemin_file <- paste0(url_bucket, "/carreaux_200m_met.gpkg")
+chemin_file <- paste0(url_bucket, "carreaux_200m_met.gpkg")
 carreaux <- st_read_maison(chemin_file)
 head(carreaux, 3)
 ```
@@ -959,7 +961,7 @@ head(carreaux, 3)
 # saveRDS(carreaux, "carreaux_idf.RDS")
 # chargement "à la main" pour faire tourner le support formation un peu plus vite 
 url_file <- url(paste0(url_bucket, "/carreaux_idf.RDS"))
-carreaux <- readRDS(url_file) %>% st_transform(2154)
+carreaux <- readRDS(url_file) %>% %>% st_transform(2154)
 head(carreaux, 3)
 ```
 

@@ -58,7 +58,6 @@ Sa principale fonction, `btb_smooth`, permet de réaliser très facilement un **
 - Elle a été refondue par Julien Pramil principalement, et Kim Antunez en co-animatrice, en 2021 en y intégrant, notamment, les données en open-data DVF
 - Elle est animée depuis 2024 par Solène Colin
 
-
 ## Avertissements
 
 ### Secret statistique
@@ -153,11 +152,11 @@ Pour information, le code ayant permis de constituer la base de données est dis
 Le code ci-dessous permet d'importer la première base de données `ventesImmo_couronneParis.RDS` utilisée dans ce tutoriel. Elle est stockée sous Minio, dans le "bucket public" : s3/projet-formation/r-lissage-spatial/. Nous téléchargeons cette base grâce à son URL public, puis on la charge dans R.
 
 ```{r chargeBase}
-url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial"
+url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/"
 object <- "ventesImmo_couronneParis.RDS"
 
 # Charger la source de données (variable nommée dfBase) depuis l'URL
-url_file <- url(paste0(url_bucket, "/", object))
+url_file <- url(paste0(url_bucket, object))
 dfBase <- readRDS(url_file)
 ```
 
@@ -187,8 +186,8 @@ Récupérons le contour du territoire étudié avec la fonction `st_read` du pac
 
 ```{r chargeContour}
 # Charger le fond de carte du territoire étudié
-chemin_file <- paste0(url_bucket, "/depCouronne.gpkg")
-depCouronne_sf <- sf::st_read(chemin_file)
+chemin_file <- paste0(url_bucket, "depCouronne.gpkg")
+depCouronne_sf <- st_read(chemin_file)
 
 # Visualisons cette couche vectorielle
 head(depCouronne_sf)
@@ -216,8 +215,8 @@ Pour être certain que les données et le territoire soient dans le même systè
 st_crs(depCouronne_sf)$epsg ; st_crs(paris_sf)$epsg
 
 # Transformer la projection en Lambert 93 (epsg 2154)
-depCouronne_sf <- sf::st_transform(depCouronne_sf, crs = 2154)
-paris_sf <- sf::st_transform(paris_sf, crs = 2154)
+depCouronne_sf <- st_transform(depCouronne_sf, crs = 2154)
+paris_sf <- st_transform(paris_sf, crs = 2154)
 ```
 
 ### Territoires englobants, sélection des données à lisser
@@ -234,7 +233,7 @@ Plus précisément :
 
 ```{r selectDonnee2a}
 sfBase <- dfBase %>% mutate(lon = x, lat = y) %>% 
-  st_as_sf(coords = c("x", "y"), crs = 2154)
+  st_as_sf(coords = c("lon", "lat"), crs = 2154)
 ```
 
 2. On crée une zone tampon (*buffer*) autour du territoire d'intérêt, avec une marge (ici 2\ 000m), sous la forme d'un objet `sf` vectoriel ;
@@ -262,10 +261,10 @@ sfBase_sample <- sfBase[sample(1:nrow(sfBase), 2000), ] # échantillon 2000 obse
 sfBase_filtre_sample <- st_join(sfBase_sample, buffer_sf, left = F) # dans le buffer
 
 # Cartographie pédagogique
-mf_map(buffer_sf$geometry, col = "yellow")
+mf_map(buffer_sf, col = "yellow")
 mf_base(paris_sf, col = "blue", add = T)
-mf_base(sfBase_sample$geometry, col = "red", add = T)
-mf_base(sfBase_filtre_sample$geometry, col = "green", add = T)
+mf_base(sfBase_sample, col = "red", add = T)
+mf_base(sfBase_filtre_sample, col = "green", add = T)
 ```
 
 Ce schéma présente : 
@@ -279,7 +278,7 @@ Ce schéma présente :
 
 Ici, nous allons sélectionner les ventes immobilières appartenant à un grand rectangle englobant Paris intramuros. 
 
-L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans le rectangle. Cette méthode est très efficace d'un point de vue calculatoire, mais requiert de construire au préalable un rectangle adapté.
+L'idée est de pouvoir réduire la quantité de ventes à considérer avant le lissage, uniquement en filtrant les coordonnées x et y comprises dans ce rectangle. Cette méthode est très efficace d'un point de vue calculatoire, mais requiert de construire au préalable un rectangle ("bbox") adapté.
 
 ```{r creaBbox}
 # Création d'une bbox autour du territoire
@@ -296,7 +295,7 @@ bufferBbox
 ```
 
 
-Pour sélectionner les données individuelles d'intérêt pour le lissage, on peut alors filtrer les observations dont les coordonnées sont comprises à l'intérieur du rectangle jaune. Ce filtre est très efficace computationnellement car il ne dépend que des valeurs numériques prises par les variables de longitude et de latitude et n'utilise pas les propriétés vectorielles des données qui sont des attributs plus chronophages à utiliser.
+Pour sélectionner les données individuelles d'intérêt pour le lissage, on peut alors filtrer les observations dont les coordonnées sont comprises à l'intérieur de la grande bbox. Ce filtre est très efficace computationnellement car il ne dépend que des valeurs numériques prises par les variables de longitude et de latitude et n'utilise pas les propriétés vectorielles des données qui sont des attributs plus chronophages à utiliser.
 
 
 ```{r selectDonnee}
@@ -315,10 +314,10 @@ Schéma explicatif des zones sélectionnées :
 ```{r schemaBbox}
 # Échantillon (en dehors et dans le buffer)
 sfBase_sample <- sfBase[sample(1:nrow(sfBase), 2000), ] # échantillon 2000 observations
-sfBase_sample_filtre <- sfBase_sample[sfBase_sample$lon >= bufferBbox["xmin"] &
-                                        sfBase_sample$lon <= bufferBbox["xmax"] &
-                                        sfBase_sample$lat >= bufferBbox["ymin"] &
-                                        sfBase_sample$lat <= bufferBbox["ymax"], ] # dans le buffer
+sfBase_sample_filtre <- sfBase_sample[sfBase_sample$x >= bufferBbox["xmin"] &
+                                        sfBase_sample$x <= bufferBbox["xmax"] &
+                                        sfBase_sample$y >= bufferBbox["ymin"] &
+                                        sfBase_sample$y <= bufferBbox["ymax"], ] # dans le buffer
 
 # Petit rectangle vectoriel
 bbox_sf = st_sf(geometry = st_as_sfc(bbox), crs = 2154)
@@ -327,11 +326,11 @@ bbox_sf = st_sf(geometry = st_as_sfc(bbox), crs = 2154)
 bufferBbox_sf = st_sf(geometry = st_as_sfc(bufferBbox), crs = 2154)
 
 # Cartographie pédagogique
-mf_map(bufferBbox_sf$geometry, col = "yellow")
-mf_map(bbox_sf$geometry, col = "grey", add = T)
+mf_map(bufferBbox_sf, col = "yellow")
+mf_map(bbox_sf, col = "grey", add = T)
 mf_map(paris_sf, col = "blue", add = T)
-mf_map(sfBase_sample$geometry, col = "red", add = T)
-mf_map(sfBase_sample_filtre$geometry, col = "green", add = T)
+mf_map(sfBase_sample, col = "red", add = T)
+mf_map(sfBase_sample_filtre, col = "green", add = T)
 ```
 
 Ce schéma présente : 
@@ -455,8 +454,7 @@ Ci-dessous la grille carroyée obtenue (hors données lissées). On remarque qu'
 
 ```{r grilleCarrDefaut}
 mf_map(x = paris_sf, lwd = 8, col = NA, border = "wheat")
-mf_map(x = sfCarrLiss, col = NA, 
-       lwd = 1, add = T)
+mf_map(x = sfCarrLiss, col = NA, lwd = 1, add = T)
 mf_layout(title = "btb_smooth génère une grille carroyée")
 ```
 
@@ -482,7 +480,7 @@ Quelques informations préalables :
 
 - On cherche à analyser le phénomène sur le périmètre de la ville de Paris ;
 - Ainsi, on lisse les données de ventes sur un périmètre plus large que la ville de Paris afin d'éviter les effets de bord aux frontières de la commune. En effet, la base `dfBase_filtre` contient toutes les ventes comprises dans un buffer de 2 km autour de Paris.
-- Suite au lissage, une grille carroyée est produite comportant les données lissées. Les carreaux vont bien au-delà de la commune de Paris. Néanmoins, pour la représentation, on ne sélectionne que les carreaux intersectant Paris (grâce à la fonction `sf::st_join`).
+- Suite au lissage, une grille carroyée est produite comportant les données lissées. Les carreaux vont bien au-delà de la commune de Paris. Néanmoins, pour la représentation, on ne sélectionne que les carreaux intersectant Paris (grâce à la fonction `st_join`).
 - Pour cartographier les carreaux :
 - On réalise une carte de type `choroplèthe` ;
 - Avec une méthode de discrétisation de la densité lissée : ici, par quantiles par exemple ;
@@ -834,9 +832,9 @@ Ce lissage se fait toujours avec la fonction `btb_smooth` mais il faut ajouter u
 **Remarque :** Le calcul de quantiles géographiquement pondérés présente certaines différences par rapport au lissage classique vu jusqu'à présent :
 
 - il n'est pas conservatif
-- la fonction crée
-* une colonne `nbObs` indiquant le nombre **réel** (non lissé) d'observations ayant contribué au calcul du carreau.
-* pour chaque variable, autant de colonnes qu'il y a de quantiles souhaités
+- la fonction crée : 
+  * une colonne `nbObs` indiquant le nombre **réel** (non lissé) d'observations ayant contribué au calcul du carreau.
+  * pour chaque variable, autant de colonnes qu'il y a de quantiles souhaités
 
 Nous allons calculer le 1er décile, la médiane et le 9ème décile du prix de vente des logements à Paris. 
 
@@ -897,9 +895,9 @@ Nous procédons de la manière suivante :
 1. Import et visualisation de la zone à façon "Triangle d'or". Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `st_read`.
 
 ```{r triangleOr}
-chemin_file <- paste0(url_bucket, "/triangle_or.kml")
+chemin_file <- paste0(url_bucket, "triangle_or.kml")
 triangleOr <- st_read(chemin_file)
-mapview(triangleOr, col.regions = "#ffff00")
+mapview(triangleOr, col.regions = "yellow")
 ```
 
 2. Intersection géographique entre des points (les transactions) et un polygone (le quartier). Attention à bien s'assurer que les deux couches géographiques soient bien dans le même système de projection.
@@ -918,7 +916,7 @@ transac_triangle <- sfBase %>% st_join(triangleOr, left = F)
 head(transac_triangle, 3)
 
 # Cartographie des points dans le triangle
-mapview(transac_triangle) + mapview(triangleOr, col.regions = "#ffff00")
+mapview(transac_triangle) + mapview(triangleOr, col.regions = "yellow")
 ```
 
 3. Calculer du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier 
@@ -948,7 +946,7 @@ st_read_maison <- function(chemin_tab){
   requete <- "SELECT idcar_200m, lcog_geo, i_est_200, men, log_soc, geom
             FROM carreaux_200m_met
             WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92','93','94')"
-  sf::st_read(chemin_tab, query = requete)
+  st_read(chemin_tab, query = requete)
 }
 
 # Chargement des données
@@ -957,13 +955,7 @@ carreaux <- st_read_maison(chemin_file)
 head(carreaux, 3)
 ```
 
-```{r echo = FALSE, message = FALSE}
-# saveRDS(carreaux, "carreaux_idf.RDS")
-# chargement "à la main" pour faire tourner le support formation un peu plus vite 
-url_file <- url(paste0(url_bucket, "/carreaux_idf.RDS"))
-carreaux <- readRDS(url_file) %>% %>% st_transform(2154)
-head(carreaux, 3)
-```
+<!-- note : le support de formation tourne assez vite grâce à la requête, pas besoin de simplifier -->
 
 2. Créer un disque de 1km autour du White
 
@@ -991,9 +983,8 @@ mapview(carreaux_select) +
 4. Calculer l'indicateur souhaité sur la zone par somme des données par carreau.
 
 ```{r resZoneAFacon}
-tx_logSoc_white <- sum(carreaux_select$Log_soc) / sum(carreaux_select$Men)
-cat("On compte",
-    round(tx_logSoc_white * 100),
+tx_logSoc_white <- sum(carreaux_select$log_soc) / sum(carreaux_select$men)
+cat("On compte", round(tx_logSoc_white * 100),
     "% de logements sociaux dans un rayon de 1km autour du White.")
 ```
 

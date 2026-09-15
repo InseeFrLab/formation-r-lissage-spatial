@@ -1,0 +1,17 @@
+title: Unilur
+author: Aurélien Ginolhac, Sarah Musy, Michael Lydeamore
+version: 0.2.3
+quarto-required: ">=1.4.538"
+contributes:
+  format:
+    common:
+      filters:
+        - unilur.lua
+    html: default
+    html+solution:
+      show-solution: true
+    pdf: default
+    pdf+solution:
+      show-solution: true
+      keep-tex: false
+      include-in-header: unilur.tex

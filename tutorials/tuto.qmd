@@ -43,8 +43,6 @@ padding-right: 10px;
 padding-bottom: 0px;
 margin-bottom: 10px;
 }
-
-
 ```
 
 ------------------------------------------------------------------------
@@ -976,12 +974,12 @@ Nous mobilisons pour cela les données carroyées à 200 mètres disponibles sur
 
 Le principe de la démarche consiste à : 
 
-1. Charger les données carroyées de Filosofi 2019 à 200m, uniquement en région parisienne, en ne conservant que 6 variables dont le nombre de logements sociaux.
+1. Charger les données carroyées de Filosofi 2019 à 200m, uniquement en région parisienne, en ne conservant qu'un nombre réduit de variables, dont le nombre de logements sociaux.
 
 ```{r chargementCarreaux}
 # fonction permettant de faire le chargement souhaité
 st_read_maison <- function(chemin_tab){
-  requete <- "SELECT idcar_200m, lcog_geo, i_est_200, men, log_soc, geom
+  requete <- "SELECT idcar_200m, lcog_geo, i_est_200, ind, men, log_soc, geom
             FROM carreaux_200m_met
             WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92','93','94')"
   st_read(chemin_tab, query = requete)

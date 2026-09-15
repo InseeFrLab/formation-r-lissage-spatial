@@ -36,10 +36,24 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
           
-      - name: Render Quarto
+      - name: Render Quarto - tuto
         uses: quarto-dev/quarto-actions/render@v2
         with:
-          path: tutorials
+          path: tutorials/tuto.qmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Render Quarto - tuto presentation
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          path: tutorials/tuto_presentation.qmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Render Quarto - exo
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          path: tutorials/exo.qmd
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

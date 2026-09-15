@@ -1,6 +1,6 @@
 ---
 title: "Formation au carroyage et lissage spatial sur R"
-author: "Kim Antunez et Solène Colin"
+author: "Kévin Milin et Solène Colin"
 date: "Dernière modification : septembre 2026"
 output:
   prettydoc::html_pretty:

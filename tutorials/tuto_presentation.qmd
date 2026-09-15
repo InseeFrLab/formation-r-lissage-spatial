@@ -1,7 +1,8 @@
 ---
 title: "Formation au carroyage et lissage spatial sur R"
 author: "Kévin Milin - Solène Colin"
-date: "Dernière modification : septembre 2026 "
+date-modified: "septembre 2026"
+date-format: "MMMM YYYY"
 format:
   revealjs:
     transition: slide

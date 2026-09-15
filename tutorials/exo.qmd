@@ -5,7 +5,11 @@ author: "Kim Antunez et Solène Colin"
 date-modified: "septembre 2026"
 date-format: "MMMM YYYY"
 format:
-  unilur-html: default
+  unilur-html:
+    embed-resources: true
+    toc: true
+    toc-title: "Sommaire"
+    toc-location: left
 show-solution: true
 collapse-solution: true
 
@@ -23,6 +27,10 @@ include-in-header:
       }
       </style>
 ---
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
 
 # Présentation
 

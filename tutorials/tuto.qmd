@@ -9,10 +9,12 @@ format:
     self-contained: true
     toc: true
     toc-title: "Sommaire"
+    toc-location: left
 editor: visual
 pagetitle: "Tutoriel - Formation au carroyage et lissage spatial sur R"
 author: "Kévin Milin et Solène Colin"
-date: "Dernière mise à jour : septembre 2026"
+date-modified: "septembre 2026"
+date-format: "MMMM YYYY"
 output: 
   rmdformats::robobook:
     code_folding: show

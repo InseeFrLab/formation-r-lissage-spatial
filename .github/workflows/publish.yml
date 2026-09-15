@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - tutorials/*
+  workflow_dispatch:
 
 name: Quarto and Rmd Publish
 
@@ -31,7 +32,6 @@ jobs:
           Rscript -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org", type="source")'
           Rscript -e 'install.packages("sf", type = "mac.binary")'
           Rscript -e 'install.packages(c("rmarkdown","prettydoc","rmdformats","mapview"))' #,"quarto"
-          Rscript -e "remotes::install_github('koncina/unilur')"
  
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2

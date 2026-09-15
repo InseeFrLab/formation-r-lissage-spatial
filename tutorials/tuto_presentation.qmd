@@ -471,7 +471,7 @@ head(points_centroides, 3)
 ::::: {.textmini2}
 **Paramètres obligatoires :**
 
--   `df` : un tableau avec les colonnes `x` et `y` représentant les coordonnées des centroïdes de la grille ;
+-   `df` : un tableau avec les colonnes `x_centro` et `y_centro` représentant les coordonnées des centroïdes de la grille ;
 -   `sEPSG` : une chaîne de caractères indiquant le code epsg du système de projection utilisé ;
 -   `iCellSize` : la taille des carreaux (longueur du côté, en mètres).
 :::::
@@ -1400,7 +1400,7 @@ mapview(triangleOr, col.regions = "yellow")
 2.  Intersection entre des points (les transactions) et un polygone (le quartier). 
 ```{r dviTriangle}
 # Système de projection de triangleOr
-st_crs(triangleOr)[["input"]]
+st_crs(triangleOr)$epsg
 
 # Transformation du système de projection de triangleOr 
 triangleOr <- st_transform(triangleOr, crs = 2154)
@@ -1468,10 +1468,13 @@ st_read_maison <- function(chemin_tab){
 # Chargement des données
 chemin_file <- paste0(url_bucket, "carreaux_200m_met.gpkg")
 carreaux <- st_read_maison(chemin_file)
-head(carreaux, 3)
 ```
 
 ------------------------------------------------------------------------
+
+```{r}
+head(carreaux, 3)
+```
 
 2.  Créer un disque de 1km autour du White
 
@@ -1485,7 +1488,7 @@ buffer_white <- st_buffer(white, 1000) %>% st_as_sf()
 3.  Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent
 
 ```{r zoneAFacon2}
-carreaux_select <- carreaux %>% st_join(buffer_white, left= F)
+carreaux_select <- carreaux %>% st_join(buffer_white, left = F)
 
 # visualisation
 mapview(carreaux_select) +

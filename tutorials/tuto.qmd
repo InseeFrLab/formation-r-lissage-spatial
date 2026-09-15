@@ -1,12 +1,22 @@
 ---
 title: "<center>Formation au carroyage et lissage spatial sur R </br></br>TUTORIEL</br></br><img src= 'https://raw.githubusercontent.com/InseeFrLab/formation-r-lissage-spatial/main/img/hexagon.png' width= '20%'></center>"
+format:
+  html:
+    code-fold: show
+    code-copy: true
+    highlight-style: github
+    number-sections: true
+    self-contained: true
+    toc: true
+    toc-title: "Sommaire"
+editor: visual
 pagetitle: "Tutoriel - Formation au carroyage et lissage spatial sur R"
 author: "Kévin Milin et Solène Colin"
 date: "Dernière mise à jour : septembre 2026"
 output: 
   rmdformats::robobook:
     code_folding: show
-    highlight: kate
+    highlight: github
     number_sections: TRUE
     thumbnails: false
     lightbox: false
@@ -14,7 +24,9 @@ output:
     selfcontained: true
 ---
 
-```{r setup, include = FALSE}
+```{r}
+#| label: setup
+#| include: false
 knitr::opts_chunk$set(echo = TRUE)
 set.seed(2)
 ```
@@ -31,7 +43,13 @@ padding-right: 10px;
 padding-bottom: 0px;
 margin-bottom: 10px;
 }
+
+
 ```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
 
 # Introduction
 
@@ -89,6 +107,11 @@ Nom              Description                                                Code
 Lambert93        Système de projection officiel pour la métropole           2154
 LAEA             Système de projection européen                             3035
 WGS84            GPS (utile pour utiliser Leaflet)                          4326
+
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
 
 # Configurations
 
@@ -342,6 +365,11 @@ Ce schéma présente :
 - en vert, les points (parmis les 2000 tirés) qui sont dans le buffer d'intérêt et qu'on va garder.
 
 
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
 # Carroyage de données
 
 Avant de lisser les données ponctuelles, on peut souhaiter représenter ces données sous **forme carroyée** afin de se les approprier. Il faut pour cela : 
@@ -401,6 +429,11 @@ mf_layout(title = "Carroyage du nombre de ventes",
 Le carroyage permet d'avoir un premier aperçu des données le plus fidèle à la réalité. 
 
 Il est également utilisé pour simplifier les données avant lissage afin de rendre le calcul de lissage moins long en cas de très grand nombre d'observations (cf 4.1.6).
+
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
 
 # Lissage
 
@@ -882,6 +915,11 @@ summary(sfCarrLiss_paris$nbObs)
 sfCarrLiss_paris %>% st_drop_geometry() %>% group_by(nbObs < 100) %>% count()
 ```
 
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
 # Indicateurs sur zonage à façon
 
 Pour terminer, nous allons produire des indicateurs sur des zones à façon. En d'autres termes, nous importerons une couche cartographique du zonage qui nous intéresse et agrégerons les données sur ce zonage.
@@ -904,7 +942,7 @@ mapview(triangleOr, col.regions = "yellow")
 
 ```{r dviTriangle}
 # Système de projection de triangleOr
-st_crs(triangleOr)[["input"]]
+st_crs(triangleOr)$epsg
 
 # Transformation du système de projection de triangleOr 
 triangleOr <- st_transform(triangleOr, crs = 2154)
@@ -934,14 +972,14 @@ On cherche ici à connaître la proportion de logements sociaux dans un rayon de
 
 Nous mobilisons pour cela les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/7655515).
 
-**Remarque :** une tutoriel généralisant cet exercice est disponible en ligne, sur [insee.fr](https://www.insee.fr/fr/statistiques/fichier/7655511/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées. 
+**Remarque :** un tutoriel généralisant cet exercice est disponible en ligne, sur [insee.fr](https://www.insee.fr/fr/statistiques/fichier/7655511/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées. 
 
 Le principe de la démarche consiste à : 
 
 1. Charger les données carroyées de Filosofi 2019 à 200m, uniquement en région parisienne, en ne conservant que 6 variables dont le nombre de logements sociaux.
 
-```{r eval = FALSE}
-# Fonction permettant de faire le chargement souhaité
+```{r chargementCarreaux}
+# fonction permettant de faire le chargement souhaité
 st_read_maison <- function(chemin_tab){
   requete <- "SELECT idcar_200m, lcog_geo, i_est_200, men, log_soc, geom
             FROM carreaux_200m_met
@@ -1000,6 +1038,11 @@ Vous êtes désormais capables de carroyer et lisser toutes les données que vou
 ```{r}
 sessionInfo()
 ```
+
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
 
 # Autre logiciels
 

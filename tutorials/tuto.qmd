@@ -976,12 +976,12 @@ Le principe de la démarche consiste à :
 
 1. Charger les données carroyées de Filosofi 2019 à 200m, uniquement en région parisienne, en ne conservant qu'un nombre réduit de variables, dont le nombre de logements sociaux.
 
-```{r chargementCarreaux}
+```{r chargementCarreaux, eval = FALSE}
 # fonction permettant de faire le chargement souhaité
 st_read_maison <- function(chemin_tab){
   requete <- "SELECT idcar_200m, lcog_geo, i_est_200, ind, men, log_soc, geom
             FROM carreaux_200m_met
-            WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92','93','94')"
+            WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92')"
   st_read(chemin_tab, query = requete)
 }
 
@@ -991,7 +991,15 @@ carreaux <- st_read_maison(chemin_file)
 head(carreaux, 3)
 ```
 
+```{r chargementCarreaux_masque, echo = FALSE}
+# chargement "à la main" pour faire tourner le support formation un peu plus vite 
+url_file <- url(paste0(url_bucket, "/carreaux_idf.RDS"))
+carreaux <- readRDS(url_file) %>% st_transform(2154)
+head(carreaux, 3)
+```
+
 <!-- note : le support de formation tourne assez vite grâce à la requête, pas besoin de simplifier -->
+<!-- mais pour l'intégration continue, c'est nécessaire -->
 
 2. Créer un disque de 1km autour du White
 

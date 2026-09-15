@@ -661,7 +661,7 @@ Pour répondre à cette question :
 :::
 
 ::: {.unilur-solution}
-```{r exo15solu}
+```{r exo15solu, eval = FALSE}
 # 1. Chargement des données de Filosofi 2019 en Gironde
 url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/"
 object = "carreaux_200m_met.gpkg"
@@ -674,6 +674,27 @@ st_read_maison <- function(chemin_tab){
 }
 
 car33 <-  st_read_maison(paste0(url_bucket, object))
+
+# 2. Vérification de la projection 
+head(car33)
+# projection 2154 (Lambert93)
+
+# Sélection des carreaux intersectant le centre de Bordeaux
+carreaux_centreBdx <- car33 %>% st_join(centreBdx, left = F)
+
+# 3. Cartographie des carreaux du centre de Bordeaux
+mapview(centreBdx, color = "black", lwd = 6, alpha.regions = 0, legend = F) + 
+  mapview(carreaux_centreBdx, col.regions = "#ffff00")
+
+# 4. Combien d'habitants dans le centre de Bordeaux ?
+cat("Il y a approximativement", sum(carreaux_centreBdx$ind), "habitants dans le centre de Bordeaux")
+```
+
+```{r echo = FALSE}
+# 1. Chargement des données de Filosofi 2019 en Gironde
+url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/"
+url_file <- url(paste0(url_bucket, "/carreaux_33.RDS"))
+car33 <- readRDS(url_file) %>% st_transform(2154)
 
 # 2. Vérification de la projection 
 head(car33)

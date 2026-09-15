@@ -1356,156 +1356,166 @@ summary(sfCarrLiss_paris$nbObs)
 sfCarrLiss_paris %>% st_drop_geometry() %>% group_by(nbObs < 100) %>% count()
 ```
 
-# 5. Indicateurs sur zonage à façon {background-color="skyblue"}
+<!-- éléments sur zonage à façon masqué pour gain sur la CI et focus lissage -->
+<!-- ça peut s'jouter à l'occasion, à voir si le support est utile -->
+<!-- # 5. Indicateurs sur zonage à façon {background-color="skyblue"} -->
 
-## Agréger des données individuelles sur un zonage
+<!-- ## Agréger des données individuelles sur un zonage -->
 
-Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans le triangle d'or [^1].
+<!-- Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans le triangle d'or [^1]. -->
 
-:::: {.columns}
+<!-- :::: {.columns} -->
 
-::: {.column width="60%"}
+<!-- ::: {.column width="60%"} -->
 
-::::: {.textmini2}
-1.  Import et visualisation de la zone à façon "Triangle d'or". Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `st_read`.
+<!-- ::::: {.textmini2} -->
+<!-- 1.  Import et visualisation de la zone à façon "Triangle d'or". Ce fichier géographique est au format `.kml` et se lit sans problème avec la fonction `st_read`. -->
 
-```{r triangleOrLoad, results = 'hide'}
-chemin_file <- paste0(url_bucket, "triangle_or.kml")
-triangleOr <- st_read(chemin_file)
-mapview(triangleOr, col.regions = "yellow")
-```
-::::: 
+<!-- ```{r triangleOrLoad, results = 'hide'} -->
+<!-- chemin_file <- paste0(url_bucket, "triangle_or.kml") -->
+<!-- triangleOr <- st_read(chemin_file) -->
+<!-- mapview(triangleOr, col.regions = "yellow") -->
+<!-- ``` -->
+<!-- :::::  -->
 
-:::
+<!-- ::: -->
 
-::: {.column width="40%"}
-```{r triangleOr2, echo = FALSE}
-mapview(triangleOr, col.regions = "yellow")
-```
-:::
+<!-- ::: {.column width="40%"} -->
+<!-- ```{r triangleOr2, echo = FALSE} -->
+<!-- mapview(triangleOr, col.regions = "yellow") -->
+<!-- ``` -->
+<!-- ::: -->
 
-:::: 
+<!-- ::::  -->
 
-[^1]: Ce triangle a été créé manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/).
+<!-- [^1]: Ce triangle a été créé manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/). -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Intersection géographique
+<!-- ### Intersection géographique -->
 
-:::: {.columns}
+<!-- :::: {.columns} -->
 
-::: {.column width="65%"}
+<!-- ::: {.column width="65%"} -->
 
-::::: {.textmini2}
-2.  Intersection entre des points (les transactions) et un polygone (le quartier). 
-```{r dviTriangle}
-# Système de projection de triangleOr
-st_crs(triangleOr)$epsg
+<!-- ::::: {.textmini2} -->
+<!-- 2.  Intersection entre des points (les transactions) et un polygone (le quartier).  -->
+<!-- ```{r dviTriangle} -->
+<!-- # Système de projection de triangleOr -->
+<!-- st_crs(triangleOr)$epsg -->
 
-# Transformation du système de projection de triangleOr 
-triangleOr <- st_transform(triangleOr, crs = 2154)
+<!-- # Transformation du système de projection de triangleOr  -->
+<!-- triangleOr <- st_transform(triangleOr, crs = 2154) -->
 
-# Intersection géographique avec les transactions
-transac_triangle <- sfBase %>% st_join(triangleOr, left = F)
+<!-- # Intersection géographique avec les transactions -->
+<!-- transac_triangle <- sfBase %>% st_join(triangleOr, left = F) -->
 
-# Visualisation de points retenus
-head(transac_triangle, 3)
-```
-::::: 
-:::
+<!-- # Visualisation de points retenus -->
+<!-- head(transac_triangle, 3) -->
+<!-- ``` -->
+<!-- :::::  -->
+<!-- ::: -->
 
-::: {.column width="35%"}
+<!-- ::: {.column width="35%"} -->
 
-```{r dviTriangleMap}
-#| code-fold: true
-#| code-summary: code
+<!-- ```{r dviTriangleMap} -->
+<!-- #| code-fold: true -->
+<!-- #| code-summary: code -->
 
-# Cartographie des points dans le triangle
-mapview(transac_triangle) + mapview(triangleOr, col.regions = "#ffff00")
-```
-:::
+<!-- # Cartographie des points dans le triangle -->
+<!-- mapview(transac_triangle) + mapview(triangleOr, col.regions = "#ffff00") -->
+<!-- ``` -->
+<!-- ::: -->
 
-::::
+<!-- :::: -->
 
-------------------------------------------------------------------------
+<!-- ------------------------------------------------------------------------ -->
 
-### Calcul des statistiques recherchées
+<!-- ### Calcul des statistiques recherchées -->
 
-3.  Calculer du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier
+<!-- 3.  Calculer du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier -->
 
-```{r resTriangle}
-# Nombre de transactions en 2021 : 
-nrow(transac_triangle)
+<!-- ```{r resTriangle} -->
+<!-- # Nombre de transactions en 2021 :  -->
+<!-- nrow(transac_triangle) -->
 
-# Prix moyen
-mean(transac_triangle$valeur_fonciere)
-```
+<!-- # Prix moyen -->
+<!-- mean(transac_triangle$valeur_fonciere) -->
+<!-- ``` -->
 
 
-## Données carroyées
+<!-- ## Données carroyées -->
 
-Objectif : obtenir la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee.
+<!-- Objectif : obtenir la proportion de logements sociaux dans un rayon de 1km autour de la Direction générale de l'Insee. -->
 
-On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire =4176305).
+<!-- On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire =4176305). -->
 
-::: {.boite data-latex=""}
-**Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées.
-:::
+<!-- ::: {.boite data-latex=""} -->
+<!-- **Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées. -->
+<!-- ::: -->
 
-### Données carroyées
+<!-- ### Données carroyées -->
 
-1.  Chargement des données carroyées de Filosofi 2019 à 200m, uniquement en région parisienne, en ne conservant qu'un nombre réduit de variables, dont le nombre de logements sociaux.
+<!-- 1.  Chargement des données carroyées de Filosofi 2019 à 200m, uniquement en région parisienne, en ne conservant qu'un nombre réduit de variables, dont le nombre de logements sociaux. -->
 
-```{r}
-# Fonction permettant de faire le chargement souhaité
-st_read_maison <- function(chemin_tab){
-  requete <- "SELECT idcar_200m, lcog_geo, i_est_200, ind, men, log_soc, geom
-            FROM carreaux_200m_met
-            WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92','93','94')"
-  st_read(chemin_tab, query = requete)
-}
+<!-- ```{r chargementCarreaux, eval = FALSE} -->
+<!-- # Fonction permettant de faire le chargement souhaité -->
+<!-- st_read_maison <- function(chemin_tab){ -->
+<!--   requete <- "SELECT idcar_200m, lcog_geo, i_est_200, ind, men, log_soc, geom -->
+<!--             FROM carreaux_200m_met -->
+<!--             WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92')" -->
+<!--   st_read(chemin_tab, query = requete) -->
+<!-- } -->
 
-# Chargement des données
-chemin_file <- paste0(url_bucket, "carreaux_200m_met.gpkg")
-carreaux <- st_read_maison(chemin_file)
-```
+<!-- # Chargement des données -->
+<!-- chemin_file <- paste0(url_bucket, "carreaux_200m_met.gpkg") -->
+<!-- carreaux <- st_read_maison(chemin_file) -->
+<!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- ```{r chargementCarreaux_masque, echo = FALSE} -->
+<!-- # chargement "à la main" pour faire tourner le support formation un peu plus vite  -->
+<!-- url_file <- url(paste0(url_bucket, "/carreaux_idf.RDS")) -->
+<!-- carreaux <- readRDS(url_file) %>% st_transform(2154) -->
+<!-- head(carreaux, 3) -->
+<!-- ``` -->
 
-```{r}
-head(carreaux, 3)
-```
 
-2.  Créer un disque de 1km autour du White
+<!-- ------------------------------------------------------------------------ -->
 
-```{r zoneAFacon1}
-white <- st_sfc(st_point(c(649218.36,6857569.14)), crs = 2154)
-buffer_white <- st_buffer(white, 1000) %>% st_as_sf()
-```
+<!-- ```{r} -->
+<!-- head(carreaux, 3) -->
+<!-- ``` -->
 
-------------------------------------------------------------------------
+<!-- 2.  Créer un disque de 1km autour du White -->
 
-3.  Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent
+<!-- ```{r zoneAFacon1} -->
+<!-- white <- st_sfc(st_point(c(649218.36,6857569.14)), crs = 2154) -->
+<!-- buffer_white <- st_buffer(white, 1000) %>% st_as_sf() -->
+<!-- ``` -->
 
-```{r zoneAFacon2}
-carreaux_select <- carreaux %>% st_join(buffer_white, left = F)
+<!-- ------------------------------------------------------------------------ -->
 
-# visualisation
-mapview(carreaux_select) +
-  mapview(buffer_white, color = "#ffff00", lwd = 10, alpha.regions = 0, legend = F)
-```
+<!-- 3.  Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent -->
 
-------------------------------------------------------------------------
+<!-- ```{r zoneAFacon2} -->
+<!-- carreaux_select <- carreaux %>% st_join(buffer_white, left = F) -->
 
-4.  Calculer l'indicateur souhaité sur la zone par somme des données par carreau.
+<!-- # visualisation -->
+<!-- mapview(carreaux_select) + -->
+<!--   mapview(buffer_white, color = "#ffff00", lwd = 10, alpha.regions = 0, legend = F) -->
+<!-- ``` -->
 
-```{r resZoneAFacon}
-tx_logSoc_white <- sum(carreaux_select$log_soc) / sum(carreaux_select$men)
-cat("On compte", round(tx_logSoc_white * 100),
-    "% de logements sociaux dans un rayon de 1km autour du White.")
-```
+<!-- ------------------------------------------------------------------------ -->
 
-# 6. Conclusion {background-color="skyblue"}
+<!-- 4.  Calculer l'indicateur souhaité sur la zone par somme des données par carreau. -->
+
+<!-- ```{r resZoneAFacon} -->
+<!-- tx_logSoc_white <- sum(carreaux_select$log_soc) / sum(carreaux_select$men) -->
+<!-- cat("On compte", round(tx_logSoc_white * 100), -->
+<!--     "% de logements sociaux dans un rayon de 1km autour du White.") -->
+<!-- ``` -->
+
+# Conclusion {background-color="skyblue"}
 
 Vous êtes désormais capables de carroyer et lisser toutes les données que vous aurez à votre disposition !
 

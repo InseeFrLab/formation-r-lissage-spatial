@@ -42,7 +42,7 @@ Pour cela, on utilise un jeu de données en *open-data* : les parkings publics g
 
 Par ailleurs, notre objectif sera d'étudier la situation du centre-ville de Bordeaux en termes de présence de places de stationnement, de proportion de places adaptées aux personnes à mobilité réduite et au prix de ces places. Le contour géographique du centre-ville de Bordeaux est fourni. À noter qu'il a été créé "à la main" par les auteurs de ce TP, et qu'il ne répond à aucune définition officielle ou urbanistique précise. 
 
-Par ailleurs, à la fin de ce TP, une dernière partie consistera à approximer le nombre d'habitants vivant dans le centre-ville de Bordeaux d'après les données Filosofi 2019 carroyées.
+Par ailleurs, à la fin de ce TP, une dernière partie consistera à approximer le nombre d'habitants vivant dans le centre-ville de Bordeaux d'après les données Filosofi carroyées.
 
 # Installation de la session et importation des données
 
@@ -58,7 +58,7 @@ Avant de débuter les exercices, on installe tous les packages nécessaires :
 
 ```{r installPackages, message = FALSE}
 ## Liste des librairies utilisées
-packages <-  c("dplyr", "sf", "mapsf", "mapview", "aws.s3", "btb")
+packages <-  c("dplyr", "sf", "mapsf", "mapview", "btb")
 
 ## Vérifier si la librairie est installée, si non l'installer, puis la charger
 package.check <- lapply(
@@ -101,12 +101,8 @@ Quelques informations concernant ces jeux de données :
 ```{r output = FALSE}
 url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/"
 
-object <- "parking.RDS"
-download.file(paste0(url_bucket, object), destfile = "parking.RDS")
-parkings <- readRDS("parking.RDS")
-
-object <- "bordeaux_centre.gpkg"
-centreBdx <- st_read(paste0(url_bucket, object))
+parkings <- readRDS(url(paste0(url_bucket, "parking.RDS")))
+centreBdx <- st_read(paste0(url_bucket, "bordeaux_centre.gpkg"))
 ```
 
 ## Fonction de cartographie `generCarte`
@@ -116,20 +112,19 @@ Pour visualiser les résultats de vos lissages, on crée une fonction `generCart
 Pour importer cette fonction dans votre environnement global, copier-coller et executer le code ci-dessous.
 
 ```{r generCarte}
-generCarte <- function(sfCar, nomvar, nbreaks = 5, zone, titre = "titre", epais = 0.2){
+generCarte <- function(sfCar, nomvar, nbreaks = 5, zone, titre = "titre"){
   #'@param sfCar : Table de carreaux
   #'@param nomvar : Nom de la variable à cartographier
   #'@param nbreaks : Nombre de classes à représenter sur la carte (avec méthode des quantiles)
   #'@param zone : Polygone de la zone d'intérêt (ex : centre de Bordeaux)
   #'@param titre : Titre de la carte (chaîne de caracères)
-  #'@param epais : épaisseur des la grille des carreaux
   #'@returns : carte produite avec le package mapsf
   mf_map(x = sfCar, 
          type = "choro",
          var = nomvar,
          breaks = "quantile",
          nbreaks = nbreaks,
-         lwd = epais,
+         lwd = 0.2,
          leg_pos = "topright")
   mf_map(x = zone,  
          lwd = 4,
@@ -260,7 +255,7 @@ centroides <- btb_add_centroids(pts = parkings, iCellSize = iCellSize)
 
 # 3. Compter le nombre de parkings par carreau
 centroides <- centroides %>% 
-  summarise(.by = c(x_centro, y_centro), nbParkings = n())
+  group_by(x_centro, y_centro) |> count(name = "nbParkings")
 head(centroides)
 ```
 :::
@@ -269,7 +264,7 @@ head(centroides)
 ```{block}
 1. Transformer `centroides` en grille de carreaux et stocker le résultat dans la variable `sfCarreaux`. 
 2. Restreindre cette base aux seuls carreaux intersectant le centre de Bordeaux.
-3. Cartographie les carreaux et le contour du centre de Bordeaux avec `mapview` en colorant les carreaux différemment selon le nombre de parkings qu'ils contiennent.
+3. Cartographie les carreaux et le contour du centre de Bordeaux avec `generCarte`.
 ```
 :::
 
@@ -658,7 +653,7 @@ Combien d'habitants vivent dans le centre de Bordeaux tel que nous l'avons défi
 
 Pour répondre à cette question : 
 
-1. Comme dans le tutoriel, charger la base des données Filosofi 2019 carroyées (grille de 200m) en ne chargeant que les carreaux de la Gironde (département 33) grâce à l'option `query` de `st_read`.
+1. Comme dans le tutoriel, charger la base des données Filosofi carroyées (grille de 200m) en ne chargeant que les carreaux de la Gironde (département 33) grâce à l'option `query` de `st_read`.
   
 2. Vérifier les projections cartographiques utilisées puis faire une intersection géographique entre les carreaux de la Gironde et le contour géographique du centre de Bordeaux
 
@@ -670,7 +665,7 @@ Pour répondre à cette question :
 
 ::: {.unilur-solution}
 ```{r exo15solu, eval = FALSE}
-# 1. Chargement des données de Filosofi 2019 en Gironde
+# 1. Chargement des données de Filosofi en Gironde
 url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/"
 object = "carreaux_200m_met.gpkg"
 
@@ -698,8 +693,8 @@ mapview(centreBdx, color = "black", lwd = 6, alpha.regions = 0, legend = F) +
 cat("Il y a approximativement", sum(carreaux_centreBdx$ind), "habitants dans le centre de Bordeaux")
 ```
 
-```{r echo = FALSE}
-# 1. Chargement des données de Filosofi 2019 en Gironde
+```{r exo15solu_masque, echo = FALSE}
+# 1. Chargement des données de Filosofi en Gironde
 url_bucket <- "https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/"
 url_file <- url(paste0(url_bucket, "/carreaux_33.RDS"))
 car33 <- readRDS(url_file) %>% st_transform(2154)

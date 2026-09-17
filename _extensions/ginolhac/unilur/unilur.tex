@@ -1,0 +1,125 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Force load of highlight environments
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+  \ifdefined\Shaded\else
+    % Definitions copied from Pandoc’s template
+    \usepackage{color}
+    \usepackage{fancyvrb}
+    \newcommand{\VerbBar}{|}
+    \newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \usepackage{framed}
+    \definecolor{shadecolor}{RGB}{241,243,245}
+    \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+    \newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+    \newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+    \newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+    \newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+    \newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+  \fi
+\makeatother
+
+
+%%%%%%%%%%
+% Packages
+%%%%%%%%%%
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define colors for callouts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% This is using HEX code without the # at the beginning
+
+% Solution callout
+\definecolor{quarto-callout-color-solution}{HTML}{109524} % header color
+\definecolor{quarto-callout-color-solution-frame}{HTML}{A6CEA8} % border color
+
+% Comment callout
+\definecolor{quarto-callout-color-comment}{HTML}{F5F5F5} % header color
+\definecolor{quarto-callout-color-comment-frame}{HTML}{9E9E9E} % border color
+
+% Tip callout
+% The colour was changed to yellow as 1) homage of the original {unilur} R package and 2) to differentiate to the solutions
+\definecolor{quarto-callout-tip-color}{HTML}{FFF176} % header color
+\definecolor{quarto-callout-tip-color-frame}{HTML}{FFB300} % border color
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define custom tcolorbox environments to mimic callouts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% For solution
+\newtcolorbox{callout-solution}[2][]{
+  enhanced,
+  arc=0.5mm, % define radius of the rounding -> increase for smoother curves
+  leftrule=2pt, % thicker left border
+  rightrule=0.5pt, % thinner right border
+  toprule=0.5pt, % thinner top border
+  bottomrule=0.5pt, % thinner botoom border
+  colback=white, % main content background in white
+  colframe=quarto-callout-color-solution-frame, % border color
+  coltitle=black, % make the text solution in black
+  colbacktitle=quarto-callout-color-solution!5, % background color for the title with transparency
+  attach boxed title to top, % need this line for the next one
+  boxed title style={bottomrule=0pt, % delete line between title and box
+  colframe=quarto-callout-color-solution-frame, % color the line around the title box the same as the frame
+  top=1.5mm, bottom=1.5mm}, % add more space before and after the title of the callout
+  left=1mm, % move text closer to the left (space between left edge and content)
+  title={#2},
+  #1
+}
+
+
+% For comments
+\newtcolorbox{callout-comment}[2][]{%
+  enhanced,
+  arc=0.5mm, % define radius of the rounding -> increase for smoother curves
+  leftrule=2pt, % thicker left border
+  rightrule=0.5pt, % thinner right border
+  toprule=0.5pt, % thinner top border
+  bottomrule=0.5pt, % thinner botoom border
+  colback=white, % main content background in white
+  colframe=quarto-callout-color-comment-frame, % border color
+  coltitle=black, % make the text comment in black
+  colbacktitle=quarto-callout-color-comment, % background color for the title
+  attach boxed title to top, % need this line for the next one
+  boxed title style={bottomrule=0pt, % delete line between title and box
+  colframe=quarto-callout-color-comment-frame, % color the line around the title box the same as the frame
+  top=1.5mm, bottom=1.5mm}, % add more space before and after the title of the callout
+  left=1mm, % move text closer to the left (space between left edge and content)
+  title={#2},
+  #1
+}

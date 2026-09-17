@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="tuto_presentation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="tuto_presentation_files/libs/quarto-html/tabby.min.js"></script>
+<script src="tuto_presentation_files/libs/quarto-html/popper.min.js"></script>
+<script src="tuto_presentation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="tuto_presentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="tuto_presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="tuto_presentation_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+<meta name="author" content="Kévin Milin - Solène Colin">
+<title>Formation au carroyage et lissage spatial sur R</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+<link rel="stylesheet" href="tuto_presentation_files/libs/revealjs/dist/reset.css">
+<link rel="stylesheet" href="tuto_presentation_files/libs/revealjs/dist/reveal.css">
+<style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+<link rel="stylesheet" href="tuto_presentation_files/libs/revealjs/dist/theme/quarto-42d336744a5a7d21310501bf0cf71a9d.css">
+<link href="tuto_presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+<link href="tuto_presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+<link href="tuto_presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+<link href="tuto_presentation_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+<link href="tuto_presentation_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+<link href="tuto_presentation_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+<style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center"><h1 class="title">Formation au carroyage et lissage spatial sur R</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Kévin Milin - Solène Colin
+</div>
+</div>
+</div>
+
+</section><section id="TOC"><nav role="doc-toc"><h2 id="toc-title">Plan :</h2>
+<ul>
+<li>
+<a href="#/introduction" id="/toc-introduction">1. Introduction</a>
+<ul>
+<li><a href="#/objectifs-du-tp" id="/toc-objectifs-du-tp">1.1 Objectifs du TP</a></li>
+<li><a href="#/avertissements" id="/toc-avertissements">1.2 Avertissements</a></li>
+</ul>
+</li>
+<li>
+<a href="#/configurations" id="/toc-configurations">2. Configurations</a>
+<ul>
+<li><a href="#/chargement-des-librairies" id="/toc-chargement-des-librairies">2.1 Chargement des librairies</a></li>
+<li><a href="#/chargement-de-la-base" id="/toc-chargement-de-la-base">2.2 Chargement de la base</a></li>
+<li><a href="#/chargement-et-pr%C3%A9paration-des-donn%C3%A9es-cartographiques" id="/toc-chargement-et-préparation-des-données-cartographiques">2.3 Chargement et préparation des données cartographiques</a></li>
+</ul>
+</li>
+<li><a href="#/carroyage-de-donn%C3%A9es" id="/toc-carroyage-de-données">3. Carroyage de données</a></li>
+<li>
+<a href="#/lissage" id="/toc-lissage">4. Lissage</a>
+<ul>
+<li><a href="#/calcul-de-densit%C3%A9" id="/toc-calcul-de-densité">4.1 Calcul de densité</a></li>
+<li><a href="#/calcul-de-moyenne" id="/toc-calcul-de-moyenne">3.2 Calcul de moyenne</a></li>
+<li><a href="#/calcul-de-taux" id="/toc-calcul-de-taux">3.3 Calcul de taux</a></li>
+<li><a href="#/calcul-de-quantiles-g%C3%A9ographiquement-pond%C3%A9r%C3%A9s" id="/toc-calcul-de-quantiles-géographiquement-pondérés">3.4 Calcul de quantiles géographiquement pondérés</a></li>
+</ul>
+</li>
+<li><a href="#/conclusion" id="/toc-conclusion">Conclusion</a></li>
+</ul></nav></section><section><section id="introduction" class="title-slide slide level1 center" data-background-color="skyblue"><h1>1. Introduction</h1>
+
+</section><section id="objectifs-du-tp" class="title-slide slide level2 center" data-background-color="powderblue"><h2>1.1 Objectifs du TP</h2>
+
+</section><section class="slide level3"><ul>
+<li>En 2018, création du package R <code>btb</code> (PSAR Analyse Urbaine, Arlindo Dos Santo et François Sémécurbe).</li>
+<li>Sa principale fonction, <code>btb_smooth</code>, permet de réaliser très facilement un <strong>carroyage</strong> et un <strong>lissage</strong> sur des données géolocalisées.</li>
+</ul></section><section class="slide level3"><p>À partir de données ponctuelles, nous allons apprendre, en utilisant le langage R :</p>
+<ul>
+<li>À <strong>carroyer</strong> les informations.</li>
+</ul>
+<div class="fragment">
+<ul>
+<li>À réaliser des <strong>lissages</strong> :
+<ul>
+<li>de densité,</li>
+<li>de moyennes,</li>
+<li>de taux,</li>
+<li>quantiles.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li>À calculer un <strong>indicateur sur une zone à façon</strong>
+</li>
+</ul>
+</div>
+</section><section class="slide level3"><p><strong>Liens utiles</strong></p>
+<ul>
+<li><a href="https://github.com/InseeFrLab/formation-r-lissage-spatial">Code de la formation</a></li>
+<li><a href="https://inseefrlab.github.io/formation-r-lissage-spatial">Site web des supports de formation</a></li>
+</ul></section><section id="avertissements" class="title-slide slide level2 center" data-background-color="powderblue"><h2>1.2 Avertissements</h2>
+
+</section><section id="secret-statistique" class="slide level3"><h3>Secret statistique</h3>
+<p>Avant toute diffusion auprès des partenaires, il faut bien veiller à respecter :</p>
+<ul>
+<li>le <strong>secret</strong>
+<ul>
+<li><strong>primaire</strong></li>
+<li><strong>secondaire</strong></li>
+<li><strong>fiscal</strong></li>
+</ul>
+</li>
+<li>les <strong>conventions</strong> établies avec les fournisseurs des données</li>
+</ul></section><section id="qualité-des-cartes" class="slide level3"><h3>Qualité des cartes</h3>
+<p>Pour simplifier : on prend des libertés avec la <strong>sémiologie cartographique</strong></p>
+
+<img data-src="images/lightsemio.png" class="quarto-figure quarto-figure-center r-stretch" width="300"><p><em>Auteur : Timothée Giraud, auteur de la librairie <code>mapsf</code></em></p>
+</section><section id="système-de-projection" class="slide level3"><h3>Système de projection</h3>
+<table class="caption-top">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 69%">
+<col style="width: 15%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">Nom</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Code EPSG</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Lambert93</td>
+<td style="text-align: left;">Système de projection officiel pour la métropole</td>
+<td style="text-align: left;">2154</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LAEA</td>
+<td style="text-align: left;">Système de projection européen</td>
+<td style="text-align: left;">3035</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">WGS84</td>
+<td style="text-align: left;">GPS (utile pour utiliser Leaflet)</td>
+<td style="text-align: left;">4326</td>
+</tr>
+</tbody>
+</table></section></section><section><section id="configurations" class="title-slide slide level1 center" data-background-color="skyblue"><h1>2. Configurations</h1>
+
+</section><section id="chargement-des-librairies" class="title-slide slide level2 center" data-background-color="powderblue"><h2>2.1 Chargement des librairies</h2>
+
+</section><section class="slide level3"><p>Pour ce TP, 5 librairies principales sont nécessaires :</p>
+<ul>
+<li>
+<code>sf</code> pour manipuler des fichiers spatiaux (importer des .shp, transformer des projections, et réaliser des géotraitements) ;</li>
+<li>
+<code>dplyr</code> pour le traitement des données, en particulier l’agrégation géographique ;</li>
+<li>
+<code>mapsf</code> pour réaliser des cartes ;</li>
+<li>
+<code>mapview</code> (reposant sur <code>leaflet</code>) pour réaliser des cartes interactives ;</li>
+<li>
+<code>btb</code> pour le carroyage et lissage.</li>
+</ul></section><section class="slide level3"><p><strong>Charger les librairies nécessaires</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="" aria-label="1"></a><span class="do">## Liste des librairies utilisées</span></span>
+<span id="cb1-2"><a href="" aria-label="2"></a>packages <span class="ot">&lt;-</span>  <span class="fu">c</span>(<span class="st">"sf"</span>, <span class="st">"dplyr"</span>, <span class="st">"mapsf"</span>, <span class="st">"leaflet"</span>, <span class="st">"mapview"</span>, <span class="st">"btb"</span>)</span>
+<span id="cb1-3"><a href="" aria-label="3"></a></span>
+<span id="cb1-4"><a href="" aria-label="4"></a><span class="do">## Vérifier si la librairie est installée, si non l'installer, puis la charger</span></span>
+<span id="cb1-5"><a href="" aria-label="5"></a>package.check <span class="ot">&lt;-</span> <span class="fu">lapply</span>(</span>
+<span id="cb1-6"><a href="" aria-label="6"></a>  packages,</span>
+<span id="cb1-7"><a href="" aria-label="7"></a>  <span class="at">FUN =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb1-8"><a href="" aria-label="8"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-9"><a href="" aria-label="9"></a>      <span class="fu">install.packages</span>(x, <span class="at">dependencies =</span> <span class="cn">TRUE</span>, <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-10"><a href="" aria-label="10"></a>      <span class="fu">library</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-11"><a href="" aria-label="11"></a>    }</span>
+<span id="cb1-12"><a href="" aria-label="12"></a>  }</span>
+<span id="cb1-13"><a href="" aria-label="13"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="chargement-de-la-base" class="title-slide slide level2 center" data-background-color="powderblue"><h2>2.2 Chargement de la base</h2>
+
+</section><section id="base-demandes-de-valeurs-foncières" class="slide level3"><h3>Base « <a href="https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/"><strong>D</strong>emandes de <strong>V</strong>aleurs <strong>F</strong>oncières</a> »,</h3>
+<ul>
+<li>Produite par la Direction générale des finances publiques (actes notariés).</li>
+</ul>
+<p>Elle recense :</p>
+<ul>
+<li>les ventes de biens fonciers (bâtis ou terrains),</li>
+<li>au cours des 5 dernières années,</li>
+<li>hors Mayotte et Alsace-Moselle.</li>
+</ul></section><section id="constitution-de-la-base-à-partir-de-cette-source" class="slide level3"><h3>Constitution de la base à partir de cette source</h3>
+<ul>
+<li>Uniquement sur le périmètre de la <strong>petite couronne parisienne</strong>
+</li>
+<li>Pour l’année <strong>2021</strong>.</li>
+</ul></section><section id="variables-utilisées" class="slide level3"><h3>8 variables utilisées</h3>
+<div class="textmini">
+<ul>
+<li>
+<code>id_mutation</code> : identifiant unique de la vente</li>
+<li>
+<code>date_mutation</code> : date de la vente</li>
+<li>
+<code>type_local</code> : appartement ou maison</li>
+<li>
+<code>nombre_pieces_principales</code> : nombre de pièces dans le logement</li>
+<li>
+<code>valeur_fonciere</code> : prix de vente</li>
+<li>
+<code>surface_reelle_bati</code> : surface du logement</li>
+<li>
+<code>x</code> : longitude (<strong>en projection Lambert 93</strong>)</li>
+<li>
+<code>y</code> : latitude (<strong>en projection Lambert 93</strong>)</li>
+</ul>
+</div>
+</section><section id="remarques" class="slide level3"><h3>Remarques</h3>
+<ul>
+<li>
+<a href="https://github.com/InseeFrLab/formation-r-lissage-spatial/blob/main/tutorials/prepa_data.R">Code de production de la base</a>.</li>
+<li>Base non représentative de la réalité : usage purement pédagogique.</li>
+</ul></section><section id="chargement" class="slide level3"><h3>Chargement</h3>
+<p>Importation de la base <code>ventesImmo_couronneParis.RDS</code>, stockée sous Minio.</p>
+<p>Téléchargement via URL :</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="" aria-label="1"></a><span class="co"># Charger la source de données</span></span>
+<span id="cb2-2"><a href="" aria-label="2"></a>url_bucket <span class="ot">&lt;-</span> <span class="st">"https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/"</span></span>
+<span id="cb2-3"><a href="" aria-label="3"></a>object <span class="ot">&lt;-</span> <span class="st">"ventesImmo_couronneParis.RDS"</span></span>
+<span id="cb2-4"><a href="" aria-label="4"></a></span>
+<span id="cb2-5"><a href="" aria-label="5"></a>url_file <span class="ot">&lt;-</span> <span class="fu">url</span>(<span class="fu">paste0</span>(url_bucket, object))</span>
+<span id="cb2-6"><a href="" aria-label="6"></a>dfBase <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(url_file)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="manipulation-de-notre-base-chargée-en-mémoire" class="slide level3"><h3>Manipulation de notre base chargée en mémoire</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="" aria-label="1"></a><span class="fu">dim</span>(dfBase) ; <span class="fu">head</span>(dfBase, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 34489     8</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id_mutation date_mutation  type_local nombre_pieces_principales
+1 2021-447023    2021-01-08 Appartement                         3
+2 2021-447024    2021-01-05 Appartement                         2
+3 2021-447025    2021-01-08 Appartement                         3
+  valeur_fonciere surface_reelle_bati        x       y
+1          480000                  64 647357.3 6868635
+2          345000                  43 644483.5 6867695
+3          384000                  41 648001.8 6866153</code></pre>
+</div>
+</div>
+</section><section id="chargement-et-préparation-des-données-cartographiques" class="title-slide slide level2 center" data-background-color="powderblue"><h2>2.3 Chargement et préparation des données cartographiques</h2>
+
+</section><section id="chargement-du-fond-de-carte-du-territoire-à-étudier" class="slide level3"><h3>Chargement du fond de carte du territoire à étudier</h3>
+<ul>
+<li>Chargement de la <strong>couche vectorielle</strong> des départements de la petite couronne parisienne.</li>
+<li>Type de fichiers : <code>.shp</code> ou <code>.gpkg</code> (format recommmandé, voir <a href="https://www.gis-blog.com/geopackage-vs-shapefile/">ici</a>)</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="" aria-label="1"></a><span class="co"># Récupération du fond de carte grâce à st_read</span></span>
+<span id="cb6-2"><a href="" aria-label="2"></a>chemin_file <span class="ot">&lt;-</span> <span class="fu">paste0</span>(url_bucket, <span class="st">"depCouronne.gpkg"</span>)</span>
+<span id="cb6-3"><a href="" aria-label="3"></a>depCouronne_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(chemin_file)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `depCouronne' from data source 
+  `https://minio.lab.sspcloud.fr/projet-formation/r-lissage-spatial/depCouronne.gpkg' 
+  using driver `GPKG'
+Simple feature collection with 4 features and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 637307.1 ymin: 6843303 xmax: 671686 ymax: 6879253
+Projected CRS: RGF93 v1 / Lambert-93</code></pre>
+</div>
+</div>
+</section><section id="visualisation-du-fond-de-carte" class="slide level3"><h3>Visualisation du fond de carte</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="" aria-label="1"></a>depCouronne_sf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 4 features and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 637307.1 ymin: 6843303 xmax: 671686 ymax: 6879253
+Projected CRS: RGF93 v1 / Lambert-93
+  code           libelle reg surf                           geom
+1   75             Paris  11  105 MULTIPOLYGON (((660897 6860...
+2   92    Hauts-de-Seine  11  176 MULTIPOLYGON (((648796 6847...
+3   93 Seine-Saint-Denis  11  237 MULTIPOLYGON (((659428 6861...
+4   94      Val-de-Marne  11  245 MULTIPOLYGON (((656908 6846...</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="" aria-label="1"></a><span class="fu">plot</span>(depCouronne_sf<span class="sc">$</span>geom)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="" aria-label="1"></a><span class="co">#On renomme la variable  `geom`  en `geometry`</span></span>
+<span id="cb11-2"><a href="" aria-label="2"></a>depCouronne_sf <span class="ot">&lt;-</span> depCouronne_sf <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">geometry =</span> geom)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="contours-de-paris" class="slide level3"><h3>Contours de Paris</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="" aria-label="1"></a><span class="co"># Sélection de Paris</span></span>
+<span id="cb12-2"><a href="" aria-label="2"></a>paris_sf <span class="ot">&lt;-</span> depCouronne_sf[depCouronne_sf<span class="sc">$</span>code <span class="sc">==</span> <span class="st">"75"</span>, ]</span>
+<span id="cb12-3"><a href="" aria-label="3"></a>paris_sf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 1 feature and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 643076 ymin: 6857499 xmax: 660897 ymax: 6867034
+Projected CRS: RGF93 v1 / Lambert-93
+  code libelle reg surf                       geometry
+1   75   Paris  11  105 MULTIPOLYGON (((660897 6860...</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="" aria-label="1"></a><span class="fu">plot</span>(paris_sf<span class="sc">$</span>geometry)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section><section id="projections" class="slide level3"><h3>Projections</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="" aria-label="1"></a><span class="co"># Connaître le système de correction d'une couche cartographique</span></span>
+<span id="cb15-2"><a href="" aria-label="2"></a><span class="fu">st_crs</span>(depCouronne_sf)<span class="sc">$</span>epsg ; <span class="fu">st_crs</span>(paris_sf)<span class="sc">$</span>epsg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2154</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2154</code></pre>
+</div>
+</div>
+</section><section class="slide level3"><ul>
+<li>Si besoin, on reprojette les deux bases dans le même système de projection.</li>
+<li>Ici, en Lambert 93 (epsg 2154)</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="" aria-label="1"></a>depCouronne_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(depCouronne_sf, <span class="at">crs =</span> <span class="dv">2154</span>)</span>
+<span id="cb18-2"><a href="" aria-label="2"></a>paris_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(paris_sf, <span class="at">crs =</span> <span class="dv">2154</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="territoires-englobants" class="slide level3"><h3>Territoires englobants</h3>
+<div class="boite">
+<p><span class="emoji" data-emoji="skull_and_crossbones">☠️</span> <strong>Eviter les effets de bord</strong></p>
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> Toujours électionner des données à lisser <strong>au-delà de la zone d’intérêt</strong> (ici Paris intramuros)</p>
+</div>
+</section><section id="méthode-1-sélection-géométrique-14" class="slide level3"><h3>
+<strong>Méthode 1</strong> : sélection <strong>géométrique</strong> [1/4]</h3>
+<ul>
+<li>Utiliser nos données individuelles comme un ensemble de points géolocalisés</li>
+<li>Procéder à des intersections géographiques.</li>
+</ul>
+<p><strong>Avantages / Inconvénients</strong></p>
+<ul>
+<li>
+<span class="emoji" data-emoji="heavy_check_mark">✔️</span> court et logique à coder</li>
+<li>
+<span class="emoji" data-emoji="x">❌</span> potentiellement lourd d’un point de vue calculatoire.</li>
+</ul></section><section id="méthode-1-sélection-géométrique-24" class="slide level3 scrollable"><h3>
+<strong>Méthode 1</strong> : sélection <strong>géométrique</strong> [2/4]</h3>
+<ol type="1">
+<li>On transforme nos observations en points vectoriels ;</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="" aria-label="1"></a>sfBase <span class="ot">&lt;-</span> dfBase <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">lon =</span> x, <span class="at">lat =</span> y) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="" aria-label="2"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"lon"</span>, <span class="st">"lat"</span>), <span class="at">crs =</span> <span class="dv">2154</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<ol start="2" type="1">
+<li>On crée une zone tampon (<em>buffer</em>) autour du territoire d’intérêt, avec une marge (ici 2&nbsp;000m), sous la forme d’un objet <code>sf</code> vectoriel ;</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="" aria-label="1"></a>buffer_sf <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(paris_sf, <span class="at">dist =</span> <span class="dv">2000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Remarque:</strong> Pour la zone tampon, prendre une marge légèrement plus grande que le rayon de lissage envisagé.</p>
+</div>
+</section><section id="méthode-1-sélection-géométrique-34" class="slide level3 scrollable"><h3>
+<strong>Méthode 1</strong> : sélection <strong>géométrique</strong> [3/4]</h3>
+<ol start="3" type="1">
+<li>On repère les observations comprises dans cette zone tampon par intersection géographique.</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="" aria-label="1"></a>sfBase_filtre <span class="ot">&lt;-</span> <span class="fu">st_join</span>(sfBase, buffer_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb21-2"><a href="" aria-label="2"></a><span class="fu">head</span>(sfBase_filtre, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 3 features and 12 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 645132.7 ymin: 6864646 xmax: 648001.8 ymax: 6866153
+Projected CRS: RGF93 v1 / Lambert-93
+  id_mutation date_mutation  type_local nombre_pieces_principales
+3 2021-447025    2021-01-08 Appartement                         3
+5 2021-447029    2021-01-05 Appartement                         2
+6 2021-447030    2021-01-15 Appartement                         3
+  valeur_fonciere surface_reelle_bati        x       y code libelle reg surf
+3          384000                  41 648001.8 6866153   75   Paris  11  105
+5          407200                  24 646929.9 6864730   75   Paris  11  105
+6         1040000                  90 645132.7 6864646   75   Paris  11  105
+                  geometry
+3 POINT (648001.8 6866153)
+5 POINT (646929.9 6864730)
+6 POINT (645132.7 6864646)</code></pre>
+</div>
+</div>
+</section><section id="méthode-1-sélection-géométrique-44" class="slide level3"><h3>
+<strong>Méthode 1</strong> : sélection <strong>géométrique</strong> [4/4]</h3>
+<div class="textmini2">
+<p>Zone, buffer et 2000 points tirés aléatoirement.</p>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>code du schema explicatif</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="" aria-label="1"></a><span class="co"># Échantillon (en dehors et dans le buffer)</span></span>
+<span id="cb23-2"><a href="" aria-label="2"></a>sfBase_sample <span class="ot">&lt;-</span> sfBase[<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(sfBase), <span class="dv">2000</span>), ] <span class="co"># échantillon 2000 obs</span></span>
+<span id="cb23-3"><a href="" aria-label="3"></a>sfBase_filtre_sample <span class="ot">&lt;-</span> <span class="fu">st_join</span>(sfBase_sample, buffer_sf, <span class="at">left =</span> F) </span>
+<span id="cb23-4"><a href="" aria-label="4"></a></span>
+<span id="cb23-5"><a href="" aria-label="5"></a><span class="co"># Cartographie pédagogique</span></span>
+<span id="cb23-6"><a href="" aria-label="6"></a><span class="fu">mf_map</span>(buffer_sf, <span class="at">col =</span> <span class="st">"yellow"</span>)</span>
+<span id="cb23-7"><a href="" aria-label="7"></a><span class="fu">mf_base</span>(paris_sf, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">add =</span> T)</span>
+<span id="cb23-8"><a href="" aria-label="8"></a><span class="fu">mf_base</span>(sfBase_sample, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">add =</span> T)</span>
+<span id="cb23-9"><a href="" aria-label="9"></a><span class="fu">mf_base</span>(sfBase_filtre_sample, <span class="at">col =</span> <span class="st">"green"</span>, <span class="at">add =</span> T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/schemaBuffer-1.png" width="960" class="r-stretch"></section><section id="méthode-2-sélection-non-géométrique-14" class="slide level3"><h3>
+<strong>Méthode 2</strong> : sélection <strong>non-géométrique</strong> [1/4]</h3>
+<ul>
+<li>filtrer les x et y compris dans un grand rectangle englobant Paris intramuros</li>
+</ul>
+<p><strong>Avantages / Inconvénients</strong></p>
+<ul>
+<li><p><span class="emoji" data-emoji="heavy_check_mark">✔️</span> très efficace computationnellement (peut-être utilisée en première étape avant de repasser à la méthode géométrique)</p></li>
+<li><p><span class="emoji" data-emoji="x">❌</span> mais requiert de construire au préalable un rectangle adapté…</p></li>
+</ul></section><section id="méthode-2-sélection-non-géométrique-24" class="slide level3"><h3>
+<strong>Méthode 2</strong> : sélection <strong>non-géométrique</strong> [2/4]</h3>
+<ul>
+<li>Création d’une bbox autour du territoire…</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="" aria-label="1"></a>bbox <span class="ot">&lt;-</span> <span class="fu">st_bbox</span>(paris_sf) ; bbox</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   xmin    ymin    xmax    ymax 
+ 643076 6857499  660897 6867034 </code></pre>
+</div>
+</div>
+<ul>
+<li>… puis <em>buffer</em> autour de celle-ci (marge : 2 000m)</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="" aria-label="1"></a>marge <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb26-2"><a href="" aria-label="2"></a>bufferBbox <span class="ot">&lt;-</span> bbox</span>
+<span id="cb26-3"><a href="" aria-label="3"></a>bufferBbox[[<span class="st">"xmin"</span>]] <span class="ot">&lt;-</span> bufferBbox[[<span class="st">"xmin"</span>]] <span class="sc">-</span> marge</span>
+<span id="cb26-4"><a href="" aria-label="4"></a>bufferBbox[[<span class="st">"xmax"</span>]] <span class="ot">&lt;-</span> bufferBbox[[<span class="st">"xmax"</span>]] <span class="sc">+</span> marge</span>
+<span id="cb26-5"><a href="" aria-label="5"></a>bufferBbox[[<span class="st">"ymin"</span>]] <span class="ot">&lt;-</span> bufferBbox[[<span class="st">"ymin"</span>]] <span class="sc">-</span> marge</span>
+<span id="cb26-6"><a href="" aria-label="6"></a>bufferBbox[[<span class="st">"ymax"</span>]] <span class="ot">&lt;-</span> bufferBbox[[<span class="st">"ymax"</span>]] <span class="sc">+</span> marge</span>
+<span id="cb26-7"><a href="" aria-label="7"></a>bufferBbox</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   xmin    ymin    xmax    ymax 
+ 641076 6855499  662897 6869034 </code></pre>
+</div>
+</div>
+</section><section id="méthode-1-sélection-non-géométrique-34" class="slide level3"><h3>
+<strong>Méthode 1</strong> : sélection <strong>non-géométrique</strong> [3/4]</h3>
+<p>On peut alors filtrer (via les x, y) les logements dans la grande bbox :</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="" aria-label="1"></a><span class="co"># Ne garder que les données dans le rectangle englobant, </span></span>
+<span id="cb28-2"><a href="" aria-label="2"></a><span class="co"># sans traitement vectoriel !</span></span>
+<span id="cb28-3"><a href="" aria-label="3"></a>dfBase_filtre <span class="ot">&lt;-</span> dfBase[dfBase<span class="sc">$</span>x <span class="sc">&gt;=</span> bufferBbox[<span class="st">"xmin"</span>] <span class="sc">&amp;</span></span>
+<span id="cb28-4"><a href="" aria-label="4"></a>                          dfBase<span class="sc">$</span>x <span class="sc">&lt;=</span> bufferBbox[<span class="st">"xmax"</span>] <span class="sc">&amp;</span></span>
+<span id="cb28-5"><a href="" aria-label="5"></a>                          dfBase<span class="sc">$</span>y <span class="sc">&gt;=</span> bufferBbox[<span class="st">"ymin"</span>] <span class="sc">&amp;</span></span>
+<span id="cb28-6"><a href="" aria-label="6"></a>                          dfBase<span class="sc">$</span>y <span class="sc">&lt;=</span> bufferBbox[<span class="st">"ymax"</span>], ]</span>
+<span id="cb28-7"><a href="" aria-label="7"></a></span>
+<span id="cb28-8"><a href="" aria-label="8"></a><span class="co"># nb de lignes avant/après le filtre</span></span>
+<span id="cb28-9"><a href="" aria-label="9"></a><span class="fu">nrow</span>(dfBase_filtre) ; <span class="fu">nrow</span>(dfBase)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 24419</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 34489</code></pre>
+</div>
+</div>
+</section><section id="méthode-1-sélection-non-géométrique-44" class="slide level3"><h3>
+<strong>Méthode 1</strong> : sélection <strong>non-géométrique</strong> [4/4]</h3>
+<div class="cell">
+<details class="code-fold"><summary>code du schema explicatif</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="" aria-label="1"></a><span class="co"># Échantillon (en dehors et dans le buffer)</span></span>
+<span id="cb31-2"><a href="" aria-label="2"></a>sfBase_sample <span class="ot">&lt;-</span> sfBase[<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(sfBase), <span class="dv">2000</span>), ] <span class="co"># échantillon 2000 obs</span></span>
+<span id="cb31-3"><a href="" aria-label="3"></a>sfBase_sample_filtre <span class="ot">&lt;-</span> sfBase_sample[sfBase_sample<span class="sc">$</span>x <span class="sc">&gt;=</span> bufferBbox[<span class="st">"xmin"</span>] <span class="sc">&amp;</span></span>
+<span id="cb31-4"><a href="" aria-label="4"></a>                                        sfBase_sample<span class="sc">$</span>x <span class="sc">&lt;=</span> bufferBbox[<span class="st">"xmax"</span>] <span class="sc">&amp;</span></span>
+<span id="cb31-5"><a href="" aria-label="5"></a>                                        sfBase_sample<span class="sc">$</span>y <span class="sc">&gt;=</span> bufferBbox[<span class="st">"ymin"</span>] <span class="sc">&amp;</span></span>
+<span id="cb31-6"><a href="" aria-label="6"></a>                                        sfBase_sample<span class="sc">$</span>y <span class="sc">&lt;=</span> bufferBbox[<span class="st">"ymax"</span>], ] </span>
+<span id="cb31-7"><a href="" aria-label="7"></a></span>
+<span id="cb31-8"><a href="" aria-label="8"></a><span class="co"># Petit rectangle vectoriel</span></span>
+<span id="cb31-9"><a href="" aria-label="9"></a>bbox_sf <span class="ot">=</span> <span class="fu">st_sf</span>(<span class="at">geometry =</span> <span class="fu">st_as_sfc</span>(bbox), <span class="at">crs =</span> <span class="dv">2154</span>)</span>
+<span id="cb31-10"><a href="" aria-label="10"></a></span>
+<span id="cb31-11"><a href="" aria-label="11"></a><span class="co"># Grand rectangle vectoriel</span></span>
+<span id="cb31-12"><a href="" aria-label="12"></a>bufferBbox_sf <span class="ot">=</span> <span class="fu">st_sf</span>(<span class="at">geometry =</span> <span class="fu">st_as_sfc</span>(bufferBbox), <span class="at">crs =</span> <span class="dv">2154</span>)</span>
+<span id="cb31-13"><a href="" aria-label="13"></a></span>
+<span id="cb31-14"><a href="" aria-label="14"></a><span class="co"># Cartographie pédagogique</span></span>
+<span id="cb31-15"><a href="" aria-label="15"></a><span class="fu">mf_map</span>(bufferBbox_sf, <span class="at">col =</span> <span class="st">"yellow"</span>)</span>
+<span id="cb31-16"><a href="" aria-label="16"></a><span class="fu">mf_map</span>(bbox_sf, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">add =</span> T)</span>
+<span id="cb31-17"><a href="" aria-label="17"></a><span class="fu">mf_map</span>(paris_sf, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">add =</span> T)</span>
+<span id="cb31-18"><a href="" aria-label="18"></a><span class="fu">mf_map</span>(sfBase_sample, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">add =</span> T)</span>
+<span id="cb31-19"><a href="" aria-label="19"></a><span class="fu">mf_map</span>(sfBase_sample_filtre, <span class="at">col =</span> <span class="st">"green"</span>, <span class="at">add =</span> T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/schemaBbox-1.png" width="960" class="r-stretch"></section></section><section><section id="carroyage-de-données" class="title-slide slide level1 center" data-background-color="powderblue"><h1>3. Carroyage de données</h1>
+
+</section><section id="objectif-du-carroyage" class="slide level3"><h3>Objectif du carroyage</h3>
+<p>Avant de lisser les données ponctuelles, on peut représenter ces données sous <strong>forme carroyée</strong> afin de se les approprier.</p>
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> Le carroyage nécessite <strong>plusieurs étapes</strong></p>
+</section><section id="les-étapes-du-carroyage-15" class="slide level3 scrollable"><h3>Les étapes du carroyage [1/5]</h3>
+<div class="textmini2">
+<ol type="1">
+<li>Associer chaque point (= vente géolocalisée) au centroïde du carreau auquel il appartient (via <code>btb_add_centroids</code>).</li>
+</ol>
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> Le territoire est découpé en carreaux de 200 mètres à partir de l’origine du référentiel.</p>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="" aria-label="1"></a>iCellSize <span class="ot">=</span> <span class="dv">200</span> <span class="co"># carreaux de 200m</span></span>
+<span id="cb32-2"><a href="" aria-label="2"></a>points_carroyage <span class="ot">&lt;-</span> <span class="fu">btb_add_centroids</span>(<span class="at">pts =</span> dfBase_filtre, <span class="at">iCellSize =</span> iCellSize) </span>
+<span id="cb32-3"><a href="" aria-label="3"></a><span class="fu">head</span>(points_carroyage, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id_mutation date_mutation  type_local nombre_pieces_principales
+1 2021-447023    2021-01-08 Appartement                         3
+2 2021-447024    2021-01-05 Appartement                         2
+3 2021-447025    2021-01-08 Appartement                         3
+  valeur_fonciere surface_reelle_bati        x       y x_centro y_centro
+1          480000                  64 647357.3 6868635   647300  6868700
+2          345000                  43 644483.5 6867695   644500  6867700
+3          384000                  41 648001.8 6866153   648100  6866100</code></pre>
+</div>
+</div>
+</section><section id="les-étapes-du-carroyage-25" class="slide level3 scrollable"><h3>Les étapes du carroyage [2/5]</h3>
+<ol start="2" type="1">
+<li>Agréger les données sur chaque centroïde de la grille. En d’autres termes, compter le nombre de ventes par carreau</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="" aria-label="1"></a>points_centroides <span class="ot">&lt;-</span> points_carroyage <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="" aria-label="2"></a>  <span class="fu">group_by</span>(x_centro, y_centro) <span class="sc">%&gt;%</span> <span class="fu">count</span>(<span class="at">name =</span> <span class="st">"nbVentes"</span>)</span>
+<span id="cb34-3"><a href="" aria-label="3"></a><span class="fu">head</span>(points_centroides, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+# Groups:   x_centro, y_centro [3]
+  x_centro y_centro nbVentes
+     &lt;dbl&gt;    &lt;dbl&gt;    &lt;int&gt;
+1   641100  6857700        1
+2   641100  6857900        5
+3   641100  6858300        1</code></pre>
+</div>
+</div>
+</section><section id="les-étapes-du-carroyage-35" class="slide level3 scrollable"><h3>Les étapes du carroyage [3/5]</h3>
+<ol start="3" type="1">
+<li>Passer d’une table de centroïdes à une table de carreaux vectoriels via <code>btb_ptsToGrid</code>.</li>
+</ol>
+<div class="textmini2">
+<p><strong>Paramètres obligatoires :</strong></p>
+<ul>
+<li>
+<code>df</code> : un tableau avec les colonnes <code>x_centro</code> et <code>y_centro</code> représentant les coordonnées des centroïdes de la grille ;</li>
+<li>
+<code>sEPSG</code> : une chaîne de caractères indiquant le code epsg du système de projection utilisé ;</li>
+<li>
+<code>iCellSize</code> : la taille des carreaux (longueur du côté, en mètres).</li>
+</ul>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="" aria-label="1"></a>carreaux <span class="ot">&lt;-</span> <span class="fu">btb_ptsToGrid</span>(<span class="at">pts =</span> points_centroides,</span>
+<span id="cb36-2"><a href="" aria-label="2"></a>                          <span class="at">sEPSG =</span> <span class="st">"2154"</span>, <span class="at">iCellSize =</span> iCellSize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="les-étapes-du-carroyage-45" class="slide level3 scrollable"><h3>Les étapes du carroyage [4/5]</h3>
+<ol start="4" type="1">
+<li>Se restreindre au champ des carreaux intersectant Paris</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="" aria-label="1"></a>carreaux <span class="ot">&lt;-</span> carreaux <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="les-étapes-du-carroyage-55" class="slide level3"><h3>Les étapes du carroyage [5/5]</h3>
+<p>On trace le carroyage des ventes dans Paris intramuros :</p>
+<div class="cell">
+<details class="code-fold"><summary>code de la carte</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="" aria-label="1"></a><span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">lwd =</span> <span class="dv">4</span>)</span>
+<span id="cb38-2"><a href="" aria-label="2"></a><span class="fu">mf_map</span>(<span class="at">x =</span> carreaux,</span>
+<span id="cb38-3"><a href="" aria-label="3"></a>       <span class="at">type =</span> <span class="st">"choro"</span>,</span>
+<span id="cb38-4"><a href="" aria-label="4"></a>       <span class="at">var =</span> <span class="st">"nbVentes"</span>,</span>
+<span id="cb38-5"><a href="" aria-label="5"></a>       <span class="at">breaks =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb38-6"><a href="" aria-label="6"></a>       <span class="at">nbreaks =</span> <span class="dv">5</span>,</span>
+<span id="cb38-7"><a href="" aria-label="7"></a>       <span class="at">leg_val_rnd =</span> <span class="dv">1</span>,</span>
+<span id="cb38-8"><a href="" aria-label="8"></a>       <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb38-9"><a href="" aria-label="9"></a><span class="fu">mf_layout</span>(<span class="at">title =</span> <span class="st">"Carroyage du nombre de ventes"</span>,</span>
+<span id="cb38-10"><a href="" aria-label="10"></a>          <span class="at">credits =</span> <span class="st">"Insee-DSAU, DGFiP, Etalab, IGN, mapsf"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/carroyage5-1.png" width="960" class="r-stretch"></section><section id="remaques-sur-le-carroyage" class="slide level3"><h3>Remaques sur le carroyage</h3>
+<p>Le carroyage permet d’avoir un premier aperçu des données le plus fidèle à la réalité. Il est également utilisé pour simplifier les données avant lissage afin de rendre le calcul de lissage moins long en cas de très grand nombre d’observations.</p>
+</section></section><section><section id="lissage" class="title-slide slide level1 center" data-background-color="skyblue"><h1>4. Lissage</h1>
+
+</section><section id="calcul-de-densité" class="title-slide slide level2 center" data-background-color="powderblue"><h2>4.1 Calcul de densité</h2>
+
+</section><section id="lissage-le-plus-simple-à-réaliser" class="slide level3"><h3>Lissage le plus simple à réaliser</h3>
+<ul>
+<li>Densité = quantité par unité de surface (un carreau)</li>
+<li>Ici : densité de ventes de logements dans la ville de Paris au cours de l’année 2021</li>
+</ul></section><section id="effets-de-bord" class="slide level3"><h3>
+<span class="emoji" data-emoji="skull_and_crossbones">☠️</span> Effets de bord</h3>
+<p>Toujours pour éviter les effets de bord :</p>
+<ul>
+<li>Lissage sur une zone plus large que la zone d’intérêt</li>
+</ul>
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> Utilisation de <code>dfBase_filtre</code> (construite précédemment).</p>
+</section><section id="création-dune-variable-nbobslisse" class="slide level3"><h3>Création d’une variable <code>nbObsLisse</code>
+</h3>
+<ul>
+<li>On crée la variable <code>nbObsLisse = 1</code> pour chaque observation</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="" aria-label="1"></a><span class="co"># Variable à lisser = nombre d'observations = nombre de ventes</span></span>
+<span id="cb39-2"><a href="" aria-label="2"></a>dfBase_filtre<span class="sc">$</span>nbObsLisse <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb39-3"><a href="" aria-label="3"></a><span class="fu">head</span>(dfBase_filtre, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id_mutation date_mutation  type_local nombre_pieces_principales
+1 2021-447023    2021-01-08 Appartement                         3
+2 2021-447024    2021-01-05 Appartement                         2
+3 2021-447025    2021-01-08 Appartement                         3
+  valeur_fonciere surface_reelle_bati        x       y nbObsLisse
+1          480000                  64 647357.3 6868635          1
+2          345000                  43 644483.5 6867695          1
+3          384000                  41 648001.8 6866153          1</code></pre>
+</div>
+</div>
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> On lisse ensuite la variable <code>nbObsLisse</code> avec la fonction <code>btb_smooth</code></p>
+</section><section id="lissage-et-enregistrement-dans-sfcarrliss" class="slide level3"><h3>Lissage et enregistrement dans <code>sfCarrLiss</code>
+</h3>
+<div class="textmini2">
+<p><strong>Paramètres de <code>btb_smooth</code> </strong></p>
+<ul>
+<li>
+<code>pts</code> : tableau contenant les coordonnées (colonne <code>x</code> et <code>y</code> ou bien <code>geometry</code>), et 1 à n colonnes numériques (variables à lisser) ;</li>
+<li>
+<code>sEPSG</code> : chaîne de caractères indiquant le code epsg du système de projection utilisé ;</li>
+<li>
+<code>iCellSize</code> : un entier indiquant la taille des carreaux ;</li>
+<li>
+<code>iBandwidth</code> : un entier indiquant le rayon de lissage.</li>
+</ul>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="" aria-label="1"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>)], </span>
+<span id="cb41-2"><a href="" aria-label="2"></a>                         <span class="at">sEPSG =</span> <span class="st">"2154"</span>,</span>
+<span id="cb41-3"><a href="" aria-label="3"></a>                         <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb41-4"><a href="" aria-label="4"></a>                         <span class="at">iBandwidth =</span> <span class="dv">400</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="textmini2">
+<p><span class="emoji" data-emoji="bangbang">‼️</span> la fonction retourne une <strong>erreur</strong> en cas de :</p>
+<ul>
+<li>présence d’une variable non-numérique ;</li>
+<li>valeur(s) absente(s) dans les colonnes <code>x</code> ou <code>y</code>.</li>
+</ul>
+</div>
+</div>
+</section><section id="résultat-du-lissage" class="slide level3"><h3>Résultat du lissage</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="" aria-label="1"></a><span class="co"># nombre de lignes lissées</span></span>
+<span id="cb42-2"><a href="" aria-label="2"></a><span class="fu">nrow</span>(sfCarrLiss)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4107</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="" aria-label="1"></a><span class="co"># aperçu de la table lissée</span></span>
+<span id="cb44-2"><a href="" aria-label="2"></a><span class="fu">head</span>(sfCarrLiss, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 3 features and 3 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 646000 ymin: 6855400 xmax: 647200 ymax: 6855600
+Projected CRS: RGF93 v1 / Lambert-93
+       x       y nbObsLisse                       geometry
+1 646100 6855500   1.712851 POLYGON ((646000 6855600, 6...
+2 646500 6855500   1.261316 POLYGON ((646400 6855600, 6...
+3 647100 6855500   2.301557 POLYGON ((647000 6855600, 6...</code></pre>
+</div>
+</div>
+</section><section id="visualisation-de-la-grille-où-seffectue-le-lissage" class="slide level3"><h3>Visualisation de la grille où s’effectue le lissage</h3>
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="" aria-label="1"></a><span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, <span class="at">lwd =</span> <span class="dv">8</span>, <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"wheat"</span>)</span>
+<span id="cb46-2"><a href="" aria-label="2"></a><span class="fu">mf_map</span>(<span class="at">x =</span> sfCarrLiss, <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">lwd =</span> <span class="dv">1</span>, <span class="at">add =</span> T)</span>
+<span id="cb46-3"><a href="" aria-label="3"></a><span class="fu">mf_layout</span>(<span class="at">title =</span> <span class="st">"btb_smooth génère une grille carroyée"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/grilleCarrDefaut-1.png" width="960" class="r-stretch"><ul>
+<li>La grille lissée épouse le périmètre des points en entrée.</li>
+<li>Elle va même un peu au-delà (voir infra).</li>
+</ul></section><section id="le-lissage-par-densité-est-conservatif" class="slide level3"><h3>Le lissage par densité est conservatif</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="" aria-label="1"></a><span class="co"># nb de ventes dans la petite couronne </span></span>
+<span id="cb47-2"><a href="" aria-label="2"></a><span class="co"># vs nb lissé de ventes dans les carreaux</span></span>
+<span id="cb47-3"><a href="" aria-label="3"></a><span class="fu">sum</span>(dfBase_filtre<span class="sc">$</span>nbObsLisse) ; <span class="fu">sum</span>(sfCarrLiss<span class="sc">$</span>nbObsLisse) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 24419</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 24419</code></pre>
+</div>
+</div>
+</section><section id="remarque-sur-le-secret-statistique" class="slide level3"><h3>Remarque sur le secret statistique</h3>
+<p><span class="emoji" data-emoji="bangbang">‼️</span> Toujours vérifier le <strong>respect du secret statistique</strong> avant publication de cartes !</p>
+<p>Par exemple, avec données fiscales, pas de carreaux comportant moins de <strong>11 observations</strong>, même lissées…</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="" aria-label="1"></a>sfCarrLiss <span class="ot">&lt;-</span> sfCarrLiss[sfCarrLiss<span class="sc">$</span>nbObsLisse <span class="sc">&gt;=</span> <span class="dv">11</span>, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Pour avoir des cartes complétes lors de ce tutoriel, on garde tous les carreaux, même ceux avec moins de 11 observations.</p>
+</section><section id="représentation-cartographique-de-la-densité-lissée" class="slide level3"><h3>Représentation cartographique de la densité lissée</h3>
+<div class="columns">
+<div class="column" style="width:40%;">
+<ul>
+<li>Carte <strong>choroplèthe</strong> ;</li>
+<li>
+<strong>Discrétisation quantile</strong> de la densité lissée ;</li>
+<li>Avec <strong>5 classes</strong> de carreaux (5 couleurs) .</li>
+</ul>
+</div><div class="column" style="width:60%;">
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="" aria-label="1"></a><span class="co"># Filtrage des carreaux lissés intersectant la ville de Paris</span></span>
+<span id="cb51-2"><a href="" aria-label="2"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> </span>
+<span id="cb51-3"><a href="" aria-label="3"></a>  <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb51-4"><a href="" aria-label="4"></a></span>
+<span id="cb51-5"><a href="" aria-label="5"></a><span class="co"># Carte lissée</span></span>
+<span id="cb51-6"><a href="" aria-label="6"></a><span class="fu">mf_map</span>(<span class="at">x =</span> sfCarrLiss_paris, </span>
+<span id="cb51-7"><a href="" aria-label="7"></a>       <span class="at">type =</span> <span class="st">"choro"</span>,</span>
+<span id="cb51-8"><a href="" aria-label="8"></a>       <span class="at">var =</span> <span class="st">"nbObsLisse"</span>,</span>
+<span id="cb51-9"><a href="" aria-label="9"></a>       <span class="at">breaks =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb51-10"><a href="" aria-label="10"></a>       <span class="at">nbreaks =</span> <span class="dv">5</span>)</span>
+<span id="cb51-11"><a href="" aria-label="11"></a><span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, <span class="at">lwd =</span> <span class="dv">4</span>, <span class="at">col =</span> <span class="cn">NA</span>, </span>
+<span id="cb51-12"><a href="" aria-label="12"></a>       <span class="at">border =</span> <span class="st">"black"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-13"><a href="" aria-label="13"></a><span class="fu">mf_layout</span>(<span class="at">title =</span> <span class="st">"Lissage avec rayon de 400m"</span>,</span>
+<span id="cb51-14"><a href="" aria-label="14"></a>          <span class="at">credits =</span> <span class="st">"Insee-DSAU, DGFiP, Etalab, IGN"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/resLissAuto400-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section><section id="récapitulatif-lissage-de-densité" class="slide level3"><h3>Récapitulatif : lissage de densité</h3>
+<p>On souhaite obtenir le nombre de ventes lissé, en 2021 dans Paris intramuros :</p>
+<ul>
+<li class="fragment">On sélectionne les ventes au-delà de Paris intramuros (effets de bord)</li>
+<li class="fragment">On lisse grâce à <code>btb_smooth</code>
+</li>
+<li class="fragment">On obtient une grille carroyée bien plus vaste que Paris intramuros</li>
+<li class="fragment">On filtre uniquement les carreaux dans Paris</li>
+<li class="fragment">On cartographie la variable lissée (<code>nbObsLissee</code>)</li>
+</ul></section><section id="faire-varier-le-rayon-de-lissage" class="slide level3"><h3>Faire varier le rayon de lissage</h3>
+<p>Taille optimale du rayon de lissage ?</p>
+<ul>
+<li>Rayon grand (1 km) : aspects structurels des données</li>
+<li>Rayon petit (600 m) : spécificités locales des données.</li>
+</ul>
+<div class="boite">
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> Compromis à faire par le statisticien géographe entre <strong>précision</strong> et <strong>généralisation</strong> (connaissance des données et objectifs recherchés)</p>
+</div>
+</section><section id="faire-varier-le-rayon-de-lissage-600m" class="slide level3"><h3>Faire varier le rayon de lissage (600m)</h3>
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="" aria-label="1"></a><span class="co"># reproduction pour 600m</span></span>
+<span id="cb52-2"><a href="" aria-label="2"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>)], </span>
+<span id="cb52-3"><a href="" aria-label="3"></a>                              <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb52-4"><a href="" aria-label="4"></a>                              <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb52-5"><a href="" aria-label="5"></a>                              <span class="at">iBandwidth =</span> <span class="dv">600</span>)</span>
+<span id="cb52-6"><a href="" aria-label="6"></a></span>
+<span id="cb52-7"><a href="" aria-label="7"></a><span class="co"># Filtrage des carreaux lissés dans Paris</span></span>
+<span id="cb52-8"><a href="" aria-label="8"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb52-9"><a href="" aria-label="9"></a></span>
+<span id="cb52-10"><a href="" aria-label="10"></a><span class="co"># carte lissée</span></span>
+<span id="cb52-11"><a href="" aria-label="11"></a><span class="fu">mf_map</span>(<span class="at">x =</span> sfCarrLiss_paris, </span>
+<span id="cb52-12"><a href="" aria-label="12"></a>       <span class="at">type =</span> <span class="st">"choro"</span>,</span>
+<span id="cb52-13"><a href="" aria-label="13"></a>       <span class="at">var =</span> <span class="st">"nbObsLisse"</span>,</span>
+<span id="cb52-14"><a href="" aria-label="14"></a>       <span class="at">breaks =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb52-15"><a href="" aria-label="15"></a>       <span class="at">nbreaks =</span> <span class="dv">5</span>)</span>
+<span id="cb52-16"><a href="" aria-label="16"></a><span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, </span>
+<span id="cb52-17"><a href="" aria-label="17"></a>       <span class="at">lwd =</span> <span class="dv">4</span>,</span>
+<span id="cb52-18"><a href="" aria-label="18"></a>       <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"black"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb52-19"><a href="" aria-label="19"></a><span class="fu">mf_layout</span>(<span class="at">title =</span> <span class="st">"Lissage avec rayon de 600m"</span>,</span>
+<span id="cb52-20"><a href="" aria-label="20"></a>          <span class="at">credits =</span> <span class="st">"Insee-DSAU, DGFiP, Etalab, IGN, mapsf"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/resLissage600-1.png" width="960" class="r-stretch"></section><section id="faire-varier-le-rayon-de-lissage-1000m" class="slide level3"><h3>Faire varier le rayon de lissage (1000m)</h3>
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="" aria-label="1"></a><span class="co"># reproduction pour 1000m</span></span>
+<span id="cb53-2"><a href="" aria-label="2"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>)], </span>
+<span id="cb53-3"><a href="" aria-label="3"></a>                         <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb53-4"><a href="" aria-label="4"></a>                         <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb53-5"><a href="" aria-label="5"></a>                         <span class="at">iBandwidth =</span> <span class="dv">1000</span>)</span>
+<span id="cb53-6"><a href="" aria-label="6"></a></span>
+<span id="cb53-7"><a href="" aria-label="7"></a><span class="co"># Filtrage des carreaux lissés dans Paris</span></span>
+<span id="cb53-8"><a href="" aria-label="8"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb53-9"><a href="" aria-label="9"></a></span>
+<span id="cb53-10"><a href="" aria-label="10"></a><span class="co"># Carte lissée</span></span>
+<span id="cb53-11"><a href="" aria-label="11"></a><span class="fu">mf_map</span>(<span class="at">x =</span> sfCarrLiss_paris, </span>
+<span id="cb53-12"><a href="" aria-label="12"></a>       <span class="at">type =</span> <span class="st">"choro"</span>,</span>
+<span id="cb53-13"><a href="" aria-label="13"></a>       <span class="at">var =</span> <span class="st">"nbObsLisse"</span>,</span>
+<span id="cb53-14"><a href="" aria-label="14"></a>       <span class="at">breaks =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb53-15"><a href="" aria-label="15"></a>       <span class="at">nbreaks =</span> <span class="dv">5</span>)</span>
+<span id="cb53-16"><a href="" aria-label="16"></a><span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, </span>
+<span id="cb53-17"><a href="" aria-label="17"></a>       <span class="at">lwd =</span> <span class="dv">4</span>,</span>
+<span id="cb53-18"><a href="" aria-label="18"></a>       <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"black"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb53-19"><a href="" aria-label="19"></a><span class="fu">mf_layout</span>(<span class="at">title =</span> <span class="st">"Lissage avec rayon de 1000m"</span>,</span>
+<span id="cb53-20"><a href="" aria-label="20"></a>          <span class="at">credits =</span> <span class="st">"Insee-DSAU, DGFiP, Etalab, IGN, mapsf"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/resLissage1000-1.png" width="960" class="r-stretch"></section><section id="faire-varier-le-rayon-de-lissage-1000m-1" class="slide level3"><h3>Faire varier le rayon de lissage (1000m)</h3>
+<p><strong>Sans grille apparente !</strong></p>
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="" aria-label="1"></a><span class="co"># pour automatiser les cartes, on fait une fonction</span></span>
+<span id="cb54-2"><a href="" aria-label="2"></a>creation_carte <span class="ot">&lt;-</span> <span class="cf">function</span>(data, var, titre){</span>
+<span id="cb54-3"><a href="" aria-label="3"></a>  <span class="fu">mf_map</span>(<span class="at">x =</span> data, </span>
+<span id="cb54-4"><a href="" aria-label="4"></a>         <span class="at">type =</span> <span class="st">"choro"</span>,</span>
+<span id="cb54-5"><a href="" aria-label="5"></a>         <span class="at">var =</span> var,</span>
+<span id="cb54-6"><a href="" aria-label="6"></a>         <span class="at">breaks =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb54-7"><a href="" aria-label="7"></a>         <span class="at">nbreaks =</span> <span class="dv">5</span>, </span>
+<span id="cb54-8"><a href="" aria-label="8"></a>         <span class="at">leg_val_rnd =</span> <span class="dv">1</span>, </span>
+<span id="cb54-9"><a href="" aria-label="9"></a>         <span class="at">border =</span> <span class="cn">NA</span>) <span class="co"># enlever la grille</span></span>
+<span id="cb54-10"><a href="" aria-label="10"></a>  <span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, </span>
+<span id="cb54-11"><a href="" aria-label="11"></a>         <span class="at">lwd =</span> <span class="dv">4</span>,</span>
+<span id="cb54-12"><a href="" aria-label="12"></a>         <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"black"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-13"><a href="" aria-label="13"></a>  <span class="fu">mf_layout</span>(<span class="at">title =</span> titre,</span>
+<span id="cb54-14"><a href="" aria-label="14"></a>            <span class="at">credits =</span> <span class="st">"Insee-DSAU, DGFiP, Etalab, IGN, mapsf"</span>)</span>
+<span id="cb54-15"><a href="" aria-label="15"></a>}</span>
+<span id="cb54-16"><a href="" aria-label="16"></a></span>
+<span id="cb54-17"><a href="" aria-label="17"></a><span class="fu">creation_carte</span>(sfCarrLiss_paris, <span class="st">"nbObsLisse"</span>, <span class="at">titre =</span> <span class="st">"Lissage avec rayon de 1000m, sans grille"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/resLissage1000ssGrille-1.png" width="960" class="r-stretch"></section><section id="faire-varier-la-taille-des-carreaux-50m" class="slide level3"><h3>Faire varier la taille des carreaux (50m)</h3>
+<div class="columns">
+<div class="column" style="width:40%;">
+<ul>
+<li>
+<span class="emoji" data-emoji="x">❌</span> <strong>Trop gros carreaux = effet granuleux</strong> : arêtes des carreaux visibles</li>
+<li>
+<span class="emoji" data-emoji="x">❌</span> <strong>Trop petits carreaux = temps de calcul important</strong>
+</li>
+</ul>
+</div><div class="column" style="width:60%;">
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="" aria-label="1"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>)], </span>
+<span id="cb55-2"><a href="" aria-label="2"></a>                         <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb55-3"><a href="" aria-label="3"></a>                         <span class="at">iCellSize =</span> <span class="dv">50</span>, <span class="co"># passage à 50m</span></span>
+<span id="cb55-4"><a href="" aria-label="4"></a>                         <span class="at">iBandwidth =</span> <span class="dv">1000</span>)</span>
+<span id="cb55-5"><a href="" aria-label="5"></a></span>
+<span id="cb55-6"><a href="" aria-label="6"></a><span class="co"># Filtrage des carreaux lissés dans Paris</span></span>
+<span id="cb55-7"><a href="" aria-label="7"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb55-8"><a href="" aria-label="8"></a></span>
+<span id="cb55-9"><a href="" aria-label="9"></a><span class="co"># carte lissée</span></span>
+<span id="cb55-10"><a href="" aria-label="10"></a><span class="fu">creation_carte</span>(sfCarrLiss_paris, <span class="st">"nbObsLisse"</span>, </span>
+<span id="cb55-11"><a href="" aria-label="11"></a>               <span class="at">titre =</span> <span class="st">"Lissage avec pas de 50m"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/lissPetitscarr-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section><section id="illustration-des-effets-de-bord" class="slide level3"><h3>Illustration des effets de bord</h3>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="textmini2">
+<p><strong>Sans effet de bord</strong></p>
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="" aria-label="1"></a>sfCarLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>)], </span>
+<span id="cb56-2"><a href="" aria-label="2"></a>                        <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb56-3"><a href="" aria-label="3"></a>                        <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb56-4"><a href="" aria-label="4"></a>                        <span class="at">iBandwidth =</span> <span class="dv">2000</span>)</span>
+<span id="cb56-5"><a href="" aria-label="5"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb56-6"><a href="" aria-label="6"></a></span>
+<span id="cb56-7"><a href="" aria-label="7"></a><span class="fu">creation_carte</span>(sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"nbObsLisse"</span>, </span>
+<span id="cb56-8"><a href="" aria-label="8"></a>               <span class="at">titre =</span> <span class="st">"Sans effets de bord, avec R = 2000m"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/lissEffetBord1-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="textmini2">
+<p><strong>Avec effets de bord</strong></p>
+<div class="cell">
+<details class="code-fold"><summary>code lissage</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="" aria-label="1"></a><span class="co"># Lissage sans gestion des effets de bord (intramuros uniquement)</span></span>
+<span id="cb57-2"><a href="" aria-label="2"></a>sfBase_intramuros <span class="ot">&lt;-</span> sfBase <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb57-3"><a href="" aria-label="3"></a>  <span class="fu">mutate</span>(<span class="at">nbObsLisse =</span> <span class="dv">1</span>L)</span>
+<span id="cb57-4"><a href="" aria-label="4"></a></span>
+<span id="cb57-5"><a href="" aria-label="5"></a>sfCarrLiss_intramuros <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> sfBase_intramuros[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"geometry"</span>)], </span>
+<span id="cb57-6"><a href="" aria-label="6"></a>                                   <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb57-7"><a href="" aria-label="7"></a>                                   <span class="at">iBandwidth =</span> <span class="dv">2000</span>)</span>
+<span id="cb57-8"><a href="" aria-label="8"></a></span>
+<span id="cb57-9"><a href="" aria-label="9"></a>sfCarrLiss_intramuros_paris <span class="ot">&lt;-</span> sfCarrLiss_intramuros <span class="sc">%&gt;%</span></span>
+<span id="cb57-10"><a href="" aria-label="10"></a>  <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb57-11"><a href="" aria-label="11"></a></span>
+<span id="cb57-12"><a href="" aria-label="12"></a><span class="fu">creation_carte</span>(sfCarrLiss_intramuros_paris, <span class="at">var =</span> <span class="st">"nbObsLisse"</span>, </span>
+<span id="cb57-13"><a href="" aria-label="13"></a>               <span class="at">titre =</span> <span class="st">"Avec effets de bord, avec R = 2000m"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/resEffetBord1-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+<div class="textmini2">
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> Périphérie de Paris : densités artificiellement plus faibles</p>
+</div>
+</section><section id="les-grilles-automatiques-de-btb-12" class="slide level3"><h3>Les grilles automatiques de <code>btb</code> [1/2]</h3>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="textmini2">
+<p>La grille <strong>par défaut</strong> produite par <code>btb_smooth</code> dépasse les limites de la zone d’étude choisie (ici Paris intramuros) et contient :</p>
+<ul>
+<li>l’ensemble des carreaux contenant au moins une vente…</li>
+<li>
+<strong>+ 4 carreaux limitrophes</strong> (règle automatique)</li>
+</ul>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="textmini2">
+<div class="cell">
+<details class="code-fold"><summary>code carte</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="" aria-label="1"></a>sfCarrLiss_extramuros <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> sfBase_intramuros[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"geometry"</span>)], </span>
+<span id="cb58-2"><a href="" aria-label="2"></a>                                   <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb58-3"><a href="" aria-label="3"></a>                                   <span class="at">iBandwidth =</span> <span class="dv">2000</span>)</span>
+<span id="cb58-4"><a href="" aria-label="4"></a></span>
+<span id="cb58-5"><a href="" aria-label="5"></a><span class="fu">mf_map</span>(paris_sf, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="cn">NA</span>)</span>
+<span id="cb58-6"><a href="" aria-label="6"></a><span class="fu">mf_map</span>(sfCarrLiss_extramuros, <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"red"</span>, <span class="at">add =</span> T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/grilleAuto-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section><section id="les-grilles-automatiques-de-btb-22" class="slide level3"><h3>Les grilles automatiques de <code>btb</code> [2/2]</h3>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="textmini2">
+<p>Modification possible de cette règle avec le paramètre <code>iNeighbor</code> :</p>
+<ul>
+<li>
+<code>iNeighbor = 2</code> <span class="emoji" data-emoji="arrow_right">➡️</span> 2 carreaux limitrophes aux carreaux contenant au moins une vente.</li>
+<li>
+<code>iNeighbor = 0</code> <span class="emoji" data-emoji="arrow_right">➡️</span> grille uniquement constituée des carreaux contenant au moins une vente (attention à l’effet « gruyère »)</li>
+</ul>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="textmini2">
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="" aria-label="1"></a>sfCarrLiss_intramuros <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> sfBase_intramuros[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"geometry"</span>)], </span>
+<span id="cb59-2"><a href="" aria-label="2"></a>                                   <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb59-3"><a href="" aria-label="3"></a>                                   <span class="at">iBandwidth =</span> <span class="dv">2000</span>,</span>
+<span id="cb59-4"><a href="" aria-label="4"></a>                                   <span class="at">iNeighbor =</span> <span class="dv">0</span>)</span>
+<span id="cb59-5"><a href="" aria-label="5"></a></span>
+<span id="cb59-6"><a href="" aria-label="6"></a><span class="fu">mf_map</span>(paris_sf, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="cn">NA</span>)</span>
+<span id="cb59-7"><a href="" aria-label="7"></a><span class="fu">mf_map</span>(sfCarrLiss_intramuros, <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"red"</span>, <span class="at">add =</span> T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/unnamed-chunk-10-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section><section id="spécificités-locales-ville-cotière" class="slide level3"><h3>Spécificités locales : ville cotière…</h3>
+<p>On peut souhaiter utiliser une grille de lissage particulière et adaptée à un territoire donné.</p>
+<p>Par exemple, sur une <strong>ville cotière</strong>, on ne veut :</p>
+<ul>
+<li>ni de carreau dans la mer</li>
+<li>ni l’effet «&nbsp;gruyère&nbsp;» du paramétrage <code>iNeighbor = 0</code>.</li>
+</ul>
+<p>Dans ce cas :</p>
+<ul>
+<li>il convient de la confectionner soi-même</li>
+<li>et de la renseigner dans le paramètre <code>dfCentroids</code> de la fonction <code>btb_smooth</code>.</li>
+</ul></section><section id="partir-de-données-ponctuelles-ou-déjà-carroyées-12" class="slide level3"><h3>Partir de données ponctuelles ou déjà carroyées [1/2]</h3>
+<div class="textmini2">
+<p>données ponctuelles :</p>
+<ul>
+<li>le plus précis possible</li>
+<li>peut poser des problèmes en terme de volume/accès.</li>
+</ul>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>code carte</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="" aria-label="1"></a><span class="co"># par(mfrow = c(1, 2))</span></span>
+<span id="cb60-2"><a href="" aria-label="2"></a></span>
+<span id="cb60-3"><a href="" aria-label="3"></a><span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">lwd =</span> <span class="dv">4</span>)</span>
+<span id="cb60-4"><a href="" aria-label="4"></a><span class="fu">mf_map</span>(<span class="at">x =</span> sfBase_filtre, <span class="at">cex =</span> <span class="fl">0.3</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb60-5"><a href="" aria-label="5"></a><span class="fu">mf_layout</span>(<span class="at">title =</span> <span class="st">"Données ponctuelles"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/ponctuelles_vs-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold"><summary>code carte</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="" aria-label="1"></a>sfBase_filtre<span class="sc">$</span>nbObsLisse <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb61-2"><a href="" aria-label="2"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> sfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>)], </span>
+<span id="cb61-3"><a href="" aria-label="3"></a>                         <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb61-4"><a href="" aria-label="4"></a>                         <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb61-5"><a href="" aria-label="5"></a>                         <span class="at">iBandwidth =</span> <span class="dv">400</span>)</span>
+<span id="cb61-6"><a href="" aria-label="6"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb61-7"><a href="" aria-label="7"></a></span>
+<span id="cb61-8"><a href="" aria-label="8"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"nbObsLisse"</span>, </span>
+<span id="cb61-9"><a href="" aria-label="9"></a>               <span class="at">titre =</span> <span class="st">"Lissage des données ponctuelles"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/ponctuelles_vs-2.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="partir-de-données-ponctuelles-ou-déjà-carroyées-22" class="slide level3"><h3>Partir de données ponctuelles ou déjà carroyées [2/2]</h3>
+<div class="textmini2">
+<p>données déjà carroyées :</p>
+<ul>
+<li>moins précis, on s’éloigne de la vérité (perte d’information)</li>
+<li>plus simple en temps de calcul et en accès (moins de secret)</li>
+</ul>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>code carte</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="" aria-label="1"></a>iCellSize <span class="ot">=</span> <span class="dv">200</span> <span class="co"># carreaux de 200m</span></span>
+<span id="cb62-2"><a href="" aria-label="2"></a>points_carroyage <span class="ot">&lt;-</span> <span class="fu">btb_add_centroids</span>(<span class="at">pts =</span> dfBase_filtre, <span class="at">iCellSize =</span> iCellSize) <span class="sc">%&gt;%</span> </span>
+<span id="cb62-3"><a href="" aria-label="3"></a>  <span class="fu">group_by</span>(x_centro, y_centro) <span class="sc">%&gt;%</span> <span class="fu">count</span>(<span class="at">name =</span> <span class="st">"nbVentes"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb62-4"><a href="" aria-label="4"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"x_centro"</span>, <span class="st">"y_centro"</span>), <span class="at">crs =</span> <span class="dv">2154</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb62-5"><a href="" aria-label="5"></a>  <span class="fu">st_join</span>(paris_sf <span class="sc">%&gt;%</span> <span class="fu">st_buffer</span>(<span class="dv">2000</span>), <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb62-6"><a href="" aria-label="6"></a></span>
+<span id="cb62-7"><a href="" aria-label="7"></a><span class="co"># par(mfrow = c(1, 2))</span></span>
+<span id="cb62-8"><a href="" aria-label="8"></a></span>
+<span id="cb62-9"><a href="" aria-label="9"></a><span class="fu">mf_map</span>(<span class="at">x =</span> paris_sf, <span class="at">col =</span> <span class="cn">NA</span>, <span class="at">lwd =</span> <span class="dv">4</span>) </span>
+<span id="cb62-10"><a href="" aria-label="10"></a><span class="fu">mf_map</span>(<span class="at">x =</span> points_carroyage, <span class="at">cex =</span> <span class="fl">0.3</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb62-11"><a href="" aria-label="11"></a><span class="fu">mf_layout</span>(<span class="at">title =</span> <span class="st">"Données carroyées"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/carreaux_vs-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold"><summary>code carte</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="" aria-label="1"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> points_carroyage[, <span class="fu">c</span>(<span class="st">"nbVentes"</span>)], </span>
+<span id="cb63-2"><a href="" aria-label="2"></a>                         <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb63-3"><a href="" aria-label="3"></a>                         <span class="at">iCellSize =</span> <span class="dv">200</span>, </span>
+<span id="cb63-4"><a href="" aria-label="4"></a>                         <span class="at">iBandwidth =</span> <span class="dv">400</span>)</span>
+<span id="cb63-5"><a href="" aria-label="5"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb63-6"><a href="" aria-label="6"></a></span>
+<span id="cb63-7"><a href="" aria-label="7"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"nbVentes"</span>, </span>
+<span id="cb63-8"><a href="" aria-label="8"></a>               <span class="at">titre =</span> <span class="st">"Lissage des données carroyées"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/carreaux_vs-2.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="comparaison-de-perte-dinformation" class="slide level3"><h3>Comparaison de perte d’information</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="" aria-label="1"></a><span class="co"># comparaison de points </span></span>
+<span id="cb64-2"><a href="" aria-label="2"></a><span class="fu">nrow</span>(points_carroyage) ; <span class="fu">nrow</span>(sfBase_filtre)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3235</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 22221</code></pre>
+</div>
+</div>
+</section><section id="calcul-de-moyenne" class="title-slide slide level2 center" data-background-color="powderblue"><h2>3.2 Calcul de moyenne</h2>
+
+</section><section id="calcul-de-moyenne-12" class="slide level3 scrollable"><h3>Calcul de moyenne [1/2]</h3>
+<p>Nous allons nous intéresser désormais au <strong>prix moyen des logements vendus</strong> à Paris en 2021.</p>
+<p>Il faut :</p>
+<div class="textmini2">
+<ol type="1">
+<li>Lisser les prix de ventes des biens vendus</li>
+<li>Lisser le nombre de biens vendus (exactement comme précédemment)</li>
+<li>Faire le ratio des deux précédents lissages pour chaque carreau de la grille produite.</li>
+</ol>
+</div>
+<div class="boite">
+<p><span class="emoji" data-emoji="bangbang">‼️</span> Une moyenne n’est pas le lissage du rapport <em>liss(variable / nbObsLisse)</em> mais le rapport des lissages <strong>liss(variable) / liss(nbObs)</strong>.</p>
+</div>
+</section><section id="calcul-de-moyenne-22" class="slide level3"><h3>Calcul de moyenne [2/2]</h3>
+<div class="columns">
+<div class="column" style="width:35%;">
+<div class="textmini2">
+<p>Les prix moyens sont particulièrement élevés dans le centre et l’Ouest de la capitale.</p>
+</div>
+<div class="boite">
+<div class="textmini2">
+<p><strong>Remarque</strong></p>
+<p>Le lissage en moyenne est potentiellement sensible aux <strong>valeurs atypiques</strong> (contrairement au lissage quantile).</p>
+</div>
+</div>
+</div><div class="column" style="width:65%;">
+<div class="textmini2">
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="" aria-label="1"></a><span class="co"># Lissage</span></span>
+<span id="cb67-2"><a href="" aria-label="2"></a>sfCarLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"valeur_fonciere"</span>, </span>
+<span id="cb67-3"><a href="" aria-label="3"></a>                                                <span class="st">"x"</span>, <span class="st">"y"</span>)] , </span>
+<span id="cb67-4"><a href="" aria-label="4"></a>                        <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb67-5"><a href="" aria-label="5"></a>                        <span class="at">iCellSize =</span> <span class="dv">100</span>, </span>
+<span id="cb67-6"><a href="" aria-label="6"></a>                        <span class="at">iBandwidth =</span> <span class="dv">800</span>)</span>
+<span id="cb67-7"><a href="" aria-label="7"></a></span>
+<span id="cb67-8"><a href="" aria-label="8"></a><span class="co"># Calculer le taux</span></span>
+<span id="cb67-9"><a href="" aria-label="9"></a>sfCarLiss<span class="sc">$</span>prixMoyen <span class="ot">&lt;-</span> sfCarLiss<span class="sc">$</span>valeur_fonciere <span class="sc">/</span> sfCarLiss<span class="sc">$</span>nbObsLisse</span>
+<span id="cb67-10"><a href="" aria-label="10"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb67-11"><a href="" aria-label="11"></a></span>
+<span id="cb67-12"><a href="" aria-label="12"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"prixMoyen"</span>, </span>
+<span id="cb67-13"><a href="" aria-label="13"></a>               <span class="at">titre =</span> <span class="st">"Lissage des prix de vente avec un rayon de 800m"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/lissageMoyenne-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section><section id="calcul-de-taux" class="title-slide slide level2 center" data-background-color="powderblue"><h2>3.3 Calcul de taux</h2>
+
+</section><section id="taux-de-grands-logements" class="slide level3"><h3>Taux de grands logements</h3>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p>Proportion de ventes comportant <strong>plus de 4 pièces principales</strong> ?</p>
+<div class="textmini2">
+<ul>
+<li>indicatrice quatrePieces</li>
+<li>lissage numérateur et dénominateur</li>
+<li>calcul taux</li>
+<li>intersection géographique avec Paris</li>
+</ul>
+</div>
+</div><div class="column" style="width:65%;">
+<div class="textmini2">
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="" aria-label="1"></a><span class="co"># Créer une indicatrice renseignant si le logement comporte plus de 4 pièces</span></span>
+<span id="cb68-2"><a href="" aria-label="2"></a>dfBase_filtre <span class="ot">&lt;-</span> dfBase_filtre <span class="sc">%&gt;%</span> </span>
+<span id="cb68-3"><a href="" aria-label="3"></a>  <span class="fu">mutate</span>(<span class="at">quatrePieces =</span> <span class="fu">ifelse</span>(nombre_pieces_principales <span class="sc">&gt;=</span> <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb68-4"><a href="" aria-label="4"></a></span>
+<span id="cb68-5"><a href="" aria-label="5"></a><span class="co"># Lissage des 2 variables</span></span>
+<span id="cb68-6"><a href="" aria-label="6"></a>sfCarLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"nbObsLisse"</span>, <span class="st">"quatrePieces"</span>,</span>
+<span id="cb68-7"><a href="" aria-label="7"></a>                                                <span class="st">"x"</span>, <span class="st">"y"</span>)], </span>
+<span id="cb68-8"><a href="" aria-label="8"></a>                        <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb68-9"><a href="" aria-label="9"></a>                        <span class="at">iCellSize =</span> <span class="dv">100</span>, </span>
+<span id="cb68-10"><a href="" aria-label="10"></a>                        <span class="at">iBandwidth =</span> <span class="dv">800</span>)</span>
+<span id="cb68-11"><a href="" aria-label="11"></a></span>
+<span id="cb68-12"><a href="" aria-label="12"></a><span class="co"># Calcul du taux</span></span>
+<span id="cb68-13"><a href="" aria-label="13"></a>sfCarLiss<span class="sc">$</span>txQuatrePieces <span class="ot">&lt;-</span> sfCarLiss<span class="sc">$</span>quatrePieces <span class="sc">/</span> sfCarLiss<span class="sc">$</span>nbObsLisse</span>
+<span id="cb68-14"><a href="" aria-label="14"></a></span>
+<span id="cb68-15"><a href="" aria-label="15"></a><span class="co"># Intersection géographique avec Paris</span></span>
+<span id="cb68-16"><a href="" aria-label="16"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb68-17"><a href="" aria-label="17"></a></span>
+<span id="cb68-18"><a href="" aria-label="18"></a><span class="co"># cartographie</span></span>
+<span id="cb68-19"><a href="" aria-label="19"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"txQuatrePieces"</span>,</span>
+<span id="cb68-20"><a href="" aria-label="20"></a>               <span class="at">titre =</span> <span class="st">"Logements avec 4 pièces ou plus (rayon de 800m)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/lissageTaux4P-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><span class="emoji" data-emoji="arrow_right">➡️</span> Carte similaire à la carte des prix moyens</p>
+</div>
+</div></div>
+</section><section id="prix-au-m²" class="slide level3"><h3>Prix au m²</h3>
+<div class="columns">
+<div class="column" style="width:35%;">
+<div class="boite">
+<div class="textmini2">
+<p><strong>Il faut lisser séparément</strong> les prix de vente (numérateur) et le nombre de mètres-carrés (dénominateur).</p>
+<p>Si on lisse le prix au m² de chaque logement vendu, on sur-pondère artificiellement les prix au m² des petits logements (car l’unité statistique devient alors le logement, et non le m² vendu).</p>
+</div>
+</div>
+</div><div class="column" style="width:65%;">
+<div class="textmini2">
+<div class="cell">
+<details class="code-fold"><summary>code</summary><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="" aria-label="1"></a><span class="co"># lissage des 2 variables</span></span>
+<span id="cb69-2"><a href="" aria-label="2"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"surface_reelle_bati"</span>, </span>
+<span id="cb69-3"><a href="" aria-label="3"></a>                                                <span class="st">"valeur_fonciere"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>)],</span>
+<span id="cb69-4"><a href="" aria-label="4"></a>                        <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb69-5"><a href="" aria-label="5"></a>                        <span class="at">iCellSize =</span> <span class="dv">100</span>,</span>
+<span id="cb69-6"><a href="" aria-label="6"></a>                        <span class="at">iBandwidth =</span> <span class="dv">800</span>)</span>
+<span id="cb69-7"><a href="" aria-label="7"></a></span>
+<span id="cb69-8"><a href="" aria-label="8"></a><span class="co"># Calcul du prix au m²</span></span>
+<span id="cb69-9"><a href="" aria-label="9"></a>sfCarrLiss<span class="sc">$</span>prixM2 <span class="ot">&lt;-</span> sfCarrLiss<span class="sc">$</span>valeur_fonciere <span class="sc">/</span> sfCarrLiss<span class="sc">$</span>surface_reelle_bati</span>
+<span id="cb69-10"><a href="" aria-label="10"></a></span>
+<span id="cb69-11"><a href="" aria-label="11"></a><span class="co"># Intersection géographique avec Paris</span></span>
+<span id="cb69-12"><a href="" aria-label="12"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-13"><a href="" aria-label="13"></a></span>
+<span id="cb69-14"><a href="" aria-label="14"></a><span class="co"># Cartographie</span></span>
+<span id="cb69-15"><a href="" aria-label="15"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"prixM2"</span>,</span>
+<span id="cb69-16"><a href="" aria-label="16"></a>               <span class="at">titre =</span> <span class="st">"Prix au m² (rayon de 800m)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details><div class="cell-output-display">
+<div>
+<figure><p><img data-src="tuto_presentation_files/figure-revealjs/lissageMoyenneM2-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section><section id="calcul-de-quantiles-géographiquement-pondérés" class="title-slide slide level2 center" data-background-color="powderblue"><h2>3.4 Calcul de quantiles géographiquement pondérés</h2>
+
+</section><section id="lissage-quantile-pourquoi" class="slide level3"><h3>Lissage quantile : pourquoi ?</h3>
+<ul>
+<li class="fragment">Moins sensible aux valeurs extrêmes ;</li>
+<li class="fragment">Obtenir des indicateurs de dispersion lissés ;
+<ul>
+<li class="fragment">ex : écart interquantile</li>
+</ul>
+</li>
+</ul></section><section id="lissage-quantile-comment" class="slide level3"><h3>Lissage quantile : comment ?</h3>
+<ul>
+<li class="fragment">Toujours avec la fonction <code>btb_smooth</code>
+</li>
+<li class="fragment">En ajoutant un paramètre, <code>vQuantiles</code>, qui contient la liste des quantiles souhaités</li>
+</ul></section><section id="lissage-quantile-rappel" class="slide level3"><h3>Lissage quantile : rappel</h3>
+<p>Contrairement au lissage classique :</p>
+<ul>
+<li class="fragment">il n’est pas conservatif</li>
+<li class="fragment">la fonction crée :
+<ul>
+<li class="fragment">une colonne <code>nbObs</code> indiquant le nombre <strong>réel</strong> (non lissé) d’observations ayant contribué au calcul du carreau.</li>
+<li class="fragment">pour chaque variable, autant de colonnes qu’il y a de quantiles souhaités</li>
+</ul>
+</li>
+</ul></section><section id="lissage-quantile-exemple" class="slide level3"><h3>Lissage quantile : exemple</h3>
+<p>Nous allons calculer le 1er décile, la médiane et le 9ème décile du prix de vente des logements à Paris.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="" aria-label="1"></a><span class="co"># calcul des déciles "locaux"</span></span>
+<span id="cb70-2"><a href="" aria-label="2"></a>sfCarrLiss <span class="ot">&lt;-</span> <span class="fu">btb_smooth</span>(<span class="at">pts =</span> dfBase_filtre[, <span class="fu">c</span>(<span class="st">"valeur_fonciere"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>)],</span>
+<span id="cb70-3"><a href="" aria-label="3"></a>                        <span class="at">sEPSG =</span> <span class="dv">2154</span>,</span>
+<span id="cb70-4"><a href="" aria-label="4"></a>                        <span class="at">iCellSize =</span> <span class="dv">100</span>,</span>
+<span id="cb70-5"><a href="" aria-label="5"></a>                        <span class="at">iBandwidth =</span> <span class="dv">1500</span>,</span>
+<span id="cb70-6"><a href="" aria-label="6"></a>                        <span class="at">vQuantiles =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>))</span>
+<span id="cb70-7"><a href="" aria-label="7"></a></span>
+<span id="cb70-8"><a href="" aria-label="8"></a><span class="co"># Intersection géographique avec Paris</span></span>
+<span id="cb70-9"><a href="" aria-label="9"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss <span class="sc">%&gt;%</span> <span class="fu">st_join</span>(paris_sf, <span class="at">left =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb70-10"><a href="" aria-label="10"></a><span class="fu">head</span>(sfCarrLiss, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 3 features and 6 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 651500 ymin: 6854700 xmax: 651800 ymax: 6854800
+Projected CRS: RGF93 v1 / Lambert-93
+  nbObs valeur_fonciere_01 valeur_fonciere_05 valeur_fonciere_09      x       y
+1    57             182000             310000             610000 651550 6854750
+2    53             182000             310000             620000 651650 6854750
+3    52             182000             310000             620000 651750 6854750
+                        geometry
+1 POLYGON ((651500 6854800, 6...
+2 POLYGON ((651600 6854800, 6...
+3 POLYGON ((651700 6854800, 6...</code></pre>
+</div>
+</div>
+</section><section id="lissage-quantile-exemple-1" class="slide level3"><h3>Lissage quantile : exemple</h3>
+<p>Cartographie du 1er décile de prix des ventes</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="" aria-label="1"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"valeur_fonciere_01"</span>, </span>
+<span id="cb72-2"><a href="" aria-label="2"></a>               <span class="at">titre =</span> <span class="st">"Premier décile des prix de vente (rayon de 1500m)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/resLissQuantile10-1.png" width="960" class="r-stretch"></section><section id="lissage-quantile-exemple-2" class="slide level3"><h3>Lissage quantile : exemple</h3>
+<p>Cartographie de la médiane des prix des ventes</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="" aria-label="1"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"valeur_fonciere_05"</span>, </span>
+<span id="cb73-2"><a href="" aria-label="2"></a>               <span class="at">titre =</span> <span class="st">"Médiane des prix de vente (rayon de 1500m)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/resLissQuantile50-1.png" width="960" class="r-stretch"></section><section id="lissage-quantile-exemple-3" class="slide level3"><h3>Lissage quantile : exemple</h3>
+<p>Cartographie du rapport interdécile des prix des ventes</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="" aria-label="1"></a>sfCarrLiss_paris <span class="ot">&lt;-</span> sfCarrLiss_paris <span class="sc">%&gt;%</span> </span>
+<span id="cb74-2"><a href="" aria-label="2"></a>  <span class="fu">mutate</span>(<span class="at">rapp_interdecile =</span> valeur_fonciere_09 <span class="sc">/</span> valeur_fonciere_01)</span>
+<span id="cb74-3"><a href="" aria-label="3"></a></span>
+<span id="cb74-4"><a href="" aria-label="4"></a><span class="fu">creation_carte</span>(<span class="at">data =</span> sfCarrLiss_paris, <span class="at">var =</span> <span class="st">"rapp_interdecile"</span>, </span>
+<span id="cb74-5"><a href="" aria-label="5"></a>               <span class="at">titre =</span> <span class="st">"Rapport interdéciles des prix de vente (rayon de 1500m)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="tuto_presentation_files/figure-revealjs/interdeciles-1.png" width="960" class="r-stretch"></section><section id="lissage-quantile-remarque-importante" class="slide level3"><h3>Lissage quantile : remarque importante</h3>
+<p>Enfin, pour que le quantile lissé ait du sens, il faut qu’un <strong>nombre conséquent d’observations</strong> ait participé à sa construction. Ainsi, il est conseillé d’utiliser un rayon de lissage suffisamment élevé.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="" aria-label="1"></a><span class="fu">summary</span>(sfCarrLiss_paris<span class="sc">$</span>nbObs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+     13     725    1040    1106    1440    2917 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="" aria-label="1"></a><span class="co"># Centroïdes dont le quantile lissé a été calculé avec moins de 100 observations</span></span>
+<span id="cb77-2"><a href="" aria-label="2"></a>sfCarrLiss_paris <span class="sc">%&gt;%</span> <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(nbObs <span class="sc">&lt;</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="fu">count</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+# Groups:   nbObs &lt; 100 [2]
+  `nbObs &lt; 100`     n
+  &lt;lgl&gt;         &lt;int&gt;
+1 FALSE         10200
+2 TRUE            229</code></pre>
+</div>
+</div>
+<!-- éléments sur zonage à façon masqué pour gain sur la CI et focus lissage -->
+<!-- ça peut s'jouter à l'occasion, à voir si le support est utile -->
+<!-- # 5. Indicateurs sur zonage à façon {background-color="skyblue"} -->
+<!-- ## Agréger des données individuelles sur un zonage -->
+<!-- Calculons le nombre et le prix moyen des transactions immobilières en 2021 dans le triangle d'or [^1]. -->
+<!-- :::: {.columns} -->
+<!-- ::: {.column width="60%"} -->
+<!-- ::::: {.textmini2} -->
+<!-- 1.  Import et visualisation de la zone à façon "Triangle d'or". Ce fichier géographique est au format `.kml` et se lit avec la fonction `st_read`. -->
+<!-- ```{r triangleOrLoad, results = 'hide'} -->
+<!-- chemin_file <- paste0(url_bucket, "triangle_or.kml") -->
+<!-- triangleOr <- st_read(chemin_file) -->
+<!-- mapview(triangleOr, col.regions = "yellow") -->
+<!-- ``` -->
+<!-- :::::  -->
+<!-- ::: -->
+<!-- ::: {.column width="40%"} -->
+<!-- ```{r triangleOr2, echo = FALSE} -->
+<!-- mapview(triangleOr, col.regions = "yellow") -->
+<!-- ``` -->
+<!-- ::: -->
+<!-- ::::  -->
+<!-- [^1]: Ce triangle a été créé manuellement sur le site du [Géoportail](https://www.geoportail.gouv.fr/). -->
+<!-- ------------------------------------------------------------------------ -->
+<!-- ### Intersection géographique -->
+<!-- :::: {.columns} -->
+<!-- ::: {.column width="65%"} -->
+<!-- ::::: {.textmini2} -->
+<!-- 2.  Intersection entre des points (les transactions) et un polygone (le quartier).  -->
+<!-- ```{r dviTriangle} -->
+<!-- # Système de projection de triangleOr -->
+<!-- t_crs(triangleOr)$epsg ; st_crs(sfBase)$epsg -->
+<!-- # Transformation du système de projection de triangleOr  -->
+<!-- triangleOr <- st_transform(triangleOr, crs = 2154) -->
+<!-- # Intersection géographique avec les transactions -->
+<!-- transac_triangle <- sfBase %>% st_join(triangleOr, left = F) -->
+<!-- # Visualisation des points retenus -->
+<!-- head(transac_triangle, 3) -->
+<!-- ``` -->
+<!-- :::::  -->
+<!-- ::: -->
+<!-- ::: {.column width="35%"} -->
+<!-- ```{r dviTriangleMap} -->
+<!-- #| code-fold: true -->
+<!-- #| code-summary: code -->
+<!-- # Cartographie des points dans le triangle -->
+<!-- mapview(transac_triangle) + mapview(triangleOr, col.regions = "#ffff00") -->
+<!-- ``` -->
+<!-- ::: -->
+<!-- :::: -->
+<!-- ------------------------------------------------------------------------ -->
+<!-- ### Calcul des statistiques recherchées -->
+<!-- 3.  Calcul du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier -->
+<!-- ```{r resTriangle} -->
+<!-- # Nombre de transactions en 2021 :  -->
+<!-- nrow(transac_triangle) -->
+<!-- # Prix moyen -->
+<!-- mean(transac_triangle$valeur_fonciere) -->
+<!-- ``` -->
+<!-- ## Données carroyées -->
+<!-- Objectif : obtenir la proportion de logements sociaux dans un rayon de 1 km autour de la Direction générale de l'Insee. -->
+<!-- On utilise les données carroyées à 200 mètres disponibles sur [insee.fr](https://www.insee.fr/fr/statistiques/4176290?sommaire =4176305). -->
+<!-- ::: {.boite data-latex=""} -->
+<!-- **Remarque :** un programme généralisant cet exercice est disponible sur [insee.fr](file:///C:/Users/F2SMTB/AppData/Local/Temp/tutoriel_zone_a_facon.pdf), en accompagnement des données carroyées. -->
+<!-- ::: -->
+<!-- ### Données carroyées -->
+<!-- 1.  Chargement des données carroyées de Filosofi à 200m, uniquement en région parisienne, en ne conservant qu'un nombre réduit de variables, dont le nombre de logements sociaux. -->
+<!-- ```{r chargementCarreaux, eval = FALSE} -->
+<!-- # Fonction permettant de faire le chargement souhaité -->
+<!-- st_read_maison <- function(chemin_tab){ -->
+<!--   requete <- "SELECT idcar_200m, lcog_geo, i_est_200, ind, men, log_soc, geom -->
+<!--             FROM carreaux_200m_met -->
+<!--             WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92')" -->
+<!--   st_read(chemin_tab, query = requete) -->
+<!-- } -->
+<!-- # Chargement des données -->
+<!-- chemin_file <- paste0(url_bucket, "carreaux_200m_met.gpkg") -->
+<!-- carreaux <- st_read_maison(chemin_file) -->
+<!-- carreaux <- carreaux %>% rename(Log_soc = log_soc, Men = men) -->
+<!-- ``` -->
+<!-- ```{r chargementCarreaux_masque, echo = FALSE} -->
+<!-- # chargement "à la main" pour faire tourner le support formation un peu plus vite  -->
+<!-- url_file <- url(paste0(url_bucket, "/carreaux_idf.RDS")) -->
+<!-- carreaux <- readRDS(url_file) %>% st_transform(2154) -->
+<!-- head(carreaux, 3) -->
+<!-- ``` -->
+<!-- ------------------------------------------------------------------------ -->
+<!-- ```{r} -->
+<!-- head(carreaux, 3) -->
+<!-- ``` -->
+<!-- 2.  Créer un disque de 1 km autour du White -->
+<!-- ```{r zoneAFacon1} -->
+<!-- white <- st_sfc(st_point(c(649218.36,6857569.14)), crs = 2154) -->
+<!-- buffer_white <- st_buffer(white, 1000) %>% st_as_sf() -->
+<!-- ``` -->
+<!-- ------------------------------------------------------------------------ -->
+<!-- 3.  Déterminer, pour cette zone, l'ensemble des carreaux qui la recouvrent -->
+<!-- ```{r zoneAFacon2} -->
+<!-- carreaux_select <- carreaux %>% st_join(buffer_white, left = F) -->
+<!-- # visualisation -->
+<!-- mapview(carreaux_select) + -->
+<!--   mapview(buffer_white, color = "#ffff00", lwd = 10, alpha.regions = 0, legend = F) -->
+<!-- ``` -->
+<!-- ------------------------------------------------------------------------ -->
+<!-- 4.  Calculer l’indicateur sur la zone par somme des données carroyées. -->
+<!-- ```{r resZoneAFacon} -->
+<!-- tx_logSoc_white <- sum(carreaux_select$Log_soc) / sum(carreaux_select$Men) -->
+<!-- cat("On compte", round(tx_logSoc_white * 100), -->
+<!--     "% de logements sociaux dans un rayon de 1 km autour du White.") -->
+<!-- ``` -->
+</section></section><section><section id="conclusion" class="title-slide slide level1 center" data-background-color="skyblue"><h1>Conclusion</h1>
+<p>Vous êtes désormais capables de carroyer et lisser toutes les données que vous aurez à votre disposition !</p>
+</section><section id="autres-logiciels" class="slide level3"><h3>Autres logiciels</h3>
+<ul>
+<li>
+<strong>Python</strong> : library <a href="https://github.com/InseeFrLab/btbpy"><code>BTBpy</code></a>
+</li>
+<li>
+<strong>Qgis</strong> grâce à un plug-in développé par Lionel Cacheux (DR Insee Grand Est).</li>
+</ul></section><section id="références" class="slide level3"><h3>Références</h3>
+<ul>
+<li>
+<a href="https://www.insee.fr/fr/information/3635442">Manuel d’analyse spatiale</a> de l’Insee</li>
+<li>
+<a href="https://www.insee.fr/fr/statistiques/6049652">Introduction à la géomatique pour le statisticien</a>, Document de travail, Insee</li>
+<li>Github du package <a href="https://github.com/InseeFr/btb">BTB</a>
+</li>
+</ul>
+
+</section></section>
+</div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<p><img src="images/hexagon-01.png" class="slide-logo"></p>
+<div class="footer footer-default">
+<p><a href="https://inseefrlab.github.io/formation-r-lissage-spatial">inseefrlab.github.io/formation-r-lissage-spatial</a>&nbsp;&nbsp;&nbsp;</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="tuto_presentation_files/libs/revealjs/dist/reveal.js"></script><!-- reveal.js plugins --><script src="tuto_presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/reveal-menu/menu.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/quarto-support/support.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/notes/notes.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/search/search.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/zoom/zoom.js"></script><script src="tuto_presentation_files/libs/revealjs/plugin/math/math.js"></script><script>window.define = window.backupDefine; window.backupDefine = undefined;</script><script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true,"boardmarkerWidth":5},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'slide',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'zoom',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script><script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script><script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+
+
+</body></html>

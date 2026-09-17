@@ -530,9 +530,9 @@ mf_layout(title = "Lissage avec rayon de 400m",
 
 *Remarque : la variable lissée `nbObsLiss` correspond au nombre de ventes (observations) par carreau (ici de 200 mètres). Ainsi, il est possible d'obtenir une densité au km² en multipliant la variable `nbObsLiss` par 25 dans le cas présent.*
 
-### Grille automatique ; carreaux 200m ; rayons de lissage 600m et 1km
+### Grille automatique ; carreaux 200m ; rayons de lissage 600m et 1 km
 
-Il n'est pas possible de connaître *a priori* la taille optimale du rayon de lissage. Il faut donc en essayer plusieurs pour trouver le meilleur compromis entre **précision** et **généralisation**. Nous allons donc faire le même lissage que précédemment avec un rayon de 600m, puis de 1km, au lieu de 400m.
+Il n'est pas possible de connaître *a priori* la taille optimale du rayon de lissage. Il faut donc en essayer plusieurs pour trouver le meilleur compromis entre **précision** et **généralisation**. Nous allons donc faire le même lissage que précédemment avec un rayon de 600m, puis de 1 km, au lieu de 400m.
 
 ```{r resLissage600}
 # reproduction pour 600m
@@ -602,7 +602,7 @@ creation_carte <- function(data, var, titre){
 creation_carte(sfCarrLiss_paris, "nbObsLisse", titre = "Lissage avec rayon de 1000m, sans grille")
 ```
 
-### Grille automatique ; carreaux 50m ; rayon de lissage 1km
+### Grille automatique ; carreaux 50m ; rayon de lissage 1 km
 
 Pour éviter l'aspect "granuleux", on pourrait aussi réduire la taille des carreaux (ci-dessous à 50 m). Attention toutefois aux temps de calcul.
 
@@ -701,7 +701,7 @@ De même, on peut souhaiter utiliser une grille de lissage particulière, adapt�
 
 Pour garantir la meilleure qualité, le mieux est de lisser en partant des données ponctuelles. Parfois, on ne dispose pas de ces données, ou bien leur traitement est trop long (souci de volumétrie par exemple). Il est possible de repartir de données agrégées au carreau pour lisser. En effet, chaque centroïde est une donnée ponctuelle en tant que telle.
 
-En partant des données ponctuelles :
+Les points utilisés :
 
 ```{r ponctuelles_vs_carro_point}
 # données déjà carroyées
@@ -721,7 +721,7 @@ mf_map(x = points_carroyage, cex = 0.3, col = "red", add = TRUE)
 mf_layout(title = "Données carroyées")
 ```
 
-En partant des données carroyées :
+Les données lissées :
 
 ```{r ponctuelles_vs_carro_res}
 # lissage classique
@@ -943,14 +943,15 @@ triangleOr <- st_transform(triangleOr, crs = 2154)
 # Intersection géographique avec les transactions
 transac_triangle <- sfBase %>% st_join(triangleOr, left = F)
 
-# Visualisation de points retenus
+# Visualisation des points retenus
 head(transac_triangle, 3)
 
 # Cartographie des points dans le triangle
 mapview(transac_triangle) + mapview(triangleOr, col.regions = "yellow")
 ```
 
-3.  Calculer du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier
+
+3.  Calcul du nombre et du prix moyen des transactions immobilières réalisées en 2021 dans ce quartier
 
 ```{r resTriangle}
 # Nombre de transactions en 2021 et prix moyen
@@ -969,14 +970,14 @@ Nous mobilisons pour cela les données carroyées à 200 mètres disponibles sur
 
 Le principe de la démarche consiste à :
 
-1.  Charger les données carroyées de Filosofi 2019 à 200m, uniquement en région parisienne, en ne conservant qu'un nombre réduit de variables, dont le nombre de logements sociaux.
+1.  Charger les données carroyées de Filosofi à 200m, uniquement en région parisienne, en ne conservant qu'un nombre réduit de variables, dont le nombre de logements sociaux.
 
 ```{r chargementCarreaux, eval = FALSE}
 # fonction permettant de faire le chargement souhaité
 st_read_maison <- function(chemin_tab){
   requete <- "SELECT idcar_200m, lcog_geo, i_est_200, ind, men, log_soc, geom
             FROM carreaux_200m_met
-            WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','91','92','93')"
+            WHERE SUBSTR(lcog_geo, 1, 2) IN ('75','92','93','94')"
   st_read(chemin_tab, query = requete)
 }
 
@@ -1013,7 +1014,7 @@ buffer_white <- st_buffer(white, 1000) %>% st_as_sf()
 carreaux_select <- carreaux %>% st_join(buffer_white, left = F)
 ```
 
-Visualisation des carreaux issus de Filosofi carroyé 2019 qui intersectent notre zone d'intérêt :
+Visualisation des carreaux issus de Filosofi carroyé qui intersectent notre zone d'intérêt :
 
 ```{r zoneAFacon3}
 mapview(carreaux_select) +
@@ -1027,7 +1028,7 @@ mapview(carreaux_select) +
 ```{r resZoneAFacon}
 tx_logSoc_white <- sum(carreaux_select$Log_soc) / sum(carreaux_select$Men)
 cat("On compte", round(tx_logSoc_white * 100),
-    "% de logements sociaux dans un rayon de 1km autour du White.")
+    "% de logements sociaux dans un rayon de 1 km autour du White.")
 ```
 
 Vous êtes désormais capables de carroyer et lisser toutes les données que vous aurez à votre disposition !
